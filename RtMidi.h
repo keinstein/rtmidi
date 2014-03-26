@@ -270,20 +270,6 @@ class RtMidiIn : public RtMidi
   */
   void openPort( unsigned int portNumber = 0, const std::string portName = std::string( "RtMidi Input" ) );
 
-  //! Open a MIDI input connection given as string representation of the API dependent port id.
-  /*!
-    \param portId   An API dependent port id must be specified.
-    \param portName An optional name for the applicaction port that is used to connect to portId can be specified.
-  */
-  virtual void openPort( const PortIdType portId, const std::string portName = std::string( "RtMidi" ) ) = 0;
-
-  //! Open a MIDI input connection given by a port descriptor.
-  /*!
-    \param port     A port descriptor of the port must be specified.
-    \param portName An optional name for the applicaction port that is used to connect to portId can be specified.
-  */
-  virtual void openPort( const PortDescriptor & port, const std::string portName = std::string( "RtMidi" ) ) = 0;
-
   //! Create a virtual input port, with optional name, to allow software connections (OS X, Jack and ALSA only).
   /*!
     This function creates a virtual MIDI input port to which other
