@@ -2548,8 +2548,10 @@ MidiInJack :: ~MidiInJack()
   JackMidiData *data = static_cast<JackMidiData *> (apiData_);
   closePort();
 
-  if ( data->client )
+  if ( data->client ) {
+    jack_deactivate ( data->client );
     jack_client_close( data->client );
+  }
   delete data;
 }
 
@@ -2720,6 +2722,7 @@ MidiOutJack :: ~MidiOutJack()
 
   if ( data->client ) {
     // Cleanup
+    jack_deactivate ( data->client );
     jack_client_close( data->client );
     jack_ringbuffer_free( data->buffSize );
     jack_ringbuffer_free( data->buffMessage );
