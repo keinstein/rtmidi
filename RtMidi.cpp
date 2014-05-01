@@ -2127,6 +2127,11 @@ namespace rtmidi {
 
 		~AlsaSequencer()
 		{
+			if (seq) {
+				scoped_lock lock(mutex);
+				snd_seq_close(seq);
+				seq = 0;
+			}
 			if (locking) {
 				pthread_mutex_destroy(&mutex);
 			}
@@ -4054,6 +4059,7 @@ namespace rtmidi {
 					jack_deactivate (client);
 					// the latter doesn't flush the queue
 					jack_client_close (client);
+					client = 0;
 				}
 			}
 			if (locking) {
