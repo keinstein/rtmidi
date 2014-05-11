@@ -72,7 +72,7 @@ namespace rtmidi {
 		UNIX_JACK,      /*!< The JACK Low-Latency MIDI Server API. */
 		WINDOWS_MM,     /*!< The Microsoft Multimedia MIDI API. */
 		WINDOWS_KS,     /*!< The Microsoft Kernel Streaming MIDI API. */
-		RTMIDI_DUMMY    /*!< A compilable but non-functional API. */
+		DUMMY           /*!< A compilable but non-functional API. */
 	};
 
 	//! User callback function type definition.
@@ -585,7 +585,7 @@ namespace rtmidi {
 			UNIX_JACK    = rtmidi::UNIX_JACK,
 			WINDOWS_MM   = rtmidi::WINDOWS_MM,
 			WINDOWS_KS   = rtmidi::WINDOWS_KS,
-			RTMIDI_DUMMY = rtmidi::RTMIDI_DUMMY
+			RTMIDI_DUMMY = rtmidi::DUMMY
 		};
 
 
@@ -599,6 +599,18 @@ namespace rtmidi {
 		  API compiled for certain operating systems.
 		*/
 		static void getCompiledApi( std::vector<ApiType> &apis ) throw();
+
+		//! A static function to determine the available compiled MIDI APIs.
+		/*!
+		  The values returned in the std::vector can be compared against
+		  the enumerated list values.  Note that there can be more than one
+		  API compiled for certain operating systems.
+		*/
+		static std::vector<ApiType> getCompiledApi(  ) throw() {
+			std::vector<ApiType> apis;
+			getCompiledApi(apis);
+			return apis;
+		}
 
 		//! Returns the MIDI API specifier for the current instance of RtMidiIn.
 		ApiType getCurrentApi( void ) throw()
@@ -630,9 +642,11 @@ namespace rtmidi {
 		  \param portName An optional name for the applicaction port
 		  that will be generated to connect to portId can be
 		  specified.
+
+		  \deprecated
 		*/
-		void openPort( unsigned int portNumber = 0,
-			       const std::string portName = std::string( "RtMidi" ) )
+		RTMIDI_DEPRECATED(void openPort( unsigned int portNumber = 0,
+						 const std::string portName = std::string( "RtMidi" ) ))
 		{
 			if (rtapi_) rtapi_->openPort(portNumber,portName);
 		}
@@ -706,8 +720,9 @@ namespace rtmidi {
 		  and vice versa.
 
 		  \sa getPortName
+		  \deprecated
 		*/
-		unsigned int getPortCount()
+		RTMIDI_DEPRECATED(unsigned int getPortCount())
 		{
 			if (rtapi_) return rtapi_->getPortCount();
 			return 0;
@@ -724,8 +739,9 @@ namespace rtmidi {
 		  and vice versa.
 
 		  \sa getPortCount()
+		  \deprecated
 		*/
-		std::string getPortName( unsigned int portNumber = 0 )
+		RTMIDI_DEPRECATED(std::string getPortName( unsigned int portNumber = 0 ))
 		{
 			if (rtapi_) return rtapi_->getPortName(portNumber);
 			return "";
