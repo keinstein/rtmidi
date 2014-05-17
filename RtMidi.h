@@ -295,7 +295,7 @@ namespace rtmidi {
 		 * \return API that can use this object to connect to an input port or 0
 		 * if no input API can be created.
 		 */
-		virtual MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) = 0;
+		virtual MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) const = 0;
 
 		//! Get the MIDI output api for the current port.
 		/*! This is the only information RtMidi needs to know: Which
@@ -304,7 +304,7 @@ namespace rtmidi {
 		 *
 		 * \return API that can use this object to connect to an output port.
 		 */
-		virtual MidiOutApi * getOutputApi() = 0;
+		virtual MidiOutApi * getOutputApi() const = 0;
 
 		//! Return the port name
 		/*!
@@ -318,7 +318,7 @@ namespace rtmidi {
 		/*! \return a capabilities flag describing the capabilities of the port.
 		 *  \sa PortCapabilities
 		 */
-		virtual int getCapabilities() = 0;
+		virtual int getCapabilities() const = 0;
 	};
 
 	//! A list of port descriptors.

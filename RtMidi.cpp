@@ -1310,14 +1310,14 @@ Error creating OS-X MIDI client object.",
 		}
 		~CorePortDescriptor() {}
 
-		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) {
+		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) const {
 			if (getCapabilities() & INPUT)
 				return new MidiInCore(clientName,queueSizeLimit);
 			else
 				return 0;
 		}
 
-		MidiOutApi * getOutputApi() {
+		MidiOutApi * getOutputApi() const {
 			if (getCapabilities() & OUTPUT)
 				return new MidiOutCore(clientName);
 			else
@@ -1340,7 +1340,7 @@ Error creating OS-X MIDI client object.",
 		const std::string & getClientName() {
 			return clientName;
 		}
-		int getCapabilities() {
+		int getCapabilities() const {
 			if (!endpoint) return 0;
 			return seq.getPortCapabilities(endpoint);
 		}
@@ -2412,13 +2412,13 @@ namespace rtmidi {
 			seq.setName(name);
 		}
 		~AlsaPortDescriptor() {}
-		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) {
+		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) const {
 			if (getCapabilities() & INPUT)
 				return new MidiInAlsa(clientName,queueSizeLimit);
 			else
 				return 0;
 		}
-		MidiOutApi * getOutputApi() {
+		MidiOutApi * getOutputApi() const {
 			if (getCapabilities() & OUTPUT)
 				return new MidiOutAlsa(clientName);
 			else
@@ -2431,7 +2431,7 @@ namespace rtmidi {
 		const std::string & getClientName() {
 			return clientName;
 		}
-		int getCapabilities() {
+		int getCapabilities() const {
 			if (!client) return 0;
 			return seq.getPortCapabilities(client,port);
 		}
@@ -4329,13 +4329,13 @@ namespace rtmidi {
 		~JackPortDescriptor()
 		{
 		}
-		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) {
+		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) const {
 			if (getCapabilities() & INPUT)
 				return new MidiInJack(clientName,queueSizeLimit);
 			else
 				return 0;
 		}
-		MidiOutApi * getOutputApi() {
+		MidiOutApi * getOutputApi() const {
 			if (getCapabilities() & OUTPUT)
 				return new MidiOutJack(clientName);
 			else
@@ -4350,7 +4350,7 @@ namespace rtmidi {
 		const std::string & getClientName() {
 			return clientName;
 		}
-		int getCapabilities() {
+		int getCapabilities() const {
 			return seq.getPortCapabilities(port);
 		}
 		static PortList getPortList(int capabilities, const std::string & clientName);
