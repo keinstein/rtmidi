@@ -4838,7 +4838,6 @@ namespace rtmidi {
 		JackMidiData *data = (JackMidiData *) arg;
 		jack_midi_data_t *midiData;
 		int space;
-		bool mayclose = false;
 
 		// Is port created?
 		if ( data->local == NULL ) return 0;
@@ -4851,11 +4850,7 @@ namespace rtmidi {
 			midiData = jack_midi_event_reserve( buff, 0, space );
 
 			jack_ringbuffer_read( data->buffMessage, (char *) midiData, (size_t) space );
-			mayclose = true;
 		}
-
-		if (!mayclose)
-			return 0;
 
 		switch (data->stateflags) {
 		case JackMidiData::RUNNING: break;
