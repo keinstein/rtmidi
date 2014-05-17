@@ -4439,12 +4439,30 @@ namespace rtmidi {
 	*/
 
 	struct JackMidiData:public JackPortDescriptor {
+		/* signal the JACK process what to do next */
+		volatile enum {
+			RUNNING, /*!< keep the client open, flag is owned by the controlling process */
+			CLOSING, /*!< close the current port */
+			DELETING /*!< Delete the client after delivering the contents of the ring buffer */
+		} stateflags;
+		/*! response/state from the JACK thread. See \ref jackProcessOut for details */
+		volatile enum {
+			OPEN,
+			CLOSING2,
+			CLOSED,
+			DELETING2,
+			DELETING3
+			/* DELETED is useless as this doesn't exist anymore */
+		} state_response;
+
 		jack_port_t * local;
 		jack_ringbuffer_t *buffSize;
 		jack_ringbuffer_t *buffMessage;
 		jack_time_t lastTime;
 		MidiInApi :: MidiInData *rtMidiIn;
-		NonLockingJackSequencer seq;
+		/*! Sequencer object: This must be deleted _before_ the MIDI data to avoid
+		  segmentation faults while queued data is still in the ring buffer. */
+		NonLockingJackSequencer * seq;
 
 		/*
 		  JackMidiData():seq()
@@ -4454,12 +4472,13 @@ namespace rtmidi {
 		*/
 		JackMidiData(const std::string &clientName,
 			     MidiInApi :: MidiInData &inputData_):JackPortDescriptor(clientName),
+								  stateflags(RUNNING),
 								  local(0),
 								  buffSize(0),
 								  buffMessage(0),
 								  lastTime(0),
 								  rtMidiIn(&inputData_),
-								  seq(clientName,false,this)
+								  seq(new NonLockingJackSequencer(clientName,false,this))
 		{
 		}
 
@@ -4471,12 +4490,13 @@ namespace rtmidi {
 		 * \return
 		 */
 		JackMidiData(const std::string &clientName):JackPortDescriptor(clientName),
+							    stateflags(RUNNING),
 							    local(0),
 							    buffSize(jack_ringbuffer_create( JACK_RINGBUFFER_SIZE )),
 							    buffMessage(jack_ringbuffer_create( JACK_RINGBUFFER_SIZE )),
 							    lastTime(0),
 							    rtMidiIn(),
-							    seq(clientName,true,this)
+							    seq(new NonLockingJackSequencer(clientName,true,this))
 		{}
 
 
@@ -4484,6 +4504,8 @@ namespace rtmidi {
 		{
 			if (local)
 				deletePort();
+			if (seq)
+				delete seq;
 			if (buffSize)
 				jack_ringbuffer_free( buffSize );
 			if (buffMessage)
@@ -4499,12 +4521,12 @@ namespace rtmidi {
 
 		void connectPorts(jack_port_t * from,
 				  jack_port_t * to) {
-			seq.connectPorts(from, to);
+			seq->connectPorts(from, to);
 		}
 
 		int openPort(unsigned long jackCapabilities,
 			     const std::string & portName) {
-			local = seq.createPort(portName, jackCapabilities);
+			local = seq->createPort(portName, jackCapabilities);
 			if (!local) {
 				api->error( Error::DRIVER_ERROR,
 					    "MidiInJack::openPort: JACK error opening port subscription." );
@@ -4514,15 +4536,15 @@ namespace rtmidi {
 		}
 
 		void deletePort() {
-			seq.deletePort(local);
+			seq->deletePort(local);
 			local = 0;
 		}
 
 		void closePort(bool output_is_remote) {
 			if (output_is_remote) {
-				seq.closePort( local, port );
+				seq->closePort( local, port );
 			} else {
-				seq.closePort( port, local );
+				seq->closePort( port, local );
 			}
 			port = 0;
 		}
@@ -4632,6 +4654,7 @@ namespace rtmidi {
 		if ( data->client )
 			jack_client_close( data->client );
 #endif
+		/* immediately shut down the JACK client */
 		delete data;
 	}
 
@@ -4643,7 +4666,7 @@ namespace rtmidi {
 
 		// Creating new port
 		if ( data->local == NULL)
-			data->local = jack_port_register( data->seq, portName.c_str(),
+			data->local = jack_port_register( *(data->seq), portName.c_str(),
 							  JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0 );
 
 		if ( data->local == NULL) {
@@ -4654,7 +4677,7 @@ namespace rtmidi {
 
 		// Connecting to the output
 		std::string name = getPortName( portNumber );
-		jack_connect( data->seq, name.c_str(), jack_port_name( data->local ) );
+		jack_connect( *(data->seq), name.c_str(), jack_port_name( data->local ) );
 	}
 
 	void MidiInJack :: openVirtualPort( const std::string portName )
@@ -4663,7 +4686,7 @@ namespace rtmidi {
 
 		//		connect();
 		if ( data->local == NULL )
-			data->local = jack_port_register( data->seq, portName.c_str(),
+			data->local = jack_port_register( *(data->seq), portName.c_str(),
 							  JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0 );
 
 		if ( data->local == NULL ) {
@@ -4750,11 +4773,11 @@ namespace rtmidi {
 		int count = 0;
 		// connect();
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-		if ( !(data->seq) )
+		if ( !(*(data->seq)) )
 			return 0;
 
 		// List of available ports
-		const char **ports = jack_get_ports( data->seq, NULL, JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput );
+		const char **ports = jack_get_ports( *(data->seq), NULL, JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput );
 
 		if ( ports == NULL ) return 0;
 		while ( ports[count] != NULL )
@@ -4773,7 +4796,7 @@ namespace rtmidi {
 		//		connect();
 
 		// List of available ports
-		const char **ports = jack_get_ports( data->seq, NULL,
+		const char **ports = jack_get_ports(* (data->seq), NULL,
 						     JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput );
 
 		// Check port validity
@@ -4800,7 +4823,7 @@ namespace rtmidi {
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 
 		if ( data->local == NULL ) return;
-		jack_port_unregister( data->seq, data->local );
+		jack_port_unregister( *(data->seq), data->local );
 		data->local = NULL;
 	}
 
@@ -4815,6 +4838,7 @@ namespace rtmidi {
 		JackMidiData *data = (JackMidiData *) arg;
 		jack_midi_data_t *midiData;
 		int space;
+		bool mayclose = false;
 
 		// Is port created?
 		if ( data->local == NULL ) return 0;
@@ -4827,6 +4851,48 @@ namespace rtmidi {
 			midiData = jack_midi_event_reserve( buff, 0, space );
 
 			jack_ringbuffer_read( data->buffMessage, (char *) midiData, (size_t) space );
+			mayclose = true;
+		}
+
+		if (!mayclose)
+			return 0;
+
+		switch (data->stateflags) {
+		case JackMidiData::RUNNING: break;
+		case JackMidiData::CLOSING:
+			if (data->state_response != JackMidiData::CLOSING2) {
+				/* output the transferred data */
+				data->state_response = JackMidiData::CLOSING2;
+				return 0;
+			}
+			if ( data->local == NULL ) break;
+			jack_port_unregister( *(data->seq), data->local );
+			data->local = NULL;
+			data->state_response = JackMidiData::CLOSED;
+			break;
+
+		case JackMidiData::DELETING:
+#if defined(__RTMIDI_DEBUG__)
+			std::cerr << "deleting port" << std::endl;
+#endif
+			if (data->state_response != JackMidiData::DELETING2) {
+				data->state_response = JackMidiData::DELETING2;
+				/* output the transferred data */
+				return 0;
+			}
+
+                        if (data->local != NULL && data->state_response != JackMidiData::DELETING2) {
+				data->stateflags = JackMidiData::CLOSING;
+				jack_port_unregister( *(data->seq), data->local );
+				data->local = NULL;
+				data->state_response = JackMidiData::DELETING2;
+				return 0;
+			}
+			delete data;
+#if defined(__RTMIDI_DEBUG__)
+			std::cerr << "deleted port" << std::endl;
+#endif
+			break;
 		}
 
 		return 0;
@@ -4851,11 +4917,11 @@ namespace rtmidi {
 		abort();
 #if 0
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-		if ( data->seq )
+		if ( *(data->seq) )
 			return;
 
 		// Initialize JACK client
-		if (( data->seq = jack_client_open( clientName.c_str(), JackNoStartServer, NULL )) == 0) {
+		if (( *(data->seq) = jack_client_open( clientName.c_str(), JackNoStartServer, NULL )) == 0) {
 			errorString_ = "MidiOutJack::initialize: JACK server not running?";
 			error( Error::WARNING, errorString_ );
 			return;
@@ -4871,10 +4937,10 @@ namespace rtmidi {
 	MidiOutJack :: ~MidiOutJack()
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-		closePort();
+		//		closePort();
 
 #if 0
-		if ( data->seq ) {
+		if ( *(data->seq) ) {
 			// Cleanup
 			jack_client_close( data->client );
 			jack_ringbuffer_free( data->buffSize );
@@ -4882,7 +4948,7 @@ namespace rtmidi {
 		}
 #endif
 
-		delete data;
+		data->stateflags = JackMidiData::DELETING;
 	}
 
 	void MidiOutJack :: openPort( unsigned int portNumber, const std::string & portName )
@@ -4893,7 +4959,7 @@ namespace rtmidi {
 
 		// Creating new port
 		if ( data->local == NULL )
-			data->local = jack_port_register( data->seq, portName.c_str(),
+			data->local = jack_port_register( *(data->seq), portName.c_str(),
 							  JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0 );
 
 		if ( data->local == NULL ) {
@@ -4904,7 +4970,7 @@ namespace rtmidi {
 
 		// Connecting to the output
 		std::string name = getPortName( portNumber );
-		jack_connect( data->seq, jack_port_name( data->local ), name.c_str() );
+		jack_connect( *(data->seq), jack_port_name( data->local ), name.c_str() );
 	}
 
 	void MidiOutJack :: openVirtualPort( const std::string portName )
@@ -4913,7 +4979,7 @@ namespace rtmidi {
 
 		// connect();
 		if ( data->local == NULL )
-			data->local = jack_port_register( data->seq, portName.c_str(),
+			data->local = jack_port_register( *(data->seq), portName.c_str(),
 							  JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0 );
 
 		if ( data->local == NULL ) {
@@ -5000,11 +5066,11 @@ namespace rtmidi {
 		int count = 0;
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 		// connect();
-		if ( !data->seq )
+		if ( !*(data->seq) )
 			return 0;
 
 		// List of available ports
-		const char **ports = jack_get_ports( data->seq, NULL,
+		const char **ports = jack_get_ports(* (data->seq), NULL,
 						     JACK_DEFAULT_MIDI_TYPE, JackPortIsInput );
 
 		if ( ports == NULL ) return 0;
@@ -5024,7 +5090,7 @@ namespace rtmidi {
 		// connect();
 
 		// List of available ports
-		const char **ports = jack_get_ports( data->seq, NULL,
+		const char **ports = jack_get_ports(*(data->seq), NULL,
 						     JACK_DEFAULT_MIDI_TYPE, JackPortIsInput );
 
 		// Check port validity
@@ -5048,11 +5114,16 @@ namespace rtmidi {
 
 	void MidiOutJack :: closePort()
 	{
+#if defined(__RTMIDI_DEBUG__)
+		std::cerr << "Closing Port" << std::endl;
+#endif
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 
-		if ( data->local == NULL ) return;
-		jack_port_unregister( data->seq, data->local );
-		data->local = NULL;
+		if ( data->local == NULL || data->state_response == JackMidiData::CLOSED ) return;
+		data -> stateflags = JackMidiData::CLOSING;
+#if defined(__RTMIDI_DEBUG__)
+		std::cerr << "Closed Port" << std::endl;
+#endif
 	}
 
 	void MidiOutJack :: sendMessage( std::vector<unsigned char> &message )
