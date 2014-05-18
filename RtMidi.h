@@ -615,8 +615,16 @@ namespace rtmidi {
 		  The values returned in the std::vector can be compared against
 		  the enumerated list values.  Note that there can be more than one
 		  API compiled for certain operating systems.
+
+		  \param apis A vector apis must be provided for the
+		  return value. All data in this vector will be
+		  deleted prior to filling in the API data.
+
+		  \param preferSystem An opitonal boolean parameter
+		  may be provided that tells wheter system or software
+		  APIs shall be prefered. Passing \c true will prefer OS provided APIs
 		*/
-		static void getCompiledApi( std::vector<ApiType> &apis ) throw();
+		static void getCompiledApi( std::vector<ApiType> &apis, bool preferSystem = true ) throw();
 
 		//! A static function to determine the available compiled MIDI APIs.
 		/*!
@@ -787,9 +795,15 @@ namespace rtmidi {
 	protected:
 		MidiApi *rtapi_;
 		MidiApiList * list;
+		bool preferSystem;
+		std::string clientName;
 
-		Midi(MidiApiList * l):rtapi_(0),list(l) {}
-		~Midi()
+		Midi(MidiApiList * l,
+		     bool pfsystem,
+		     const std::string & name):rtapi_(0),
+					       list(l),
+					       preferSystem(pfsystem),
+					       clientName(name) {}
 		{
 			if (rtapi_) {
 				delete rtapi_;
@@ -852,10 +866,20 @@ namespace rtmidi {
 		  will be used to group the ports that are created
 		  by the application.
 		  \param queueSizeLimit An optional size of the MIDI input queue can be specified.
+
+		  \param pfsystem An optional boolean parameter can be
+		  provided to indicate the API preferences of the user
+		  code. If RtMidi is requested to autoselect a backend
+		  this parameter tells which backend should be tried
+		  first. If it is \c true the backend will prefer OS
+		  provieded APIs (WinMM, ALSA, Core MIDI) over other
+		  APIs (JACK).  If \c false, the order will be vice
+		  versa.
 		*/
 		MidiIn( ApiType api=rtmidi::UNSPECIFIED,
-			  const std::string clientName = std::string( "RtMidi Input Client"),
-			  unsigned int queueSizeLimit = 100 );
+			const std::string clientName = std::string( "RtMidi Input Client"),
+			unsigned int queueSizeLimit = 100,
+			bool pfsystem = true);
 
 		//! If a MIDI connection is still open, it will be closed by the destructor.
 		~MidiIn ( void ) throw();
@@ -983,7 +1007,8 @@ namespace rtmidi {
 
 	protected:
 		static MidiApiList queryApis;
-		void openMidiApi( ApiType api, const std::string clientName, unsigned int queueSizeLimit );
+		int queueSizeLimit;
+		void openMidiApi( ApiType api );
 
 	};
 
@@ -1016,7 +1041,8 @@ namespace rtmidi {
 		  JACK (OS-X).
 		*/
 		MidiOut( ApiType api=rtmidi::UNSPECIFIED,
-			   const std::string clientName = std::string( "RtMidi Output Client") );
+			 const std::string clientName = std::string( "RtMidi Output Client"),
+			 bool pfsystem = true);
 
 		//! The destructor closes any open MIDI connections.
 		~MidiOut( void ) throw();
@@ -1083,7 +1109,7 @@ namespace rtmidi {
  		}
 	protected:
 		static MidiApiList queryApis;
-		void openMidiApi( ApiType api, const std::string clientName );
+		void openMidiApi( ApiType api );
 	};
 
 
@@ -1092,6 +1118,7 @@ namespace rtmidi {
 	// MidiInApi and MidiOutApi subclass prototypes.
 	//
 	// **************************************************************** //
+
 
 #if !defined(__LINUX_ALSA__) && !defined(__UNIX_JACK__) && !defined(__MACOSX_CORE__) && !defined(__WINDOWS_MM__)
   #define __RTMIDI_DUMMY__
