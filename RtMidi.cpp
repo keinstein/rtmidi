@@ -331,12 +331,9 @@ namespace rtmidi {
 	{
 	}
 
-	//*********************************************************************//
-	//  Common MidiApi Definitions
-	//*********************************************************************//
 
 	MidiApi :: MidiApi( void )
-		: apiData_( 0 ), connected_( false ), errorCallback_(0)
+		: apiData_( 0 ), connected_( false ), errorCallback_(0), errorCallbackUserData_(0)
 	{
 	}
 
@@ -344,9 +341,10 @@ namespace rtmidi {
 	{
 	}
 
-	void MidiApi :: setErrorCallback( ErrorCallback errorCallback )
+	void MidiApi :: setErrorCallback( ErrorCallback errorCallback, void *userData )
 	{
 		errorCallback_ = errorCallback;
+		errorCallbackUserData_ = userData;
 	}
 
 	void MidiApi :: error( Error::Type type, std::string errorString )
@@ -360,7 +358,7 @@ namespace rtmidi {
 			firstErrorOccured = true;
 			const std::string errorMessage = errorString;
 
-			errorCallback_( type, errorMessage );
+			errorCallback_( type, errorMessage, errorCallbackUserData_ );
 			firstErrorOccured = false;
 			return;
 		}
@@ -1351,16 +1349,17 @@ Could not get the entity of a midi endpoint.",
 			init (seq);
 		}
 
-		void init(MIDIClientRef &s)
+		void init(MIDIClientRef &client)
 		{
-			if (s) return;
+			if (client) return;
 			{
 				scoped_lock lock(mutex);
-				OSStatus result = MIDIClientCreate(
-					CFStringCreateWithCString( NULL,
-								   name.c_str(),
-								   kCFStringEncodingUTF8),
-					NULL, NULL, &s );
+
+				CFStringRef name = CFStringCreateWithCString( NULL,
+									      name.c_str(),
+									      kCFStringEncodingUTF8);
+				OSStatus result = MIDIClientCreate(name, NULL, NULL, &client );
+				CFRelease(name);
 				if ( result != noErr ) {
 					throw Error(
 						"CoreSequencer::initialize: \
@@ -1847,7 +1846,6 @@ Error creating OS-X MIDI client object.",
 		return CorePortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
 						       data->getClientName());
 	}
-
 
 	void MidiInCore :: closePort( void )
 	{

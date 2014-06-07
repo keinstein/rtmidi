@@ -160,7 +160,7 @@ namespace rtmidi {
 	  Note that class behaviour is undefined after a critical error (not
 	  a warning) is reported.
 	*/
-	typedef void (*ErrorCallback)( Error::Type type, const std::string &errorText );
+	typedef void (*ErrorCallback)( Error::Type type, const std::string &errorText, void * userdata );
 
 
 
@@ -488,7 +488,7 @@ namespace rtmidi {
 		  The callback function will be called whenever an error has occured. It is best
 		  to set the error callback function before opening a port.
 		*/
-		virtual void setErrorCallback( ErrorCallback errorCallback = NULL );
+		virtual void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 );
 
 
 		//! Returns the MIDI API specifier for the current instance of RtMidiIn.
@@ -504,6 +504,7 @@ namespace rtmidi {
 		bool connected_;
 		std::string errorString_;
 		ErrorCallback errorCallback_;
+		void * errorCallbackUserData_;
 	};
 
 	class MidiInApi : public MidiApi
@@ -782,9 +783,9 @@ namespace rtmidi {
 		  The callback function will be called whenever an error has occured. It is best
 		  to set the error callback function before opening a port.
 		*/
-		void setErrorCallback( ErrorCallback errorCallback = NULL )
+		void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 )
 		{
-			if (rtapi_) rtapi_->setErrorCallback(errorCallback);
+			if (rtapi_) rtapi_->setErrorCallback(errorCallback, userData);
 		}
 
 		//! A basic error reporting function for RtMidi classes.
