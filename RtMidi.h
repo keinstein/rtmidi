@@ -61,6 +61,15 @@
 #include <list>
 #include <memory>
 #include <stdexcept>
+// the following are used in the error constructor
+#include <cstdarg>
+#include <cstring>
+#include <cstdio>
+
+#ifdef RTMIDI_GETTEXT
+#include "gettext.h"
+#endif
+#define gettext_noopt(str) (str)
 
 namespace rtmidi {
 
@@ -111,6 +120,14 @@ namespace rtmidi {
 	*/
 	/************************************************************************/
 
+#define RTMIDI_ERROR(message, type)					\
+	rtmidi::Error(message, type,					\
+		      RTMIDI_CLASSNAME, __FUNCTION__,			\
+		      __FILE__, __LINE__)
+#define RTMIDI_ERROR1(message, type, arg1)				\
+	rtmidi::Error(message, type,					\
+		      RTMIDI_CLASSNAME, __FUNCTION__,			\
+		      __FILE__, __LINE__, arg1)
 	class Error : public std::exception
 	{
 	public:
@@ -130,13 +147,23 @@ namespace rtmidi {
 		};
 
 		//! The constructor.
-		Error( const std::string& message, Type type = Error::UNSPECIFIED ) throw() : message_(message), type_(type) {}
+		Error( const char * message,
+		       Type type,
+		       const char * class_name,
+		       const char * function_name,
+		       const char * file_name,
+		       int line_number, ...) throw();
 
 		//! The destructor.
 		virtual ~Error( void ) throw() {}
 
 		//! Prints thrown error message to stderr.
-		virtual void printMessage( void ) const throw() { std::cerr << '\n' << message_ << "\n\n"; }
+		virtual void printMessage( std::ostream &s = std::cerr ) const throw() {
+			s << std::endl
+			  << file << ":" << line << ": in function"
+			  << classname << "::" << function << std::endl
+			  << message_ << std::endl << std::endl;
+		}
 
 		//! Returns the thrown error message type.
 		virtual const Type& getType(void) const throw() { return type_; }
@@ -148,6 +175,10 @@ namespace rtmidi {
 		virtual const char* what( void ) const throw() { return message_.c_str(); }
 
 	protected:
+		const char * classname;
+		const char * function;
+		const char * file;
+		int line;
 		std::string message_;
 		Type type_;
 	};
@@ -359,6 +390,7 @@ namespace rtmidi {
 	//
 	// **************************************************************** //
 
+#define RTMIDI_CLASSNAME "MidiApi"
 	class MidiApi
 	{
 	public:
@@ -414,8 +446,8 @@ namespace rtmidi {
 		*/
 		void openPort( Pointer<PortDescriptor> p, const std::string & portName = std::string( "RtMidi" ) ) {
 			if (!p) {
-				errorString_ = "MidiApi::openPort: passed NULL pointer";
-				error( Error::INVALID_PARAMETER, errorString_ );
+				error(RTMIDI_ERROR( gettext_noopt("Passed NULL pointer."),
+						    Error::INVALID_PARAMETER));
 				return;
 			}
 			openPort(*p, portName);
@@ -495,7 +527,7 @@ namespace rtmidi {
 		virtual ApiType getCurrentApi( void ) throw() = 0;
 
 		//! A basic error reporting function for RtMidi classes.
-		void error( Error::Type type, std::string errorString );
+		void error( Error e );
 
 	protected:
 		virtual void initialize( const std::string& clientName ) = 0;
@@ -505,7 +537,9 @@ namespace rtmidi {
 		std::string errorString_;
 		ErrorCallback errorCallback_;
 	};
+#undef RTMIDI_CLASSNAME
 
+#define RTMIDI_CLASSNAME "MidiInApi"
 	class MidiInApi : public MidiApi
 	{
 	public:
@@ -518,8 +552,8 @@ namespace rtmidi {
 		RTMIDI_DEPRECATED(double getMessage( std::vector<unsigned char> *message ))
 		{
 			if (!message) {
-				errorString_ = "MidiInApi::getMessage: passed NULL pointer";
-				error( Error::WARNING, errorString_ );
+				error( RTMIDI_ERROR(gettext_noopt("Passed NULL pointer."),
+						    Error::WARNING ));
 			}
 			return getMessage(*message);
 		}
@@ -572,7 +606,9 @@ namespace rtmidi {
 	protected:
 		MidiInData inputData_;
 	};
+#undef RTMIDI_CLASSNAME
 
+#define RTMIDI_CLASSNAME "MidiOutApi"
 	class MidiOutApi : public MidiApi
 	{
 	public:
@@ -582,13 +618,14 @@ namespace rtmidi {
 		RTMIDI_DEPRECATED(void sendMessage( std::vector<unsigned char> *message ))
 		{
 			if (!message) {
-				errorString_ = "MidiOutApi::sendMessage: no data in message argument!";
-				error( Error::WARNING, errorString_ );
+				error( RTMIDI_ERROR(gettext_noopt("No data in message argument."),
+						    Error::WARNING));
 			}
 			sendMessage(*message);
 		}
 		virtual void sendMessage( std::vector<unsigned char> &message ) = 0;
 	};
+#undef RTMIDI_CLASSNAME
 
 	typedef Pointer<MidiApi> MidiApiPtr;
 	typedef std::list <MidiApiPtr> MidiApiList;
@@ -603,6 +640,7 @@ namespace rtmidi {
 	  by Gary P. Scavone, 2003-2014.
 	*/
 	/**********************************************************************/
+#define RTMIDI_CLASSNAME "Midi"
 	class Midi {
 	public:
 		typedef rtmidi::ApiType Api;
@@ -788,7 +826,7 @@ namespace rtmidi {
 		}
 
 		//! A basic error reporting function for RtMidi classes.
-		void error( Error::Type type, std::string errorString );
+		void error( Error e );
 	protected:
 		MidiApi *rtapi_;
 		MidiApiList * list;
@@ -809,6 +847,7 @@ namespace rtmidi {
 			}
 		}
 	};
+#undef RTMIDI_CLASSNAME
 
 	/**********************************************************************/
 	/*! \class MidiIn
@@ -842,6 +881,7 @@ namespace rtmidi {
 	//
 	// **************************************************************** //
 
+#define RTMIDI_CLASSNAME "MidiIn"
 	class MidiIn : public Midi
 	{
 	public:
@@ -906,7 +946,8 @@ namespace rtmidi {
 		void openPort( Pointer<PortDescriptor> p,
 			       const std::string & portName = std::string( "RtMidi" ) ) {
 			if (!p) {
-				error( Error::INVALID_PARAMETER, "MidiApi::openPort: passed NULL pointer" );
+				error(RTMIDI_ERROR(gettext_noopt("A NULL pointer has been passed as port descriptor"),
+						   Error::INVALID_PARAMETER));
 				return;
 			}
 			openPort(*p, portName);
@@ -937,7 +978,8 @@ namespace rtmidi {
 
 			if (rtapi_) rtapi_->openVirtualPort(portName);
 			else {
-				error(Error::INVALID_DEVICE,"MidiIn::openVirtualPort: No valid API selected");
+				error(RTMIDI_ERROR(gettext_noopt("No valid API selected."),
+						   Error::INVALID_DEVICE));
 			}
 		}
 
@@ -1005,8 +1047,9 @@ namespace rtmidi {
 		{
 			if (rtapi_)
 				return static_cast<MidiInApi*>(rtapi_)->getMessage(message);
-			std::string errorString_ = "MidiIn::getMessage: No valid API found.";
-			error( Error::WARNING, errorString_ );
+			std::string errorString_ = "MidiIn::getMessage: ";
+			error( RTMIDI_ERROR(gettext_noopt("No valid API found."),
+					    Error::WARNING));
 			return 0.0;
 		}
 
@@ -1023,13 +1066,13 @@ namespace rtmidi {
 		RTMIDI_DEPRECATED(double getMessage( std::vector<unsigned char> *message ))
 		{
 			if (!message) {
-				error( Error::WARNING,
-				       "MidiIn::getMessage: passed NULL pointer");
+				error( RTMIDI_ERROR(gettext_noopt("passed NULL pointer"),
+						    Error::WARNING));
 			}
 			if (rtapi_)
 				return static_cast<MidiInApi*>(rtapi_)->getMessage(*message);
-			error( Error::WARNING,
-			       "MidiIn::getMessage: No valid API found.");
+			error( RTMIDI_ERROR(gettext_noopt("No valid API found."),
+					    Error::WARNING));
 			return 0.0;
 		}
 
@@ -1039,6 +1082,7 @@ namespace rtmidi {
 		void openMidiApi( ApiType api );
 
 	};
+#undef RTMIDI_CLASSNAME
 
 	/**********************************************************************/
 	/*! \class MidiOut
@@ -1056,6 +1100,7 @@ namespace rtmidi {
 	*/
 	/**********************************************************************/
 
+#define RTMIDI_CLASSNAME "MidiOut"
 	class MidiOut : public Midi
 	{
 	public:
@@ -1113,7 +1158,8 @@ namespace rtmidi {
 		void openPort( Pointer<PortDescriptor> p,
 			       const std::string & portName = std::string( "RtMidi" ) ) {
 			if (!p) {
-				error( Error::INVALID_PARAMETER, "MidiApi::openPort: passed NULL pointer" );
+				error(RTMIDI_ERROR(gettext_noopt("passed NULL pointer"),
+						   Error::INVALID_PARAMETER));
 				return;
 			}
 			openPort(*p, portName);
@@ -1145,7 +1191,8 @@ namespace rtmidi {
 
 			if (rtapi_) rtapi_->openVirtualPort(portName);
 			else {
-				error(Error::INVALID_DEVICE,"MidiOut::openVirtualPort: No valid API selected");
+				error(RTMIDI_ERROR(gettext_noopt("No valid API selected."),
+						   Error::INVALID_DEVICE));
 			}
 		}
 
@@ -1161,13 +1208,14 @@ namespace rtmidi {
 		RTMIDI_DEPRECATED(void sendMessage( std::vector<unsigned char> *message ))
 		{
 			if (!message) {
-				error( Error::WARNING,
-				       "MidiOutApi::sendMessage: no data in message argument!");
+				error( RTMIDI_ERROR(gettext_noopt("No data in message argument!"),
+						    Error::WARNING));
 			}
 			if (rtapi_)
 				static_cast<MidiOutApi *>(rtapi_)->sendMessage(*message);
 			else
-				error( Error::WARNING, "MidiOut::sendMessage: The API has not been set.");
+				error( RTMIDI_ERROR(gettext_noopt("The API has not been set."),
+						    Error::WARNING));
  		}
 
 
@@ -1179,12 +1227,14 @@ namespace rtmidi {
 		void sendMessage( std::vector<unsigned char> &message ) {
 			if (rtapi_)
 				static_cast<MidiOutApi *>(rtapi_)->sendMessage(message);
-			error( Error::WARNING, "MidiOut::sendMessage: The API has not been set.");
+			error( RTMIDI_ERROR(gettext_noopt("The API has not been set."),
+					    Error::WARNING));
  		}
 	protected:
 		static MidiApiList queryApis;
 		void openMidiApi( ApiType api );
 	};
+#undef RTMIDI_CLASSNAME
 
 
 	// **************************************************************** //
