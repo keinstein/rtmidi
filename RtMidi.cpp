@@ -1072,7 +1072,7 @@ namespace rtmidi {
 							os << ": ";
 						os << portname;
 					}
- 				}
+				}
 				if (!connections.empty()) {
 					os << " ⇒ ";
 					os << connections;
@@ -3703,6 +3703,7 @@ namespace rtmidi{
 	  the parameter \ref locking.
 	*/
 
+#define RTMIDI_CLASSNAME "WinMMSequencer"
 	template <int locking=1>
 	class WinMMSequencer {
 	public:
@@ -3762,8 +3763,8 @@ namespace rtmidi{
 			if ( port >= nDevices ) {
 				std::ostringstream ost;
 				std::cerr << port << "<" << nDevices << std::endl;
-				throw Error("WinMMSequencer::getPortName: the 'port' argument is invalid.",
-					    Error::WARNING);
+				throw Error(RTMIDI_ERROR1(gettext_noopt("The port argument %d is invalid."),
+							  Error::WARNING,port));
 			}
 
 			if (is_input) {
@@ -3986,6 +3987,7 @@ namespace rtmidi{
 	};
 	//	typedef WinMMSequencer<1> LockingWinMMSequencer;
 	typedef WinMMSequencer<0> NonLockingWinMMSequencer;
+#undef RTMIDI_CLASSNAME
 
 	struct WinMMPortDescriptor:public PortDescriptor
 	{
@@ -4228,6 +4230,7 @@ namespace rtmidi{
 		apiData->message.bytes.clear();
 	}
 
+#define RTMIDI_CLASSNAME "MidiInWinMM"
 	MidiInWinMM :: MidiInWinMM( const std::string clientName, unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
 	{
 		initialize( clientName );
@@ -4344,24 +4347,24 @@ namespace rtmidi{
 	{
 		// This function cannot be implemented for the Windows MM MIDI API.
 		error(RTMIDI_ERROR(gettext_noopt("Cannot be implemented in Windows MM MIDI API."),
-				   Error::WARNING );
+				   Error::WARNING ));
 	}
 
 	void MidiInWinMM :: openPort(const PortDescriptor & p, const std::string & portName) {
 		const WinMMPortDescriptor * port = dynamic_cast <const WinMMPortDescriptor * >(&p);
 		if ( !port) {
-			error( Error::DRIVER_ERROR,
-			       "MidiINWinMM::openPort:  an invalid (i.e. non-WinMM) port descriptor has been passed to openPort!");
+			error( RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-WinMM) port descriptor has been passed to openPort."),
+					    Error::DRIVER_ERROR));
 			return;
 		}
 		if ( connected_ ) {
-			errorString_ = "MidiInWinMM::openPort: a valid connection already exists!";
-			error( Error::WARNING, errorString_ );
+			error( RTMIDI_ERROR(gettext_noopt("We are overwriting an existing connection. This is probably a programming error."),
+					    Error::WARNING) );
 			return;
 		}
 		if (port->getCapabilities() != PortDescriptor::INPUT) {
-			error( Error::DRIVER_ERROR,
-			       "MidiINWinMM::openPort: the port descriptor cannot be used to open an input port.");
+			error(RTMIDI_ERROR(gettext_noopt("The port descriptor pased to MidiInWinMM::openPort() cannot be used to open an input port."),
+					   Error::DRIVER_ERROR));
 			return;
 		}
 
@@ -4370,8 +4373,8 @@ namespace rtmidi{
 		openPort(port->getPortNumber(),portName);
 		if (!port->is_valid()) {
 			closePort();
-			error (Error::DRIVER_ERROR,
-			       "MidiINWinMM::openPort: some change in the arrangement of MIDI input ports invalidated the port descriptor.");
+			error (RTMIDI_ERROR(gettext_noopt("Some change in the arrangement of MIDI input ports invalidated the port descriptor."),
+			       Error::DRIVER_ERROR));
 			return;
 		}
 		connected_ = true;
@@ -4385,16 +4388,16 @@ namespace rtmidi{
 		UINT devid;
 		switch (midiInGetID(data->inHandle,&devid)) {
 		case MMSYSERR_INVALHANDLE:
-			error (Error::DRIVER_ERROR,
-			       "MidiInWinMM::getDescriptor: The internal handle is invalid.");
+			error (RTMIDI_ERROR(gettext_noopt("The handle is invalid. Did you disconnect the device?"),
+					    Error::DRIVER_ERROR));
 			return 0;
 		case MMSYSERR_NODRIVER:
-			error (Error::DRIVER_ERROR,
-			       "MidiInWinMM::getDescriptor: The system has no driver for our handle :-(.");
+			error (RTMIDI_ERROR(gettext_noopt("The system has no driver for our handle :-(. Did you disconnect the device?"),
+					    Error::DRIVER_ERROR));
 			return 0;
 		case MMSYSERR_NOMEM:
-			error (Error::DRIVER_ERROR,
-			       "MidiInWinMM::getDescriptor: The system could not handle enough memory.");
+			error (RTMIDI_ERROR(gettext_noopt("Out of memory."),
+					    Error::DRIVER_ERROR));
 			return 0;
 		}
 		return new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName());
@@ -4446,7 +4449,7 @@ namespace rtmidi{
 		std::string stringName;
 		unsigned int nDevices = midiInGetNumDevs();
 		if ( portNumber >= nDevices ) {
- 			error(RTMIDI_ERROR(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
+			error(RTMIDI_ERROR1(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
 					   Error::WARNING,portNumber));
 			return stringName;
 		}
@@ -4472,12 +4475,15 @@ namespace rtmidi{
 
 		return stringName;
 	}
+#undef RTMIDI_CLASSNAME
+
 
 	//*********************************************************************//
 	//  API: Windows MM
 	//  Class Definitions: MidiOutWinMM
 	//*********************************************************************//
 
+#define RTMIDI_CLASSNAME "MidiOutWinMM"
 	MidiOutWinMM :: MidiOutWinMM( const std::string clientName ) : MidiOutApi()
 	{
 		initialize( clientName );
@@ -4597,18 +4603,18 @@ namespace rtmidi{
 	void MidiOutWinMM :: openPort(const PortDescriptor & p, const std::string & portName) {
 		const WinMMPortDescriptor * port = dynamic_cast <const WinMMPortDescriptor * >(&p);
 		if ( !port) {
-			error( Error::DRIVER_ERROR,
-			       "MidiOUTWinMM::openPort:  an invalid (i.e. non-WinMM) port descriptor has been passed to openPort!");
+			error( RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-WinMM) port descriptor has been passed to openPort."),
+					    Error::DRIVER_ERROR));
 			return;
 		}
 		if ( connected_ ) {
-			errorString_ = "MidiOutWinMM::openPort: a valid connection already exists!";
-			error( Error::WARNING, errorString_ );
+			error( RTMIDI_ERROR(gettext_noopt("A valid connection already exists." ),
+			       Error::WARNING) );
 			return;
 		}
 		if (port->getCapabilities() != PortDescriptor::OUTPUT) {
-			error( Error::DRIVER_ERROR,
-			       "MidiOUTWinMM::openPort: the port descriptor cannot be used to open an output port.");
+			error( RTMIDI_ERROR(gettext_noopt("The port descriptor cannot be used to open an output port."),
+					    Error::DRIVER_ERROR));
 			return;
 		}
 
@@ -4617,8 +4623,8 @@ namespace rtmidi{
 		openPort(port->getPortNumber(),portName);
 		if (!port->is_valid()) {
 			closePort();
-			error (Error::DRIVER_ERROR,
-			       "MidiOUTWinMM::openPort: some change in the arrangement of MIDI input ports invalidated the port descriptor.");
+			error (RTMIDI_ERROR(gettext_noopt("Some change in the arrangement of MIDI input ports invalidated the port descriptor."),
+					    Error::DRIVER_ERROR));
 			return;
 		}
 		connected_ = true;
@@ -4632,16 +4638,16 @@ namespace rtmidi{
 		UINT devid;
 		switch (midiOutGetID(data->outHandle,&devid)) {
 		case MMSYSERR_INVALHANDLE:
-			error (Error::DRIVER_ERROR,
-			       "MidiOutWinMM::getDescriptor: The internal handle is invalid.");
+			error (RTMIDI_ERROR(gettext_noopt("The internal handle is invalid. Did you disconnect the device?"),
+					    Error::DRIVER_ERROR));
 			return 0;
 		case MMSYSERR_NODRIVER:
-			error (Error::DRIVER_ERROR,
-			       "MidiOutWinMM::getDescriptor: The system has no driver for our handle :-(.");
+			error (RTMIDI_ERROR(gettext_noopt("The system has no driver for our handle :-(. Did you disconnect the device?"),
+					    Error::DRIVER_ERROR));
 			return 0;
 		case MMSYSERR_NOMEM:
-			error (Error::DRIVER_ERROR,
-			       "MidiOutWinMM::getDescriptor: The system could not handle enough memory.");
+			error (RTMIDI_ERROR(gettext_noopt("Out of memory."),
+					    Error::DRIVER_ERROR));
 			return 0;
 		}
 		return new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName());
@@ -4733,6 +4739,7 @@ namespace rtmidi{
 			}
 		}
 	}
+#undef RTMIDI_CLASSNAME
 }
 #endif  // __WINDOWS_MM__
 
