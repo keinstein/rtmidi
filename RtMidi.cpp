@@ -3938,13 +3938,13 @@ namespace rtmidi{
 		{
 		}
 		~WinMMPortDescriptor() {}
-		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) {
+		MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) const {
 			if (is_input)
 				return new MidiInWinMM(clientName,queueSizeLimit);
 			else
 				return 0;
 		}
-		MidiOutApi * getOutputApi() {
+		MidiOutApi * getOutputApi() const {
 			if (!is_input)
 				return new MidiOutWinMM(clientName);
 			else
