@@ -191,7 +191,7 @@ namespace rtmidi {
 	  Note that class behaviour is undefined after a critical error (not
 	  a warning) is reported.
 	*/
-	typedef void (*ErrorCallback)( Error::Type type, const std::string &errorText );
+	typedef void (*ErrorCallback)( Error::Type type, const std::string &errorText, void * userdata );
 
 
 
@@ -304,7 +304,8 @@ namespace rtmidi {
 			UNIQUE_NAME = 0x10, /*!< Make all names uniqe. This
 					      is usually done by adding
 					      numbers to the end of the
-					      string */
+					      string \note: use #undef UNIQUE_NAME 
+					      on windows in case of any errors */
 			INCLUDE_API = 0x20 /*!< Add a string describing the
 					     API at the beginning of the
 					     string. */
@@ -520,7 +521,7 @@ namespace rtmidi {
 		  The callback function will be called whenever an error has occured. It is best
 		  to set the error callback function before opening a port.
 		*/
-		virtual void setErrorCallback( ErrorCallback errorCallback = NULL );
+		virtual void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 );
 
 
 		//! Returns the MIDI API specifier for the current instance of RtMidiIn.
@@ -536,6 +537,7 @@ namespace rtmidi {
 		bool connected_;
 		std::string errorString_;
 		ErrorCallback errorCallback_;
+		void * errorCallbackUserData_;
 	};
 #undef RTMIDI_CLASSNAME
 
@@ -820,9 +822,9 @@ namespace rtmidi {
 		  The callback function will be called whenever an error has occured. It is best
 		  to set the error callback function before opening a port.
 		*/
-		void setErrorCallback( ErrorCallback errorCallback = NULL )
+		void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 )
 		{
-			if (rtapi_) rtapi_->setErrorCallback(errorCallback);
+			if (rtapi_) rtapi_->setErrorCallback(errorCallback, userData);
 		}
 
 		//! A basic error reporting function for RtMidi classes.
@@ -1396,7 +1398,7 @@ namespace rtmidi {
 	public:
 		MidiInWinMM( const std::string clientName, unsigned int queueSizeLimit );
 		~MidiInWinMM( void );
-		ApiType getCurrentApi( void ) { return WINDOWS_MM; };
+		ApiType getCurrentApi( void ) throw() { return WINDOWS_MM; };
 		bool hasVirtualPorts() const { return false; }
 		void openPort( unsigned int portNumber, const std::string & portName );
 		void openVirtualPort( const std::string portName );
@@ -1416,7 +1418,7 @@ namespace rtmidi {
 	public:
 		MidiOutWinMM( const std::string clientName );
 		~MidiOutWinMM( void );
-		ApiType getCurrentApi( void ) { return WINDOWS_MM; };
+		ApiType getCurrentApi( void ) throw() { return WINDOWS_MM; };
 		bool hasVirtualPorts() const { return false; }
 		void openPort( unsigned int portNumber, const std::string & portName );
 		void openVirtualPort( const std::string portName );
