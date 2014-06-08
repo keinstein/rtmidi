@@ -3760,7 +3760,7 @@ namespace rtmidi{
 
 			unsigned int nDevices = is_input?midiInGetNumDevs()
 				: midiOutGetNumDevs();
-			if ( port >= nDevices ) {
+			if ( port < 0 || (unsigned int)port >= nDevices ) {
 				std::ostringstream ost;
 				std::cerr << port << "<" << nDevices << std::endl;
 				throw Error(RTMIDI_ERROR1(gettext_noopt("The port argument %d is invalid."),
@@ -3992,7 +3992,7 @@ namespace rtmidi{
 	struct WinMMPortDescriptor:public PortDescriptor
 	{
 		static NonLockingWinMMSequencer seq;
-		WinMMPortDescriptor(const std::string & cname):name(),port(0),clientName(name)
+		WinMMPortDescriptor(const std::string & /*cname*/):name(),port(0),clientName(name)
 		{
 		}
 		WinMMPortDescriptor(unsigned int p, const std::string & pn, bool i_o, const std::string & n):
@@ -4095,8 +4095,6 @@ namespace rtmidi{
 		}
 		return list;
 	}
-
-	static void *winMMMidiHandler( void *ptr );
 
 
 	/*! A structure to hold variables related to the WINMM API
@@ -4407,7 +4405,7 @@ namespace rtmidi{
 	PortList MidiInWinMM :: getPortList(int capabilities)
 	{
 		WinMidiData *data = static_cast<WinMidiData *> (apiData_);
-		if (!data) return PortList();
+		if (!data || capabilities != PortDescriptor::INPUT) return PortList();
 		return WinMMPortDescriptor::getPortList(PortDescriptor::INPUT,data->getClientName());
 	}
 
@@ -4657,7 +4655,7 @@ namespace rtmidi{
 	PortList MidiOutWinMM :: getPortList(int capabilities)
 	{
 		WinMidiData *data = static_cast<WinMidiData *> (apiData_);
-		if (!data) return PortList();
+		if (!data || capabilities != PortDescriptor::OUTPUT) return PortList();
 		return WinMMPortDescriptor::getPortList(PortDescriptor::OUTPUT,data->getClientName());
 	}
 
