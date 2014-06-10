@@ -255,7 +255,9 @@ namespace rtmidi {
 
 			// No compiled support for specified API value.  Issue a warning
 			// and continue as if no API was specified.
-			std::cerr << "\nMidiIn: no compiled support for specified API argument!\n\n" << std::endl;
+			throw RTMIDI_ERROR1(gettext_noopt("Support for the selected MIDI system %d has not been compiled into the RtMidi library."),
+					    Error::INVALID_PARAMETER,
+					    api);
 		}
 
 		// Iterate through the compiled APIs and return as soon as we find
@@ -271,8 +273,8 @@ namespace rtmidi {
 
 		// We may reach this point if the only API is JACK,
 		// but no JACK devices are found.
-		throw( RTMIDI_ERROR( gettext_noopt("No compiled API support found."),
-				     Error::UNSPECIFIED ) );
+		throw( RTMIDI_ERROR( gettext_noopt("No supported MIDI system has been found."),
+				     Error::SYSTEM ) );
 	}
 
 	MidiIn :: ~MidiIn() throw()
@@ -356,7 +358,8 @@ namespace rtmidi {
 
 			// No compiled support for specified API value.  Issue a warning
 			// and continue as if no API was specified.
-			std::cerr << "\nMidiOut: no compiled support for specified API argument!\n\n" << std::endl;
+			throw RTMIDI_ERROR(gettext_noopt("Support for the selected MIDI system %d has not been compiled into the RtMidi library."),
+					   Error::INVALID_PARAMETER, api);
 		}
 
 		// Iterate through the compiled APIs and return as soon as we find
@@ -372,7 +375,7 @@ namespace rtmidi {
 
 		// We may reach this point, e.g. if JACK is the only
 		// compiled API, but no JACK devices are found.
-		throw( RTMIDI_ERROR(gettext_noopt("No compiled API support found."),
+		throw( RTMIDI_ERROR(gettext_noopt("No supported MIDI system has been found."),
 				    Error::UNSPECIFIED ) );
 	}
 
@@ -493,7 +496,7 @@ namespace rtmidi {
 		message.clear();
 
 		if ( inputData_.usingCallback ) {
-			error(RTMIDI_ERROR(gettext_noopt("A user callback is currently set for this port."),
+			error(RTMIDI_ERROR(gettext_noopt("Returning an empty MIDI message as all input is handled by a callback function."),
 					   Error::WARNING));
 			return 0.0;
 		}
@@ -1148,7 +1151,7 @@ namespace rtmidi {
 								     &uid);
 				if (stat != noErr) {
 					throw
-						RTMIDI_ERROR(gettext_noopt("Could not get the UID of a midi endpoint."),
+						RTMIDI_ERROR(gettext_noopt("Could not get the unique identifier of a midi endpoint."),
 							     Error::DRIVER_ERROR);
 					return 0;
 				}
@@ -1159,7 +1162,7 @@ namespace rtmidi {
 								 &type);
 				if (stat != noErr || obj != port) {
 					throw
-						RTMIDI_ERROR(gettext_noopt("Could not get the endpoint back from UID of a midi endpoint."),
+						RTMIDI_ERROR(gettext_noopt("Could not get the endpoint back from the unique identifier of a midi endpoint."),
 							     Error::DRIVER_ERROR);
 					return 0;
 				}
@@ -1252,7 +1255,7 @@ namespace rtmidi {
 							       &port);
 				break;
 			default:
-				throw RTMIDI_ERROR(gettext_noopt("Error creating OS X MIDI port because of invalid port flags"),
+				throw RTMIDI_ERROR(gettext_noopt("Error creating OS X MIDI port because of invalid port flags."),
 						   Error::DRIVER_ERROR);
 			}
 			if ( result != noErr ) {
@@ -1292,7 +1295,7 @@ namespace rtmidi {
 							   &port);
 				break;
 			default:
-				throw RTMIDI_ERROR(gettext_noopt("Error creating OS X MIDI port because of invalid port flags"),
+				throw RTMIDI_ERROR(gettext_noopt("Error creating OS X MIDI port because of invalid port flags."),
 						   Error::DRIVER_ERROR);
 			}
 			if ( result != noErr ) {
@@ -1834,8 +1837,8 @@ namespace rtmidi {
 		const CorePortDescriptor * remote = dynamic_cast<const CorePortDescriptor *>(&port);
 
 		if ( !data ) {
-			error(RTMIDI_ERROR(gettext_noopt("Internal error: data has not been allocated."),
-					   Error::DRIVER_ERROR) );
+			error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+					   Error::SYSTEM_ERROR) );
 			return;
 		}
 		if ( connected_ || data -> localEndpoint) {
@@ -1844,7 +1847,7 @@ namespace rtmidi {
 			return;
 		}
 		if (!remote) {
-			error(RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-CORE) port descriptor has been passed to openPort."),
+			error(RTMIDI_ERROR(gettext_noopt("Core MIDI has been instructed to open a non-Core MIDI port. This doesn't work."),
 					   Error::WARNING) );
 			return;
 		}
@@ -2084,17 +2087,17 @@ namespace rtmidi {
 		const CorePortDescriptor * remote = dynamic_cast<const CorePortDescriptor *>(&port);
 
 		if ( !data ) {
-			error(RTMIDI_ERROR(gettext_noopt("Internal error: data has not been allocated."),
-					   Error::DRIVER_ERROR) );
+			error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+					   Error::SYSTEM_ERROR) );
 			return;
 		}
 		if ( connected_ || data -> localEndpoint) {
-			error(RTMIDI_ERROR(gettext_noopt("A valid connection already exists"),
+			error(RTMIDI_ERROR(gettext_noopt("A valid connection already exists."),
 					   Error::WARNING) );
 			return;
 		}
 		if (!remote) {
-			error(RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-CORE) port descriptor has been passed to openPort."),
+			error(RTMIDI_ERROR(gettext_noopt("Core MIDI has been instructed to open a non-Core MIDI port. This doesn't work."),
 					   Error::WARNING) );
 			return;
 		}
@@ -2428,7 +2431,7 @@ namespace rtmidi {
 			snd_seq_port_subscribe_t *subscription;
 
 			if (snd_seq_port_subscribe_malloc( &subscription ) < 0) {
-				throw RTMIDI_ERROR(gettext_noopt("Error allocating ALSA port subscription."),
+				throw RTMIDI_ERROR(gettext_noopt("Could not allocate ALSA port subscription."),
 						   Error::DRIVER_ERROR );
 				return 0;
 			}
@@ -2690,7 +2693,7 @@ namespace rtmidi {
 		int openPort(int alsaCapabilities,
 			     const std::string & portName) {
 			if (subscription) {
-				api->error( RTMIDI_ERROR(gettext_noopt("Error while trying to allocate ALSA port subscription."),
+				api->error( RTMIDI_ERROR(gettext_noopt("Could not allocate ALSA port subscription."),
 							 Error::DRIVER_ERROR ));
 				return -99;
 			}
@@ -3167,7 +3170,7 @@ namespace rtmidi {
 		if ( !data->subscription ) {
 			// Make subscription
 			if (snd_seq_port_subscribe_malloc( &data->subscription ) < 0) {
-				error( RTMIDI_ERROR(gettext_noopt("Error allocating ALSA port subscription."),
+				error( RTMIDI_ERROR(gettext_noopt("Could not allocate ALSA port subscription."),
 				       Error::DRIVER_ERROR) );
 				return;
 			}
@@ -3218,8 +3221,8 @@ namespace rtmidi {
 		const AlsaPortDescriptor * remote = dynamic_cast<const AlsaPortDescriptor *>(&port);
 
 		if ( !data ) {
-			error( RTMIDI_ERROR(gettext_noopt("Internal error: data has not been allocated."),
-					    Error::DRIVER_ERROR) );
+			error( RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+					    Error::SYSTEM_ERROR) );
 			return;
 		}
 		if ( connected_ ) {
@@ -3228,12 +3231,12 @@ namespace rtmidi {
 			return;
 		}
 		if (data->subscription) {
-			error( RTMIDI_ERROR(gettext_noopt("Error while allocating ALSA port subscription."),
+			error( RTMIDI_ERROR(gettext_noopt("Could not allocate ALSA port subscription."),
 					    Error::DRIVER_ERROR));
 			return;
 		}
 		if (!remote) {
-			error( RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-ALSA) port descriptor has been passed to openPort."),
+			error( RTMIDI_ERROR(gettext_noopt("ALSA has been instructed to open a non-ALSA MIDI port. This doesn't work."),
 					    Error::WARNING) );
 			return;
 		}
@@ -3424,7 +3427,7 @@ namespace rtmidi {
 		data->buffer = (unsigned char *) malloc( data->bufferSize );
 		if ( data->buffer == NULL ) {
 			delete data;
-			error( RTMIDI_ERROR(gettext_noopt("Error allocating buffer memory."),
+			error( RTMIDI_ERROR(gettext_noopt("Error while allocating buffer memory."),
 					    Error::MEMORY_ERROR) );
 			return;
 		}
@@ -3481,7 +3484,7 @@ namespace rtmidi {
 		unsigned int nSrc = this->getPortCount();
 		if (nSrc < 1) {
 			errorString_ = "MidiOutAlsa::openPort: !";
-			error(RTMIDI_ERROR(gettext_noopt("No MIDI output sources found."),
+			error(RTMIDI_ERROR(gettext_noopt("No MIDI output sinks found."),
 					   Error::NO_DEVICES_FOUND) );
 			return;
 		}
@@ -3519,7 +3522,7 @@ namespace rtmidi {
 		// Make subscription
 		if (snd_seq_port_subscribe_malloc( &data->subscription ) < 0) {
 			snd_seq_port_subscribe_free( data->subscription );
-			error(RTMIDI_ERROR(gettext_noopt("Error allocating port subscription."),
+			error(RTMIDI_ERROR(gettext_noopt("Could not allocate ALSA port subscription."),
 					   Error::DRIVER_ERROR) );
 			return;
 		}
@@ -3580,7 +3583,7 @@ namespace rtmidi {
 			free (data->buffer);
 			data->buffer = (unsigned char *) malloc( data->bufferSize );
 			if ( data->buffer == NULL ) {
-				error(RTMIDI_ERROR(gettext_noopt("Error allocating buffer memory."),
+				error(RTMIDI_ERROR(gettext_noopt("Error while allocating buffer memory."),
 						   Error::MEMORY_ERROR) );
 				return;
 			}
@@ -3616,8 +3619,8 @@ namespace rtmidi {
 		const AlsaPortDescriptor * remote = dynamic_cast<const AlsaPortDescriptor *>(&port);
 
 		if ( !data ) {
-			error(RTMIDI_ERROR(gettext_noopt("Internal error: data has not been allocated."),
-					   Error::DRIVER_ERROR) );
+			error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+					   Error::SYSTEM_ERROR) );
 			return;
 		}
 		if ( connected_ ) {
@@ -3626,12 +3629,12 @@ namespace rtmidi {
 			return;
 		}
 		if (data->subscription) {
-			error(RTMIDI_ERROR(gettext_noopt("ALSA error allocation port subscription."),
+			error(RTMIDI_ERROR(gettext_noopt("Error allocating ALSA port subscription."),
 					   Error::DRIVER_ERROR) );
 			return;
 		}
 		if (!remote) {
-			error(RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-ALSA) port descriptor has been passed to openPort."),
+			error(RTMIDI_ERROR(gettext_noopt("ALSA has been instructed to open a non-ALSA MIDI port. This doesn't work."),
 					   Error::WARNING) );
 			return;
 		}
@@ -4263,7 +4266,7 @@ namespace rtmidi{
 		data->message.bytes.clear();  // needs to be empty for first input message
 
 		if ( !InitializeCriticalSectionAndSpinCount(&(data->_mutex), 0x00000400) ) {
-			error(RTMIDI_ERROR(gettext_noopt("InitializeCriticalSectionAndSpinCount failed."),
+			error(RTMIDI_ERROR(gettext_noopt("Failed to initialize a critical section."),
 					   Error::WARNING) );
 		}
 	}
@@ -4315,7 +4318,7 @@ namespace rtmidi{
 			result = midiInPrepareHeader( data->inHandle, data->sysexBuffer[i], sizeof(MIDIHDR) );
 			if ( result != MMSYSERR_NOERROR ) {
 				midiInClose( data->inHandle );
-				error(RTMIDI_ERROR(gettext_noopt("Error starting Windows MM MIDI input port (PrepareHeader)."),
+				error(RTMIDI_ERROR(gettext_noopt("Error initializing data for Windows MM MIDI input port."),
 						   Error::DRIVER_ERROR ));
 				return;
 			}
@@ -4324,7 +4327,7 @@ namespace rtmidi{
 			result = midiInAddBuffer( data->inHandle, data->sysexBuffer[i], sizeof(MIDIHDR) );
 			if ( result != MMSYSERR_NOERROR ) {
 				midiInClose( data->inHandle );
-				error(RTMIDI_ERROR(gettext_noopt("Error starting Windows MM MIDI input port (AddBuffer)."),
+				error(RTMIDI_ERROR(gettext_noopt("Could not register the input buffer for Windows MM MIDI input port."),
 						   Error::DRIVER_ERROR) );
 				return;
 			}
@@ -4344,14 +4347,14 @@ namespace rtmidi{
 	void MidiInWinMM :: openVirtualPort( std::string /*portName*/ )
 	{
 		// This function cannot be implemented for the Windows MM MIDI API.
-		error(RTMIDI_ERROR(gettext_noopt("Cannot be implemented in Windows MM MIDI API."),
+		error(RTMIDI_ERROR(gettext_noopt("Virtual ports are not available Windows Multimedia MIDI API."),
 				   Error::WARNING ));
 	}
 
 	void MidiInWinMM :: openPort(const PortDescriptor & p, const std::string & portName) {
 		const WinMMPortDescriptor * port = dynamic_cast <const WinMMPortDescriptor * >(&p);
 		if ( !port) {
-			error( RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-WinMM) port descriptor has been passed to openPort."),
+			error( RTMIDI_ERROR(gettext_noopt("Windows Multimedia (WinMM) has been instructed to open a non-WinMM MIDI port. This doesn't work."),
 					    Error::DRIVER_ERROR));
 			return;
 		}
@@ -4361,7 +4364,7 @@ namespace rtmidi{
 			return;
 		}
 		if (port->getCapabilities() != PortDescriptor::INPUT) {
-			error(RTMIDI_ERROR(gettext_noopt("The port descriptor pased to MidiInWinMM::openPort() cannot be used to open an input port."),
+			error(RTMIDI_ERROR(gettext_noopt("Trying to open a non-input port as input MIDI port. This doesn't work."),
 					   Error::DRIVER_ERROR));
 			return;
 		}
@@ -4424,8 +4427,7 @@ namespace rtmidi{
 				delete [] data->sysexBuffer[i];
 				if ( result != MMSYSERR_NOERROR ) {
 					midiInClose( data->inHandle );
-					errorString_ = "MidiInWinMM::openPort: ";
-					error(RTMIDI_ERROR(gettext_noopt("Error closing Windows MM MIDI input port (midiInUnprepareHeader)."),
+					error(RTMIDI_ERROR(gettext_noopt("Error closing Windows MM MIDI input port."),
 							   Error::DRIVER_ERROR) );
 					return;
 				}
@@ -4593,7 +4595,7 @@ namespace rtmidi{
 	void MidiOutWinMM :: openVirtualPort( std::string /*portName*/ )
 	{
 		// This function cannot be implemented for the Windows MM MIDI API.
-		error(RTMIDI_ERROR(gettext_noopt("Cannot be implemented in Windows MM MIDI API."),
+		error(RTMIDI_ERROR(gettext_noopt("Virtual ports are not available Windows Multimedia MIDI API."),
 				   Error::WARNING) );
 	}
 
@@ -4601,7 +4603,7 @@ namespace rtmidi{
 	void MidiOutWinMM :: openPort(const PortDescriptor & p, const std::string & portName) {
 		const WinMMPortDescriptor * port = dynamic_cast <const WinMMPortDescriptor * >(&p);
 		if ( !port) {
-			error( RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-WinMM) port descriptor has been passed to openPort."),
+			error( RTMIDI_ERROR(gettext_noopt("Windows Multimedia (WinMM) has been instructed to open a non-WinMM MIDI port. This doesn't work."),
 					    Error::DRIVER_ERROR));
 			return;
 		}
@@ -4678,7 +4680,7 @@ namespace rtmidi{
 			// Allocate buffer for sysex data.
 			char *buffer = (char *) malloc( nBytes );
 			if ( buffer == NULL ) {
-				error(RTMIDI_ERROR(gettext_noopt("Error allocating sysex message memory!"),
+				error(RTMIDI_ERROR(gettext_noopt("Error while allocating sysex message memory."),
 						   Error::MEMORY_ERROR) );
 				return;
 			}
@@ -5360,8 +5362,8 @@ namespace rtmidi {
 		const JackPortDescriptor * port = dynamic_cast<const JackPortDescriptor *>(&p);
 
 		if ( !data ) {
-			error(RTMIDI_ERROR(gettext_noopt("Internal error: data has not been allocated."),
-					   Error::DRIVER_ERROR) );
+			error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+					   Error::SYSTEM_ERROR) );
 			return;
 		}
 #if 0
@@ -5372,7 +5374,7 @@ namespace rtmidi {
 		}
 #endif
 		if (!port) {
-			error(RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-ALSA) port descriptor has been passed to openPort"),
+			error(RTMIDI_ERROR(gettext_noopt("JACK has been instructed to open a non-JACK MIDI port. This doesn't work."),
 					   Error::WARNING) );
 			return;
 		}
@@ -5649,8 +5651,8 @@ namespace rtmidi {
 		const JackPortDescriptor * port = dynamic_cast<const JackPortDescriptor *>(&p);
 
 		if ( !data ) {
-			error(RTMIDI_ERROR(gettext_noopt("Internal error: data has not been allocated."),
-					   Error::DRIVER_ERROR) );
+			error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+					   Error::SYSTEM_ERROR) );
 			return;
 		}
 #if 0
@@ -5661,7 +5663,7 @@ namespace rtmidi {
 		}
 #endif
 		if (!port) {
-			error(RTMIDI_ERROR(gettext_noopt("An invalid (i.e. non-JACK) port descriptor has been passed to openPort"),
+			error(RTMIDI_ERROR(gettext_noopt("JACK has been instructed to open a non-JACK MIDI port. This doesn't work."),
 					   Error::WARNING) );
 			return;
 		}
@@ -5749,7 +5751,7 @@ namespace rtmidi {
 
 		// Check port validity
 		if ( ports == NULL) {
-			error(RTMIDI_ERROR(gettext_noopt("No ports available"),
+			error(RTMIDI_ERROR(gettext_noopt("No ports available."),
 					   Error::WARNING) );
 			return retStr;
 		}

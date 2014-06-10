@@ -88,14 +88,14 @@ namespace rtmidi {
 	//! Return the name on a MIDI API
 	inline std::string getApiName(ApiType type) {
 		switch (type) {
-		case UNSPECIFIED: return "Automatic API selection";
-		case MACOSX_CORE: return "Core MIDI";
-		case LINUX_ALSA:  return "ALSA";
-		case UNIX_JACK:   return "JACK";
-		case WINDOWS_MM:  return "Windows Multimedia";
-		case WINDOWS_KS:  return "DirectX/Kernel Streaming";
-		case DUMMY:       return "NULL device";
-		case ALL_API:     return "All available APIs";
+		case UNSPECIFIED: return gettext_noopt("Automatic selection");
+		case MACOSX_CORE: return gettext_noopt("Core MIDI");
+		case LINUX_ALSA:  return gettext_noopt("ALSA");
+		case UNIX_JACK:   return gettext_noopt("JACK");
+		case WINDOWS_MM:  return gettext_noopt("Windows Multimedia");
+		case WINDOWS_KS:  return gettext_noopt("DirectX/Kernel Streaming");
+		case DUMMY:       return gettext_noopt("NULL device");
+		case ALL_API:     return gettext_noopt("All available MIDI systems");
 		}
 		return "";
 	}
@@ -980,7 +980,7 @@ namespace rtmidi {
 
 			if (rtapi_) rtapi_->openVirtualPort(portName);
 			else {
-				error(RTMIDI_ERROR(gettext_noopt("No valid API selected."),
+				error(RTMIDI_ERROR(gettext_noopt("No valid MIDI system has been selected."),
 						   Error::INVALID_DEVICE));
 			}
 		}
@@ -1049,8 +1049,7 @@ namespace rtmidi {
 		{
 			if (rtapi_)
 				return static_cast<MidiInApi*>(rtapi_)->getMessage(message);
-			std::string errorString_ = "MidiIn::getMessage: ";
-			error( RTMIDI_ERROR(gettext_noopt("No valid API found."),
+			error( RTMIDI_ERROR(gettext_noopt("Could not find any valid MIDI system."),
 					    Error::WARNING));
 			return 0.0;
 		}
@@ -1068,12 +1067,12 @@ namespace rtmidi {
 		RTMIDI_DEPRECATED(double getMessage( std::vector<unsigned char> *message ))
 		{
 			if (!message) {
-				error( RTMIDI_ERROR(gettext_noopt("passed NULL pointer"),
+				error( RTMIDI_ERROR(gettext_noopt("Passed NULL pointer."),
 						    Error::WARNING));
 			}
 			if (rtapi_)
 				return static_cast<MidiInApi*>(rtapi_)->getMessage(*message);
-			error( RTMIDI_ERROR(gettext_noopt("No valid API found."),
+			error( RTMIDI_ERROR(gettext_noopt("No valid MIDI system has been found."),
 					    Error::WARNING));
 			return 0.0;
 		}
@@ -1160,7 +1159,7 @@ namespace rtmidi {
 		void openPort( Pointer<PortDescriptor> p,
 			       const std::string & portName = std::string( "RtMidi" ) ) {
 			if (!p) {
-				error(RTMIDI_ERROR(gettext_noopt("passed NULL pointer"),
+				error(RTMIDI_ERROR(gettext_noopt("Passed NULL pointer."),
 						   Error::INVALID_PARAMETER));
 				return;
 			}
@@ -1193,7 +1192,7 @@ namespace rtmidi {
 
 			if (rtapi_) rtapi_->openVirtualPort(portName);
 			else {
-				error(RTMIDI_ERROR(gettext_noopt("No valid API selected."),
+				error(RTMIDI_ERROR(gettext_noopt("No valid MIDI system has been selected."),
 						   Error::INVALID_DEVICE));
 			}
 		}
@@ -1210,13 +1209,13 @@ namespace rtmidi {
 		RTMIDI_DEPRECATED(void sendMessage( std::vector<unsigned char> *message ))
 		{
 			if (!message) {
-				error( RTMIDI_ERROR(gettext_noopt("No data in message argument!"),
+				error( RTMIDI_ERROR(gettext_noopt("No data in MIDI message."),
 						    Error::WARNING));
 			}
 			if (rtapi_)
 				static_cast<MidiOutApi *>(rtapi_)->sendMessage(*message);
 			else
-				error( RTMIDI_ERROR(gettext_noopt("The API has not been set."),
+				error( RTMIDI_ERROR(gettext_noopt("No valid MIDI system has been selected."),
 						    Error::WARNING));
  		}
 
@@ -1229,7 +1228,7 @@ namespace rtmidi {
 		void sendMessage( std::vector<unsigned char> &message ) {
 			if (rtapi_)
 				static_cast<MidiOutApi *>(rtapi_)->sendMessage(message);
-			error( RTMIDI_ERROR(gettext_noopt("The API has not been set."),
+			error( RTMIDI_ERROR(gettext_noopt("No valid MIDI system has been selected."),
 					    Error::WARNING));
  		}
 	protected:
