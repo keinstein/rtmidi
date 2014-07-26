@@ -72,6 +72,12 @@
 #define gettext_noopt(str) (str)
 
 namespace rtmidi {
+#ifdef RTMIDI_GETTEXT
+	const char * rtmidi_gettext(const char * s);
+	void init_rtmidi_gettext();
+#else
+#define rtmidi_gettext(arg) (arg)
+#endif
 
 	//! MIDI API specifier arguments.
 	enum ApiType {

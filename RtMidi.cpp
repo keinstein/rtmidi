@@ -42,6 +42,20 @@
 #include <algorithm>
 
 namespace rtmidi {
+#ifdef RTMIDI_GETTEXT
+	const char * rtmidi_gettext (const char * s) {
+		init_rtmidi_gettext();
+		return dgettext("rtmidi",s);
+	}
+
+	void init_rtmidi_gettext() {
+		static initialized = false;
+		if (initialized)
+			return;
+		bindtextdomain("rtmidi",LOCALEDIR);
+		initialized = true;
+	}
+#endif
 
 		//! The constructor.
 	Error::Error( const char * message,
@@ -57,7 +71,7 @@ namespace rtmidi {
 						    type_(type)
 	{
 #ifdef RTMIDI_GETTEXT
-		message = gettext(message);
+		message = rtmidi_gettext(message);
 #endif
 		std::va_list args;
 		va_start(args,line_number);
