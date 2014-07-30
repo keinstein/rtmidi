@@ -365,7 +365,7 @@ namespace rtmidi {
 
 			// No compiled support for specified API value.  Issue a warning
 			// and continue as if no API was specified.
-			throw RTMIDI_ERROR(gettext_noopt("Support for the selected MIDI system %d has not been compiled into the RtMidi library."),
+			throw RTMIDI_ERROR1(gettext_noopt("Support for the selected MIDI system %d has not been compiled into the RtMidi library."),
 					   Error::INVALID_PARAMETER, api);
 		}
 
@@ -3371,8 +3371,7 @@ namespace rtmidi {
 		snd_seq_t *seq;
 		int result1 = snd_seq_open( &seq, "default", SND_SEQ_OPEN_OUTPUT, SND_SEQ_NONBLOCK );
 		if ( result1 < 0 ) {
-			errorString_ = "MidiOutAlsa::initialize: error creating ALSA sequencer client object.";
-			error(RTMIDI_ERROR(gettext_noopt(""),
+			error(RTMIDI_ERROR(gettext_noopt("Error creating ALSA sequencer client object."),
 			             Error::DRIVER_ERROR, errorString_ );
 			return;
 		}
@@ -4862,7 +4861,7 @@ namespace rtmidi {
 								 JackNoStartServer,
 								 NULL )) == 0) {
 					throw RTMIDI_ERROR(gettext_noopt("Could not connect to JACK server. Is it runnig?"),
-							   Error::WARNING);
+							   Error::NO_DEVICES_FOUND);
 					return;
 				}
 
@@ -5219,7 +5218,7 @@ namespace rtmidi {
 
 	void MidiInJack :: initialize( const std::string& clientName )
 	{
-		JackMidiData *data = new JackMidiData(clientName,inputData_);
+		JackMidiData *data = new JackMidiData(clientName,this);
 		apiData_ = (void *) data;
 		this->clientName = clientName;
 		try {
