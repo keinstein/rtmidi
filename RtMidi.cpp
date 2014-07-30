@@ -281,7 +281,7 @@ namespace rtmidi {
 		// We may reach this point if the only API is JACK,
 		// but no JACK devices are found.
 		throw( RTMIDI_ERROR( gettext_noopt("No supported MIDI system has been found."),
-				     Error::SYSTEM ) );
+				     Error::NO_DEVICES_FOUND ) );
 	}
 
 	MidiIn :: ~MidiIn() throw()
@@ -383,7 +383,7 @@ namespace rtmidi {
 		// We may reach this point, e.g. if JACK is the only
 		// compiled API, but no JACK devices are found.
 		throw( RTMIDI_ERROR(gettext_noopt("No supported MIDI system has been found."),
-				    Error::UNSPECIFIED ) );
+				    Error::NO_DEVICES_FOUND ) );
 	}
 
 	MidiOut :: ~MidiOut() throw()
@@ -1157,9 +1157,8 @@ namespace rtmidi {
 								     kMIDIPropertyUniqueID,
 								     &uid);
 				if (stat != noErr) {
-					throw
-						RTMIDI_ERROR(gettext_noopt("Could not get the unique identifier of a midi endpoint."),
-							     Error::DRIVER_ERROR);
+					throw RTMIDI_ERROR(gettext_noopt("Could not get the unique identifier of a midi endpoint."),
+							     Error::WARNING);
 					return 0;
 				}
 				MIDIObjectRef obj;
@@ -1168,9 +1167,8 @@ namespace rtmidi {
 								 &obj,
 								 &type);
 				if (stat != noErr || obj != port) {
-					throw
-						RTMIDI_ERROR(gettext_noopt("Could not get the endpoint back from the unique identifier of a midi endpoint."),
-							     Error::DRIVER_ERROR);
+					throw RTMIDI_ERROR(gettext_noopt("Could not get the endpoint back from the unique identifier of a midi endpoint."),
+							   Error::WARNING);
 					return 0;
 				}
 				if (type == kMIDIObjectType_Source
@@ -1184,9 +1182,8 @@ namespace rtmidi {
 				}
 
 			} else if (stat != noErr) {
-				throw
-					RTMIDI_ERROR(gettext_noopt("Could not get the entity of a midi endpoint."),
-						     Error::DRIVER_ERROR);
+				throw RTMIDI_ERROR(gettext_noopt("Could not get the entity of a midi endpoint."),
+						   Error::WARNING);
 				return 0;
 			}
 			/* Theoretically Mac OS X could silently use
@@ -1251,7 +1248,7 @@ namespace rtmidi {
 				break;
 			default:
 				throw RTMIDI_ERROR(gettext_noopt("Error creating OS X MIDI port because of invalid port flags."),
-						   Error::DRIVER_ERROR);
+						   Error::INVALID_PARAMETER);
 			}
 			if ( result != noErr ) {
 				throw RTMIDI_ERROR(gettext_noopt("Error creating OS-X MIDI port."),
@@ -1291,7 +1288,7 @@ namespace rtmidi {
 				break;
 			default:
 				throw RTMIDI_ERROR(gettext_noopt("Error creating OS X MIDI port because of invalid port flags."),
-						   Error::DRIVER_ERROR);
+						   Error::INVALID_PARAMETER);
 			}
 			if ( result != noErr ) {
 				throw RTMIDI_ERROR(gettext_noopt("Error creating OS-X MIDI port."),
@@ -1715,7 +1712,7 @@ namespace rtmidi {
 		if ( result != noErr ) {
 			MIDIClientDispose( data->client );
 			error(RTMIDI_ERROR(gettext_noopt("Error creating OS-X MIDI input port."),
-					   Error::DRIVER_ERROR, errorString_ ));
+					   Error::DRIVER_ERROR));
 			return;
 		}
 
@@ -1783,7 +1780,7 @@ namespace rtmidi {
 		}
 		if (!remote) {
 			error(RTMIDI_ERROR(gettext_noopt("Core MIDI has been instructed to open a non-Core MIDI port. This doesn't work."),
-					   Error::WARNING) );
+					   Error::INVALID_DEVICE) );
 			return;
 		}
 
@@ -2038,7 +2035,7 @@ namespace rtmidi {
 		}
 		if (!remote) {
 			error(RTMIDI_ERROR(gettext_noopt("Core MIDI has been instructed to open a non-Core MIDI port. This doesn't work."),
-					   Error::WARNING) );
+					   Error::INVALID_DEVICE) );
 			return;
 		}
 
@@ -3179,7 +3176,7 @@ namespace rtmidi {
 		}
 		if (!remote) {
 			error( RTMIDI_ERROR(gettext_noopt("ALSA has been instructed to open a non-ALSA MIDI port. This doesn't work."),
-					    Error::WARNING) );
+					    Error::INVALID_DEVICE) );
 			return;
 		}
 
@@ -3594,7 +3591,7 @@ namespace rtmidi {
 		}
 		if (!remote) {
 			error(RTMIDI_ERROR(gettext_noopt("ALSA has been instructed to open a non-ALSA MIDI port. This doesn't work."),
-					   Error::WARNING) );
+					   Error::INVALID_DEVICE) );
 			return;
 		}
 
@@ -3734,7 +3731,7 @@ namespace rtmidi{
 				std::ostringstream ost;
 				std::cerr << port << "<" << nDevices << std::endl;
 				throw Error(RTMIDI_ERROR1(gettext_noopt("The port argument %d is invalid."),
-							  Error::WARNING,port));
+							  Error::INVALID_PARAMETER,port));
 			}
 
 			if (is_input) {
@@ -4203,7 +4200,7 @@ namespace rtmidi{
 		const WinMMPortDescriptor * port = dynamic_cast <const WinMMPortDescriptor * >(&p);
 		if ( !port) {
 			error( RTMIDI_ERROR(gettext_noopt("Windows Multimedia (WinMM) has been instructed to open a non-WinMM MIDI port. This doesn't work."),
-					    Error::DRIVER_ERROR));
+					    Error::INVALID_DEVICE));
 			return;
 		}
 		if ( connected_ ) {
@@ -4213,7 +4210,7 @@ namespace rtmidi{
 		}
 		if (port->getCapabilities() != PortDescriptor::INPUT) {
 			error(RTMIDI_ERROR(gettext_noopt("Trying to open a non-input port as input MIDI port. This doesn't work."),
-					   Error::DRIVER_ERROR));
+					   Error::INVALID_DEVICE));
 			return;
 		}
 
@@ -4227,7 +4224,7 @@ namespace rtmidi{
 		if (!port->is_valid()) {
 			closePort();
 			error (RTMIDI_ERROR(gettext_noopt("Some change in the arrangement of MIDI input ports invalidated the port descriptor."),
-			       Error::DRIVER_ERROR));
+					    Error::DRIVER_ERROR));
 			return;
 		}
 		connected_ = true;
@@ -4471,7 +4468,7 @@ namespace rtmidi{
 		const WinMMPortDescriptor * port = dynamic_cast <const WinMMPortDescriptor * >(&p);
 		if ( !port) {
 			error( RTMIDI_ERROR(gettext_noopt("Windows Multimedia (WinMM) has been instructed to open a non-WinMM MIDI port. This doesn't work."),
-					    Error::DRIVER_ERROR));
+					    Error::INVALID_DEVICE));
 			return;
 		}
 		if ( connected_ ) {
@@ -5236,7 +5233,7 @@ namespace rtmidi {
 #endif
 		if (!port) {
 			error(RTMIDI_ERROR(gettext_noopt("JACK has been instructed to open a non-JACK MIDI port. This doesn't work."),
-					   Error::WARNING) );
+					   Error::INVALID_DEVICE) );
 			return;
 		}
 
@@ -5511,7 +5508,7 @@ namespace rtmidi {
 #endif
 		if (!port) {
 			error(RTMIDI_ERROR(gettext_noopt("JACK has been instructed to open a non-JACK MIDI port. This doesn't work."),
-					   Error::WARNING) );
+					   Error::INVALID_DEVICE) );
 			return;
 		}
 
