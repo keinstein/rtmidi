@@ -2619,8 +2619,6 @@ namespace rtmidi {
 	}
 #undef RTMIDI_CLASSNAME
 
-	static void *alsaMidiHandler( void *ptr );
-
 
 	/*! A structure to hold variables related to the ALSA API
 	  implementation.
@@ -4743,6 +4741,8 @@ namespace rtmidi {
 		static int jackProcessOut( jack_nframes_t nframes, void *arg );
 	};
 
+
+#define RTMIDI_CLASSNAME "JackSequencer"
 	template <int locking=1>
 	class JackSequencer {
 	public:
@@ -4952,7 +4952,9 @@ namespace rtmidi {
 	};
 	typedef JackSequencer<1> LockingJackSequencer;
 	typedef JackSequencer<0> NonLockingJackSequencer;
+#undef RTMIDI_CLASSNAME
 
+#define RTMIDI_CLASSNAME "JackPortDescriptor"
 	struct JackPortDescriptor:public PortDescriptor
 	{
 		MidiApi * api;
@@ -5041,6 +5043,7 @@ namespace rtmidi {
 		jack_free(ports);
 		return list;
 	}
+#undef RTMIDI_CLASSNAME
 
 	/*! A structure to hold variables related to the JACK API
 	  implementation.
@@ -5050,6 +5053,7 @@ namespace rtmidi {
 	  to allow a common client implementation.
 	*/
 
+#define RTMIDI_CLASSNAME "JackMidiData"
 	struct JackMidiData:public JackPortDescriptor {
 		/* signal the JACK process what to do next */
 		volatile enum {
@@ -5297,6 +5301,8 @@ namespace rtmidi {
 		return 0;
 	}
 #undef RTMIDI_CLASSNAME
+
+#define RTMIDI_CLASSNAME "MidiInJack"
 	MidiInJack :: MidiInJack( const std::string clientName, unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
 	{
 		initialize( clientName );
@@ -5518,6 +5524,7 @@ namespace rtmidi {
 		jack_port_unregister( *(data->seq), data->local );
 		data->local = NULL;
 	}
+#undef RTMIDI_CLASSNAME
 
 	//*********************************************************************//
 	//  API: JACK
@@ -5525,6 +5532,7 @@ namespace rtmidi {
 	//*********************************************************************//
 
 
+#define RTMIDI_CLASSNAME "MidiOutJack"
 	MidiOutJack :: MidiOutJack( const std::string clientName ) : MidiOutApi()
 	{
 		initialize( clientName );
@@ -5565,7 +5573,6 @@ namespace rtmidi {
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 		//		closePort();
-
 		// signal the output callback to delete the data
 		// after finishing its job.
 		data->stateflags = JackMidiData::DELETING;
@@ -5743,6 +5750,7 @@ namespace rtmidi {
 				       message.size() );
 		jack_ringbuffer_write( data->buffSize, ( char * ) &nBytes, sizeof( nBytes ) );
 	}
+#undef RTMIDI_CLASSNAME
 }
 #endif  // __UNIX_JACK__
 
