@@ -1908,9 +1908,6 @@ namespace rtmidi {
 		std::string stringName;
 		CFRunLoopRunInMode( kCFRunLoopDefaultMode, 0, false );
 		if ( portNumber >= MIDIGetNumberOfSources() ) {
-			std::ostringstream ost;
-			ost << "MidiInCore::getPortName: ";
-			errorString_ = ost.str();
 			error(RTMIDI_ERROR1(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
 					    Error::WARNING, portNumber));
 			return stringName;
@@ -1997,9 +1994,6 @@ namespace rtmidi {
 		}
 
 		if ( portNumber >= nDest ) {
-			std::ostringstream ost;
-			ost << "MidiOutCore::openPort: ";
-			errorString_ = ost.str();
 			error(RTMIDI_ERROR(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
 					   Error::INVALID_PARAMETER, portNumber) );
 			return;
@@ -3824,8 +3818,6 @@ namespace rtmidi{
 			unsigned int nDevices = is_input?midiInGetNumDevs()
 				: midiOutGetNumDevs();
 			if ( port < 0 || (unsigned int)port >= nDevices ) {
-				std::ostringstream ost;
-				std::cerr << port << "<" << nDevices << std::endl;
 				throw Error(RTMIDI_ERROR1(gettext_noopt("The port argument %d is invalid."),
 							  Error::INVALID_PARAMETER,port));
 			}
@@ -3978,17 +3970,13 @@ namespace rtmidi{
 		bool is_valid() const {
 			if (is_input) {
 				if (midiInGetNumDevs() <= port) {
-					std::cerr << "In: " << midiInGetNumDevs() << "<=" << port << std::endl;
 					return false;
 				}
 			} else {
 				if (midiOutGetNumDevs() <= port) {
-					std::cerr << "Out: " << midiOutGetNumDevs() << "<=" << port << std::endl;
 					return false;
 				}
 			}
-			std::cerr << seq.getPortName(port,is_input,PortDescriptor::STORAGE_PATH)
-				  << "==" << name << std::endl;
 			return seq.getPortName(port,is_input,PortDescriptor::STORAGE_PATH)
 				== name;
 		}
@@ -4033,7 +4021,6 @@ namespace rtmidi{
 			size_t n = midiOutGetNumDevs();
 			for (size_t i = 0 ; i < n ; i++) {
 				std::string name = seq.getPortName(i,false,PortDescriptor::STORAGE_PATH);
-				std::cout << name << std::endl;
 				list.push_back(new WinMMPortDescriptor(i,name,false,clientName));
 			}
 		}
