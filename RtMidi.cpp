@@ -79,7 +79,7 @@ namespace rtmidi {
 		length = vsnprintf(NULL,0,message,args);
 		if (length > 0) {
 			message_.resize(length+1);
-			std::vsnprintf(&(message_[0]),length,message,args);
+			std::vsnprintf(&(message_[0]),length+1,message,args);
 			message_.resize(length);
 		} else {
 			const char * fmt = gettext_noopt("Error formatting the error string:\n'%s'\nFound in %s::%s at \n%s:%d");
@@ -90,7 +90,7 @@ namespace rtmidi {
 			length = snprintf(NULL,0,fmt,message,class_name,function_name,file_name,line);
 			if (length > 0) {
 				message_.resize(length+1);
-				snprintf(&(message_[0]),length,fmt,message,class_name,function_name,file_name,line);
+				snprintf(&(message_[0]),length+1,fmt,message,class_name,function_name,file_name,line);
 				message_.resize(length);
 			} else {
 				const char * msg
@@ -158,22 +158,8 @@ namespace rtmidi {
 	void Midi :: error(Error e)
 	{
 
-#if 0
-		if ( errorCallback_ ) {
-			static bool firstErrorOccured = false;
-
-			if ( firstErrorOccured )
-				return;
-
-			firstErrorOccured = true;
-			std::ostringstream s;
-			e.printMessage(s);
-
-			errorCallback_( type, s.str() );
-			firstErrorOccured = false;
 			return;
 		}
-#endif
 
 		if ( e.getType() == Error::WARNING ) {
 			e.printMessage();
@@ -1227,18 +1213,6 @@ namespace rtmidi {
 			return retval;
 		}
 
-#if 0
-		int getNextClient(snd_seq_client_info_t * cinfo ) {
-			init();
-			scoped_lock lock (mutex);
-			return snd_seq_query_next_client (seq, cinfo);
-		}
-		int getNextPort(snd_seq_port_info_t * pinfo ) {
-			init();
-			scoped_lock lock (mutex);
-			return snd_seq_query_next_port (seq, pinfo);
-		}
-#endif
 
 		MIDIPortRef createPort (std::string portName,
 					int flags,
@@ -2951,17 +2925,6 @@ namespace rtmidi {
 
 	void MidiInAlsa :: initialize( const std::string& clientName )
 	{
-#if 0
-		/* this will be done in the AlsaSequencer class */
-		// Set up the ALSA sequencer client.
-		snd_seq_t *seq;
-		int result = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
-		if ( result < 0 ) {
-			error(RTMIDI_ERROR(gettext_noopt("Error creating ALSA sequencer client object."),
-					   Error::DRIVER_ERROR));
-			return;
-		}
-#endif
 
 		// Save our api-specific connection information.
 		AlsaMidiData *data = new AlsaMidiData (clientName);
@@ -3794,100 +3757,6 @@ namespace rtmidi{
 			return os.str();
 		}
 
-#if 0
-		int getPortCapabilities(int client, int port) {
-			init();
-			snd_seq_port_info_t *pinfo;
-			snd_seq_port_info_alloca( &pinfo );
-			{
-				scoped_lock lock (mutex);
-				snd_seq_get_any_port_info(seq,client,port,pinfo);
-			}
-			unsigned int caps = snd_seq_port_info_get_capability(pinfo);
-			int retval = (caps & (SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ))?
-				PortDescriptor::INPUT:0;
-			if (caps & (SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE))
-				retval |= PortDescriptor::OUTPUT;
-			return retval;
-		}
-
-		int getNextClient(snd_seq_client_info_t * cinfo ) {
-			init();
-			scoped_lock lock (mutex);
-			return snd_seq_query_next_client (seq, cinfo);
-		}
-		int getNextPort(snd_seq_port_info_t * pinfo ) {
-			init();
-			scoped_lock lock (mutex);
-			return snd_seq_query_next_port (seq, pinfo);
-		}
-
-		int createPort (snd_seq_port_info_t *pinfo) {
-			init();
-			scoped_lock lock (mutex);
-			return snd_seq_create_port(seq, pinfo);
-		}
-
-		void deletePort(int port) {
-			init();
-			scoped_lock lock (mutex);
-			snd_seq_delete_port( seq, port );
-		}
-
-		snd_seq_port_subscribe_t * connectPorts(const snd_seq_addr_t & from,
-							const snd_seq_addr_t & to,
-							bool real_time) {
-			init();
-			snd_seq_port_subscribe_t *subscription;
-
-			if (snd_seq_port_subscribe_malloc( &subscription ) < 0) {
-				throw Error("MidiInWinMM::openPort: WINMM error allocation port subscription.",
-					    Error::DRIVER_ERROR );
-				return 0;
-			}
-			snd_seq_port_subscribe_set_sender(subscription, &from);
-			snd_seq_port_subscribe_set_dest(subscription, &to);
-			if (real_time) {
-				snd_seq_port_subscribe_set_time_update(subscription, 1);
-				snd_seq_port_subscribe_set_time_real(subscription, 1);
-			}
-			{
-				scoped_lock lock (mutex);
-				if ( snd_seq_subscribe_port(seq, subscription) ) {
-					snd_seq_port_subscribe_free( subscription );
-					subscription = 0;
-					throw Error("MidiInWinMM::openPort: WINMM error making port connection.",
-						    Error::DRIVER_ERROR);
-					return 0;
-				}
-			}
-			return subscription;
-		}
-
-		void closePort(snd_seq_port_subscribe_t * subscription ) {
-			init();
-			scoped_lock lock(mutex);
-			snd_seq_unsubscribe_port( seq, subscription );
-		}
-
-		void startQueue(int queue_id) {
-			init();
-			scoped_lock lock(mutex);
-			snd_seq_start_queue( seq, queue_id, NULL );
-			snd_seq_drain_output( seq );
-		}
-
-		/*! Use WinMMSequencer like a C pointer.
-		  \note This function breaks the design to control thread safety
-		  by the selection of the \ref locking parameter to the class.
-		  It should be removed as soon as possible in order ensure the
-		  thread policy that has been intended by creating this class.
-		*/
-		operator snd_seq_t * ()
-		{
-			return seq;
-		}
-#endif
 	protected:
 		struct scoped_lock {
 			//			pthread_mutex_t * mutex;
@@ -3910,37 +3779,12 @@ namespace rtmidi{
 		int mutex;
 		std::string name;
 
-#if 0
-		snd_seq_client_info_t * GetClient(int id) {
-			init();
-			snd_seq_client_info_t * cinfo;
-			scoped_lock lock(mutex);
-			snd_seq_get_any_client_info(seq,id,cinfo);
-			return cinfo;
-		}
-#endif
 
 		void init()
 		{
 			// init (seq);
 		}
 
-#if 0
-		void init(snd_seq_t * &s)
-		{
-			if (s) return;
-			{
-				scoped_lock lock(mutex);
-				int result = snd_seq_open(&s, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
-				if ( result < 0 ) {
-					throw Error( "MidiInWinMM::initialize: error creating WINMM sequencer client object.",
-						     Error::DRIVER_ERROR );
-					return;
-				}
-				snd_seq_set_client_name( seq, name.c_str() );
-			}
-		}
-#endif
 	};
 	//	typedef WinMMSequencer<1> LockingWinMMSequencer;
 	typedef WinMMSequencer<0> NonLockingWinMMSequencer;
@@ -4831,18 +4675,6 @@ namespace rtmidi {
 			return retval;
 		}
 
-#if 0
-		int getNextClient(snd_seq_client_info_t * cinfo ) {
-			init();
-			scoped_lock lock (mutex);
-			return snd_seq_query_next_client (client, cinfo);
-		}
-		int getNextPort(snd_seq_port_info_t * pinfo ) {
-			init();
-			scoped_lock lock (mutex);
-			return snd_seq_query_next_port (client, pinfo);
-		}
-#endif
 
 		jack_port_t * createPort (const std::string & portName, unsigned long portOptions) {
 			init();
@@ -4878,14 +4710,6 @@ namespace rtmidi {
 					 jack_port_name( to ) );
 		}
 
-#if 0
-		void startQueue(int queue_id) {
-			init();
-			scoped_lock lock(mutex);
-			snd_seq_start_queue( client, queue_id, NULL );
-			snd_seq_drain_output( client );
-		}
-#endif
 
 		/*! Use JackSequencer like a C pointer.
 		  \note This function breaks the design to control thread safety
@@ -4916,15 +4740,6 @@ namespace rtmidi {
 		std::string name;
 		JackMidiData * data;
 
-#if 0
-		snd_seq_client_info_t * GetClient(int id) {
-			init();
-			snd_seq_client_info_t * cinfo;
-			scoped_lock lock(mutex);
-			snd_seq_get_any_client_info(client,id,cinfo);
-			return cinfo;
-		}
-#endif
 
 		void init()
 		{
@@ -5339,25 +5154,8 @@ namespace rtmidi {
 		data->setRemote(*port);
 		data->connectPorts(*port,data->local);
 
-#if 0
-
-		connect();
-
-		// Creating new port
-		if ( data->port == NULL)
-			data->port = jack_port_register( data->client, portName.c_str(),
-							 JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0 );
-
-		if ( data->port == NULL) {
-			error(RTMIDI_ERROR(gettext_noopt("Error creating JACK port."),
-					   Error::DRIVER_ERROR) );
-			return;
 		}
 
-		// Connecting to the output
-		std::string name = getPortName( portNumber );
-		jack_connect( data->client, name.c_str(), jack_port_name( data->port ) );
-#endif
 	}
 
 	Pointer<PortDescriptor> MidiInJack :: getDescriptor(bool local)
@@ -5549,14 +5347,6 @@ namespace rtmidi {
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 		//		closePort();
 
-#if 0
-		if ( *(data->seq) ) {
-			// Cleanup
-			jack_client_close( data->client );
-			jack_ringbuffer_free( data->buffSize );
-			jack_ringbuffer_free( data->buffMessage );
-		}
-#endif
 
 		data->stateflags = JackMidiData::DELETING;
 	}
@@ -5628,25 +5418,7 @@ namespace rtmidi {
 		data->setRemote(*port);
 		data->connectPorts(data->local,*port);
 
-#if 0
-
-		connect();
-
-		// Creating new port
-		if ( data->port == NULL)
-			data->port = jack_port_register( data->client, portName.c_str(),
-							 JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0 );
-
-		if ( data->port == NULL) {
-			error(RTMIDI_ERROR(gettext_noopt("Error creating JACK port."),
-					   Error::DRIVER_ERROR) );
-			return;
 		}
-
-		// Connecting to the output
-		std::string name = getPortName( portNumber );
-		jack_connect( data->client, name.c_str(), jack_port_name( data->port ) );
-#endif
 	}
 
 	Pointer<PortDescriptor> MidiOutJack :: getDescriptor(bool local)
