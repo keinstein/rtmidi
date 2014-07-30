@@ -4756,7 +4756,7 @@ namespace rtmidi {
 			}
 		}
 
-		JackSequencer(const std::string & n, bool startqueue, JackMidiData * d):client(0),name(n),data(d)
+		JackSequencer(const std::string & n, JackMidiData * d):client(0),name(n),data(d)
 		{
 			if (locking) {
 				pthread_mutexattr_t attr;
@@ -4764,7 +4764,6 @@ namespace rtmidi {
 				pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL);
 				pthread_mutex_init(&mutex, &attr);
 			}
-			init(client,startqueue);
 		}
 
 		~JackSequencer()
@@ -4781,6 +4780,10 @@ namespace rtmidi {
 			if (locking) {
 				pthread_mutex_destroy(&mutex);
 			}
+		}
+
+		void init(bool startqueue) {
+			init(client,startqueue);
 		}
 
 		bool setName(const std::string & n) {
@@ -4899,6 +4902,7 @@ namespace rtmidi {
 		{
 			return client;
 		}
+
 	protected:
 		struct scoped_lock {
 			pthread_mutex_t * mutex;
@@ -5104,8 +5108,9 @@ namespace rtmidi {
 							    buffMessage(jack_ringbuffer_create( JACK_RINGBUFFER_SIZE )),
 							    lastTime(0),
 							    rtMidiIn(),
-							    seq(new NonLockingJackSequencer(clientName,true,this))
-		{}
+							    seq(new NonLockingJackSequencer(clientName,this))
+		{
+		}
 
 
 		~JackMidiData()
@@ -5120,7 +5125,9 @@ namespace rtmidi {
 				jack_ringbuffer_free( buffMessage );
 		}
 
-
+		void init(bool isinput) {
+			seq->init(!isinput);
+		}
 
 
 		void setRemote(jack_port_t * remote) {
@@ -5528,7 +5535,8 @@ namespace rtmidi {
 		JackMidiData *data = new JackMidiData(clientName);
 		apiData_ = (void *) data;
 		this->clientName = clientName;
-		//		connect();
+		// init is the last as it may throw an exception
+		data->init(false);
 	}
 
 	void MidiOutJack :: connect()
