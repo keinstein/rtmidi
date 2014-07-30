@@ -94,14 +94,14 @@ namespace rtmidi {
 	//! Return the name on a MIDI API
 	inline std::string getApiName(ApiType type) {
 		switch (type) {
-		case UNSPECIFIED: return gettext_noopt("Automatic selection");
-		case MACOSX_CORE: return gettext_noopt("Core MIDI");
-		case LINUX_ALSA:  return gettext_noopt("ALSA");
-		case UNIX_JACK:   return gettext_noopt("JACK");
-		case WINDOWS_MM:  return gettext_noopt("Windows Multimedia");
-		case WINDOWS_KS:  return gettext_noopt("DirectX/Kernel Streaming");
-		case DUMMY:       return gettext_noopt("NULL device");
-		case ALL_API:     return gettext_noopt("All available MIDI systems");
+		case UNSPECIFIED: return rtmidi_gettext("Automatic selection");
+		case MACOSX_CORE: return rtmidi_gettext("Core MIDI");
+		case LINUX_ALSA:  return rtmidi_gettext("ALSA");
+		case UNIX_JACK:   return rtmidi_gettext("JACK");
+		case WINDOWS_MM:  return rtmidi_gettext("Windows Multimedia");
+		case WINDOWS_KS:  return rtmidi_gettext("DirectX/Kernel Streaming");
+		case DUMMY:       return rtmidi_gettext("NULL device");
+		case ALL_API:     return rtmidi_gettext("All available MIDI systems");
 		}
 		return "";
 	}
