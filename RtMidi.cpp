@@ -191,36 +191,40 @@ namespace rtmidi {
 			delete rtapi_;
 		rtapi_ = 0;
 
-		switch (api) {
-		case rtmidi::UNIX_JACK:
+		try {
+			switch (api) {
+			case rtmidi::UNIX_JACK:
 #if defined(__UNIX_JACK__)
-			rtapi_ = new MidiInJack( clientName, queueSizeLimit );
+				rtapi_ = new MidiInJack( clientName, queueSizeLimit );
 #endif
-			break;
-		case rtmidi::LINUX_ALSA:
+				break;
+			case rtmidi::LINUX_ALSA:
 #if defined(__LINUX_ALSA__)
-			rtapi_ = new MidiInAlsa( clientName, queueSizeLimit );
+				rtapi_ = new MidiInAlsa( clientName, queueSizeLimit );
 #endif
-			break;
-		case rtmidi::WINDOWS_MM:
+				break;
+			case rtmidi::WINDOWS_MM:
 #if defined(__WINDOWS_MM__)
-			rtapi_ = new MidiInWinMM( clientName, queueSizeLimit );
+				rtapi_ = new MidiInWinMM( clientName, queueSizeLimit );
 #endif
-			break;
-		case rtmidi::MACOSX_CORE:
+				break;
+			case rtmidi::MACOSX_CORE:
 #if defined(__MACOSX_CORE__)
-			rtapi_ = new MidiInCore( clientName, queueSizeLimit );
+				rtapi_ = new MidiInCore( clientName, queueSizeLimit );
 #endif
-			break;
-		case rtmidi::DUMMY:
+				break;
+			case rtmidi::DUMMY:
 #if defined(__RTMIDI_DUMMY__)
-			rtapi_ = new MidiInDummy( clientName, queueSizeLimit );
+				rtapi_ = new MidiInDummy( clientName, queueSizeLimit );
 #endif
-			break;
-		case rtmidi::ALL_API:
-		case rtmidi::UNSPECIFIED:
-		default:
-			break;
+				break;
+			case rtmidi::ALL_API:
+			case rtmidi::UNSPECIFIED:
+			default:
+				break;
+			}
+		} catch (Error e) {
+			error(e);
 		}
 	}
 
@@ -1823,8 +1827,13 @@ namespace rtmidi {
 	PortList MidiInCore :: getPortList(int capabilities)
 	{
 		CoreMidiData *data = static_cast<CoreMidiData *> (apiData_);
-		return CorePortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
-						       data->getClientName());
+		try {
+			return CorePortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
+							       data->getClientName());
+		} catch (Error e) {
+			error(e);
+			return PortList();
+		}
 	}
 
 	void MidiInCore :: closePort( void )
@@ -2033,10 +2042,14 @@ namespace rtmidi {
 			return;
 		}
 
-		data->openPort (portName,
-				PortDescriptor::OUTPUT);
-		data->setRemote(*remote);
-		connected_ = true;
+		try {
+			data->openPort (portName,
+					PortDescriptor::OUTPUT);
+			data->setRemote(*remote);
+			connected_ = true;
+		} catch (Error e) {
+			error(e);
+		}
 	}
 
 	Pointer<PortDescriptor> MidiOutCore :: getDescriptor(bool local)
@@ -2046,16 +2059,20 @@ namespace rtmidi {
 		if (!data) {
 			return NULL;
 		}
-		if (local) {
-			if (data && data->localEndpoint) {
-				return new
-					CorePortDescriptor(data->localEndpoint,
-							   data->getClientName());
+		try {
+			if (local) {
+				if (data && data->localEndpoint) {
+					return new
+						CorePortDescriptor(data->localEndpoint,
+								   data->getClientName());
+				}
+			} else {
+				if (data->getEndpoint()) {
+					return new CorePortDescriptor(*data);
+				}
 			}
-		} else {
-			if (data->getEndpoint()) {
-				return new CorePortDescriptor(*data);
-			}
+		} catch (Error e) {
+			error(e);
 		}
 		return NULL;
 	}
@@ -2063,8 +2080,13 @@ namespace rtmidi {
 	PortList MidiOutCore :: getPortList(int capabilities)
 	{
 		CoreMidiData *data = static_cast<CoreMidiData *> (apiData_);
-		return CorePortDescriptor::getPortList(capabilities | PortDescriptor::OUTPUT,
-						       data->getClientName());
+		try {
+			return CorePortDescriptor::getPortList(capabilities | PortDescriptor::OUTPUT,
+							       data->getClientName());
+		} catch (Error e) {
+			error(e);
+			return PortList();
+		}
 	}
 
 
@@ -3161,39 +3183,56 @@ namespace rtmidi {
 			return;
 		}
 
-		if (!data->local.client)
-			data->openPort (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
-					portName);
-		data->setRemote(remote);
-		data->connectPorts(*remote,data->local,false);
+		try {
+			if (!data->local.client)
+				data->openPort (SND_SEQ_PORT_CAP_WRITE
+						| SND_SEQ_PORT_CAP_SUBS_WRITE,
+						portName);
+			data->setRemote(remote);
+			data->connectPorts(*remote,
+				   data->local,
+					   false);
 
 
-		if ( inputData_.doInput == false ) {
-			inputData_.doInput = data->startQueue(&inputData_);
+			if ( doInput == false ) {
+				doInput
+					= data->startQueue(this);
+			}
+
+			connected_ = true;
+		} catch (Error e) {
+			error(e);
 		}
-
-		connected_ = true;
 	}
 
 	Pointer<PortDescriptor> MidiInAlsa :: getDescriptor(bool local)
 	{
 		AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
-		if (local) {
-			if (data && data->local.client) {
-				return new AlsaPortDescriptor(data->local,data->getClientName());
+		try {
+			if (local) {
+				if (data && data->local.client) {
+					return new AlsaPortDescriptor(data->local,data->getClientName());
+				}
+			} else {
+				if (data && data->client) {
+					return new AlsaPortDescriptor(*data,data->getClientName());
+				}
 			}
-		} else {
-			if (data && data->client) {
-				return new AlsaPortDescriptor(*data,data->getClientName());
-			}
+		} catch (Error e) {
+			error (e);
 		}
 		return NULL;
 	}
 	PortList MidiInAlsa :: getPortList(int capabilities)
 	{
 		AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
-		return AlsaPortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
-						       data->getClientName());
+		try {
+			return AlsaPortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
+							       data->getClientName());
+		} catch (Error e) {
+			error (e);
+			return PortList();
+		}
 	}
 
 
@@ -3559,25 +3598,33 @@ namespace rtmidi {
 			return;
 		}
 
-		if (!data->local.client)
-			data->openPort (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-					portName);
-		data->setRemote(remote);
-		data->connectPorts(data->local,*remote,true);
+		try {
+			if (!data->local.client)
+				data->openPort (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+						portName);
+			data->setRemote(remote);
+			data->connectPorts(data->local,*remote,true);
 
-		connected_ = true;
+			connected_ = true;
+		} catch (Error e) {
+			error (e);
+		}
 	}
 	Pointer<PortDescriptor> MidiOutAlsa :: getDescriptor(bool local)
 	{
 		AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
-		if (local) {
-			if (data && data->local.client) {
-				return new AlsaPortDescriptor(data->local, data->getClientName());
+		try {
+			if (local) {
+				if (data && data->local.client) {
+					return new AlsaPortDescriptor(data->local, data->getClientName());
+				}
+			} else {
+				if (data && data->client) {
+					return new AlsaPortDescriptor(*data, data->getClientName());
+				}
 			}
-		} else {
-			if (data && data->client) {
-				return new AlsaPortDescriptor(*data, data->getClientName());
-			}
+		} catch (Error e) {
+			error(e);
 		}
 		return NULL;
 	}
@@ -4170,9 +4217,13 @@ namespace rtmidi{
 			return;
 		}
 
-		// there is a possible race condition between opening the port and
-		// reordering of ports so we must check whether we opened the right port.
-		openPort(port->getPortNumber(),portName);
+			// there is a possible race condition between opening the port and
+			// reordering of ports so we must check whether we opened the right port.
+		try {
+			openPort(port->getPortNumber(),portName);
+		} catch (Error e) {
+			error(e);
+		}
 		if (!port->is_valid()) {
 			closePort();
 			error (RTMIDI_ERROR(gettext_noopt("Some change in the arrangement of MIDI input ports invalidated the port descriptor."),
@@ -4203,6 +4254,16 @@ namespace rtmidi{
 			return 0;
 		}
 		return new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName());
+		try {
+			retval = new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName());
+		} catch (Error e) {
+			try {
+				error(e);
+			} catch (...) {
+				if (retval) delete retval;
+				throw;
+			}
+		}
 
 	}
 
@@ -4210,7 +4271,12 @@ namespace rtmidi{
 	{
 		WinMidiData *data = static_cast<WinMidiData *> (apiData_);
 		if (!data || capabilities != PortDescriptor::INPUT) return PortList();
-		return WinMMPortDescriptor::getPortList(PortDescriptor::INPUT,data->getClientName());
+		try {
+			return WinMMPortDescriptor::getPortList(PortDescriptor::INPUT,data->getClientName());
+		} catch (Error e) {
+			error(e);
+			return PortList();
+		}
 	}
 
 
@@ -4421,7 +4487,11 @@ namespace rtmidi{
 
 		// there is a possible race condition between opening the port and
 		// reordering of ports so we must check whether we opened the right port.
-		openPort(port->getPortNumber(),portName);
+		try {
+			openPort(port->getPortNumber(),portName);
+		} catch (Error e) {
+			error(e);
+		}
 		if (!port->is_valid()) {
 			closePort();
 			error (RTMIDI_ERROR(gettext_noopt("Some change in the arrangement of MIDI input ports invalidated the port descriptor."),
@@ -4459,7 +4529,12 @@ namespace rtmidi{
 	{
 		WinMidiData *data = static_cast<WinMidiData *> (apiData_);
 		if (!data || capabilities != PortDescriptor::OUTPUT) return PortList();
-		return WinMMPortDescriptor::getPortList(PortDescriptor::OUTPUT,data->getClientName());
+		try {
+			return WinMMPortDescriptor::getPortList(PortDescriptor::OUTPUT,data->getClientName());
+		} catch (Error e) {
+			error(e);
+			return PortList();
+		}
 	}
 
 
@@ -5054,6 +5129,11 @@ namespace rtmidi {
 		JackMidiData *data = new JackMidiData(clientName,inputData_);
 		apiData_ = (void *) data;
 		this->clientName = clientName;
+		try {
+			data->init(true);
+		} catch (Error e) {
+			error(e);
+		}
 	}
 
 #if 0
@@ -5080,7 +5160,16 @@ namespace rtmidi {
 	MidiInJack :: ~MidiInJack()
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-		closePort();
+		try {
+			closePort();
+		} catch (Error e) {
+			try {
+				delete data;
+			} catch (...) {
+			}
+			error(e);
+			return;
+		}
 
 #if 0
 		if ( data->client )
@@ -5151,12 +5240,14 @@ namespace rtmidi {
 			return;
 		}
 
-		if (!data->local)
-			data->openPort (JackPortIsInput,
-					portName);
-		data->setRemote(*port);
-		data->connectPorts(*port,data->local);
-
+		try {
+			if (!data->local)
+				data->openPort (JackPortIsInput,
+						portName);
+			data->setRemote(*port);
+			data->connectPorts(*port,data->local);
+		} catch (Error e) {
+			error (e);
 		}
 
 	}
@@ -5164,14 +5255,18 @@ namespace rtmidi {
 	Pointer<PortDescriptor> MidiInJack :: getDescriptor(bool local)
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-		if (local) {
-			if (data && data->local) {
-				return new JackPortDescriptor(data->local,data->getClientName());
+		try {
+			if (local) {
+				if (data && data->local) {
+					return new JackPortDescriptor(data->local,data->getClientName());
+				}
+			} else {
+				if (data && *data) {
+					return new JackPortDescriptor(*data,data->getClientName());
+				}
 			}
-		} else {
-			if (data && *data) {
-				return new JackPortDescriptor(*data,data->getClientName());
-			}
+		} catch (Error e) {
+			error(e);
 		}
 		return NULL;
 	}
@@ -5179,8 +5274,13 @@ namespace rtmidi {
 	PortList MidiInJack :: getPortList(int capabilities)
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-		return JackPortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
-						       data->getClientName());
+		try {
+			return JackPortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
+							       data->getClientName());
+		} catch (Error e) {
+			error(e);
+		}
+		return PortList();
 	}
 
 	unsigned int MidiInJack :: getPortCount()
@@ -5415,26 +5515,32 @@ namespace rtmidi {
 			return;
 		}
 
-		if (!data->local)
-			data->openPort (JackPortIsOutput,
-					portName);
-		data->setRemote(*port);
-		data->connectPorts(data->local,*port);
-
+		try {
+			if (!data->local)
+				data->openPort (JackPortIsOutput,
+						portName);
+			data->setRemote(*port);
+			data->connectPorts(data->local,*port);
+		} catch (Error e) {
+			error(e);
 		}
 	}
 
 	Pointer<PortDescriptor> MidiOutJack :: getDescriptor(bool local)
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-		if (local) {
-			if (data && data->local) {
-				return new JackPortDescriptor(data->local,data->getClientName());
+		try {
+			if (local) {
+				if (data && data->local) {
+					return new JackPortDescriptor(data->local,data->getClientName());
+				}
+			} else {
+				if (data && *data) {
+					return new JackPortDescriptor(*data,data->getClientName());
+				}
 			}
-		} else {
-			if (data && *data) {
-				return new JackPortDescriptor(*data,data->getClientName());
-			}
+		} catch (Error e) {
+			error(e);
 		}
 		return NULL;
 	}
