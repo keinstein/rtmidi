@@ -732,9 +732,8 @@ namespace rtmidi {
 		return EndpointName( endpoint, false );
 	}
 
-	static void midiInputCallback( const MIDIPacketList *list, void *procRef, void */*srcRef*/ );
 
-
+#define RTMIDI_CLASSNAME "CoreSequencer"
 	template <int locking=1>
 	class CoreSequencer {
 	public:
@@ -1239,7 +1238,7 @@ namespace rtmidi {
 
 		MIDIPortRef createPort (std::string portName,
 					int flags,
-					MidiInApi::MidiInData * data = NULL)
+					MidiInCore * data = NULL)
 		{
 			init();
 			scoped_lock lock (mutex);
@@ -1252,7 +1251,7 @@ namespace rtmidi {
 								      NULL,
 								      portName.c_str(),
 								      kCFStringEncodingUTF8 ),
-							      midiInputCallback,
+							     MidiInCore::midiInputCallback,
 							      (void *)data,
 							      &port);
 				break;
@@ -1278,7 +1277,7 @@ namespace rtmidi {
 
 		MIDIEndpointRef createVirtualPort (std::string portName,
 						   int flags,
-						   MidiInApi::MidiInData * data = NULL)
+						   MidiInCore * data = NULL)
 		{
 			init();
 			scoped_lock lock (mutex);
@@ -1292,7 +1291,7 @@ namespace rtmidi {
 									NULL,
 									portName.c_str(),
 									kCFStringEncodingUTF8 ),
-								midiInputCallback,
+								MidiInCore::midiInputCallback,
 								(void *)data,
 								&port);
 				break;
@@ -1357,11 +1356,11 @@ namespace rtmidi {
 			{
 				scoped_lock lock(mutex);
 
-				CFStringRef name = CFStringCreateWithCString( NULL,
+				CFStringRef cfname = CFStringCreateWithCString( NULL,
 									      name.c_str(),
 									      kCFStringEncodingUTF8);
-				OSStatus result = MIDIClientCreate(name, NULL, NULL, &client );
-				CFRelease(name);
+				OSStatus result = MIDIClientCreate(cfname, NULL, NULL, &client );
+				CFRelease(cfname);
 				if ( result != noErr ) {
 					throw RTMIDI_ERROR(gettext_noopt("Error creating OS-X MIDI client object."),
 							   Error::DRIVER_ERROR);
@@ -1370,9 +1369,12 @@ namespace rtmidi {
 			}
 		}
 	};
+#undef RTMIDI_CLASSNAME
+
 	typedef CoreSequencer<1> LockingCoreSequencer;
 	typedef CoreSequencer<0> NonLockingCoreSequencer;
 
+#define RTMIDI_CLASSNAME "CorePortDescriptor"
 	struct CorePortDescriptor:public PortDescriptor	{
 		CorePortDescriptor(const std::string & name):api(0),
 							     clientName(name),
@@ -1466,8 +1468,8 @@ namespace rtmidi {
 						list.push_back(new CorePortDescriptor(destination,
 									      clientName));
 				} catch (Error e) {
-					if (e.getType() == WARNING ||
-					    e.getType() == DEBUG_WARNING)
+					if (e.getType() == Error::WARNING ||
+					    e.getType() == Error::DEBUG_WARNING)
 						e.printMessage();
 					else throw;
 				}
@@ -1487,8 +1489,8 @@ namespace rtmidi {
 						list.push_back(new CorePortDescriptor(src,
 										      clientName));
 				} catch (Error e) {
-					if (e.getType() == WARNING ||
-					    e.getType() == DEBUG_WARNING)
+					if (e.getType() == Error::WARNING ||
+					    e.getType() == Error::DEBUG_WARNING)
 						e.printMessage();
 					else throw;
 				}
@@ -1496,8 +1498,10 @@ namespace rtmidi {
 		}
 		return list;
 	}
+#undef RTMIDI_CLASSNAME
 
 
+#define RTMIDI_CLASSNAME "CoreMidiData"
 	// A structure to hold variables related to the CoreMIDI API
 	// implementation.
 	struct CoreMidiData:public CorePortDescriptor {
@@ -1513,7 +1517,7 @@ namespace rtmidi {
 
 		void openPort(const std::string & name,
 			 int flags,
-			 MidiInApi::MidiInData * data = NULL) {
+			 MidiInCore * data = NULL) {
 			localPort = client.createPort(name, flags, data);
 		}
 
@@ -1528,16 +1532,21 @@ namespace rtmidi {
 		unsigned long long lastTime;
 		MIDISysexSendRequest sysexreq;
 	};
+#undef RTMIDI_CLASSNAME
+
 
 	//*********************************************************************//
 	//  API: OS-X
 	//  Class Definitions: MidiInCore
 	//*********************************************************************//
 
-	static void midiInputCallback( const MIDIPacketList *list, void *procRef, void */*srcRef*/ )
+#define RTMIDI_CLASSNAME "MidiInCore"
+	void MidiInCore::midiInputCallback( const MIDIPacketList *list,
+					    void *procRef,
+					    void */*srcRef*/ ) throw()
 	{
-		MidiInApi::MidiInData *data = static_cast<MidiInApi::MidiInData *> (procRef);
-		CoreMidiData *apiData = static_cast<CoreMidiData *> (data->apiData);
+		MidiInCore *data = static_cast<MidiInCore *> (procRef);
+		CoreMidiData *apiData = static_cast<CoreMidiData *> (data->apiData_);
 
 		unsigned char status;
 		unsigned short nBytes, iByte, size;
@@ -1596,9 +1605,8 @@ namespace rtmidi {
 				if ( !( data->ignoreFlags & 0x01 ) ) {
 					if ( !continueSysex ) {
 						// If not a continuing sysex message, invoke the user callback function or queue the message.
-						if ( data->usingCallback ) {
-							MidiCallback callback = (MidiCallback) data->userCallback;
-							callback( message.timeStamp, &message.bytes, data->userData );
+						if ( data->userCallback ) {
+							data->userCallback->rtmidi_midi_in( message.timeStamp, &message.bytes);
 						}
 						else {
 							// As long as we haven't reached our queue size limit, push the message.
@@ -1610,7 +1618,7 @@ namespace rtmidi {
 							}
 							else {
 								try {
-									apiData->error(RTMIDI_ERROR(_("Error: Message queue limit reached."),
+									data->error(RTMIDI_ERROR(rtmidi_gettext("Error: Message queue limit reached."),
 												    Error::WARNING));
 								} catch (Error e) {
 									// don't bother ALSA with an unhandled exception
@@ -1667,9 +1675,8 @@ namespace rtmidi {
 						message.bytes.assign( &packet->data[iByte], &packet->data[iByte+size] );
 						if ( !continueSysex ) {
 							// If not a continuing sysex message, invoke the user callback function or queue the message.
-							if ( data->usingCallback ) {
-								MidiCallback callback = (MidiCallback) data->userCallback;
-								callback( message.timeStamp, &message.bytes, data->userData );
+							if ( data->userCallback ) {
+								data->userCallback->rtmidi_midi_in( message.timeStamp, &message.bytes);
 							}
 							else {
 								// As long as we haven't reached our queue size limit, push the message.
@@ -1681,7 +1688,7 @@ namespace rtmidi {
 								}
 								else {
 									try {
-										apiData->error(RTMIDI_ERROR(_("Error: Message queue limit reached."),
+										data->error(RTMIDI_ERROR(rtmidi_gettext("Error: Message queue limit reached."),
 													    Error::WARNING));
 									} catch (Error e) {
 										// don't bother WinMM with an unhandled exception
@@ -1758,7 +1765,7 @@ namespace rtmidi {
 		CoreMidiData *data = static_cast<CoreMidiData *> (apiData_);
 		OSStatus result = MIDIInputPortCreate( data->client,
 						       CFStringCreateWithCString( NULL, portName.c_str(), kCFStringEncodingUTF8 ),
-						       midiInputCallback, (void *)&inputData_, &port );
+						       midiInputCallback, (void *)this, &port );
 		if ( result != noErr ) {
 			MIDIClientDispose( data->client );
 			error(RTMIDI_ERROR(gettext_noopt("Error creating OS-X MIDI input port."),
@@ -1801,7 +1808,7 @@ namespace rtmidi {
 		MIDIEndpointRef endpoint;
 		OSStatus result = MIDIDestinationCreate( data->client,
 							 CFStringCreateWithCString( NULL, portName.c_str(), kCFStringEncodingUTF8 ),
-							 midiInputCallback, (void *)&inputData_, &endpoint );
+							 midiInputCallback, (void *)this, &endpoint );
 		if ( result != noErr ) {
 			error(RTMIDI_ERROR(gettext_noopt("Error creating virtual OS-X MIDI destination."),
 					   Error::DRIVER_ERROR) );
@@ -1836,7 +1843,7 @@ namespace rtmidi {
 
 		data->openPort (portName,
 				PortDescriptor::INPUT,
-				&inputData_);
+				this);
 		data->setRemote(*remote);
 		OSStatus result =
 			MIDIPortConnectSource(data->localPort,
@@ -1920,12 +1927,15 @@ namespace rtmidi {
 
 		return stringName = name;
 	}
+#undef RTMIDI_CLASSNAME
+
 
 	//*********************************************************************//
 	//  API: OS-X
 	//  Class Definitions: MidiOutCore
 	//*********************************************************************//
 
+#define RTMIDI_CLASSNAME "MidiOutCore"
 	MidiOutCore :: MidiOutCore( const std::string clientName ) : MidiOutApi()
 	{
 		initialize( clientName );
@@ -1994,7 +2004,7 @@ namespace rtmidi {
 		}
 
 		if ( portNumber >= nDest ) {
-			error(RTMIDI_ERROR(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
+			error(RTMIDI_ERROR1(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
 					   Error::INVALID_PARAMETER, portNumber) );
 			return;
 		}
@@ -2227,6 +2237,7 @@ namespace rtmidi {
 			}
 		}
 	}
+#undef RTMIDI_CLASSNAME
 }
 #endif  // __MACOSX_CORE__
 
@@ -2763,7 +2774,7 @@ namespace rtmidi {
 	//  Class Definitions: MidiInAlsa
 	//*********************************************************************//
 
-#define RTMIDI_CLASSNAME ""
+#define RTMIDI_CLASSNAME "MidiInAlsa"
 	// static function:
 	void * MidiInAlsa::alsaMidiHandler( void *ptr ) throw()
 	{
@@ -3002,9 +3013,7 @@ namespace rtmidi {
 		apiData->thread = apiData->dummy_thread_id;
 		return 0;
 	}
-#undef RTMIDI_CLASSNAME
 
-#define RTMIDI_CLASSNAME "MidiInAlsa"
 	MidiInAlsa :: MidiInAlsa( const std::string clientName,
 				  unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
 	{
