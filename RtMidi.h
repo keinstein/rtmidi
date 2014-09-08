@@ -1350,6 +1350,9 @@ namespace rtmidi {
 #endif
 
 #if defined(__MACOSX_CORE__)
+}
+struct MIDIPacketList;
+namespace rtmidi {
 
 	class MidiInCore: public MidiInApi
 	{
@@ -1368,6 +1371,9 @@ namespace rtmidi {
 		std::string getPortName( unsigned int portNumber );
 
 	protected:
+		static void MidiInCore::midiInputCallback( const MIDIPacketList *list,
+							   void *procRef,
+							   void */*srcRef*/) throw();
 		void initialize( const std::string& clientName );
 	};
 
