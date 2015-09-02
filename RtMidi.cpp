@@ -1465,8 +1465,8 @@ namespace rtmidi {
 				try {
 					if ((seq.getPortCapabilities(destination)
 					     & caps) == caps)
-						list.push_back(new CorePortDescriptor(destination,
-									      clientName));
+						list.push_back(Pointer<PortDescriptor>(
+							new CorePortDescriptor(destination, clientName)));
 				} catch (Error e) {
 					if (e.getType() == Error::WARNING ||
 					    e.getType() == Error::DEBUG_WARNING)
@@ -1486,8 +1486,8 @@ namespace rtmidi {
 				try {
 					if ((seq.getPortCapabilities(src)
 					     & caps) == caps)
-						list.push_back(new CorePortDescriptor(src,
-										      clientName));
+						list.push_back(Pointer<PortDescriptor>(
+							new CorePortDescriptor(src, clientName)));
 				} catch (Error e) {
 					if (e.getType() == Error::WARNING ||
 					    e.getType() == Error::DEBUG_WARNING)
@@ -1866,13 +1866,12 @@ namespace rtmidi {
 		}
 		if (local) {
 			if (data && data->localEndpoint) {
-				return new
-					CorePortDescriptor(data->localEndpoint,
-							   data->getClientName());
+				return Pointer<PortDescriptor>(new
+					CorePortDescriptor(data->localEndpoint, data->getClientName()));
 			}
 		} else {
 			if (data->getEndpoint()) {
-				return new CorePortDescriptor(*data);
+				return Pointer<PortDescriptor>(new CorePortDescriptor(*data));
 			}
 		}
 		return NULL;
@@ -2113,13 +2112,13 @@ namespace rtmidi {
 		try {
 			if (local) {
 				if (data && data->localEndpoint) {
-					return new
-						CorePortDescriptor(data->localEndpoint,
-								   data->getClientName());
+					return Pointer<PortDescriptor>(
+						new CorePortDescriptor(data->localEndpoint, data->getClientName()));
 				}
 			} else {
 				if (data->getEndpoint()) {
-					return new CorePortDescriptor(*data);
+					return Pointer<PortDescriptor>(
+						new CorePortDescriptor(*data));
 				}
 			}
 		} catch (Error e) {
@@ -2623,7 +2622,8 @@ namespace rtmidi {
 					    != (SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE))
 						continue;
 				}
-				list.push_back(new AlsaPortDescriptor(client,snd_seq_port_info_get_port(pinfo),clientName));
+				list.push_back(Pointer<PortDescriptor>(
+					new AlsaPortDescriptor(client,snd_seq_port_info_get_port(pinfo),clientName)));
 			}
 		}
 		return list;
@@ -3301,11 +3301,13 @@ namespace rtmidi {
 		try {
 			if (local) {
 				if (data && data->local.client) {
-					return new AlsaPortDescriptor(data->local,data->getClientName());
+					return Pointer<PortDescriptor>(
+						new AlsaPortDescriptor(data->local,data->getClientName()));
 				}
 			} else {
 				if (data && data->client) {
-					return new AlsaPortDescriptor(*data,data->getClientName());
+					return Pointer<PortDescriptor>(
+						new AlsaPortDescriptor(*data,data->getClientName()));
 				}
 			}
 		} catch (Error e) {
@@ -3705,11 +3707,13 @@ namespace rtmidi {
 		try {
 			if (local) {
 				if (data && data->local.client) {
-					return new AlsaPortDescriptor(data->local, data->getClientName());
+					return Pointer<PortDescriptor>(
+						new AlsaPortDescriptor(data->local, data->getClientName()));
 				}
 			} else {
 				if (data && data->client) {
-					return new AlsaPortDescriptor(*data, data->getClientName());
+					return Pointer<PortDescriptor>(
+						new AlsaPortDescriptor(*data, data->getClientName())));
 				}
 			}
 		} catch (Error e) {
@@ -4022,13 +4026,15 @@ namespace rtmidi{
 			size_t n = midiInGetNumDevs();
 			for (size_t i = 0 ; i < n ; i++) {
 				std::string name = seq.getPortName(i,true,PortDescriptor::STORAGE_PATH);
-				list.push_back(new WinMMPortDescriptor(i,name,true,clientName));
+				list.push_back(Pointer<PortDescriptor>(
+					new WinMMPortDescriptor(i,name,true,clientName)));
 			}
 		} else {
 			size_t n = midiOutGetNumDevs();
 			for (size_t i = 0 ; i < n ; i++) {
 				std::string name = seq.getPortName(i,false,PortDescriptor::STORAGE_PATH);
-				list.push_back(new WinMMPortDescriptor(i,name,false,clientName));
+				list.push_back(Pointer<PortDescriptor>(
+					new WinMMPortDescriptor(i,name,false,clientName)));
 			}
 		}
 		return list;
@@ -4359,7 +4365,8 @@ namespace rtmidi{
 		}
 		WinMMPortDescriptor * retval = NULL;
 		try {
-			retval = new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName());
+			retval = Pointer<PortDescriptor>(
+				new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName()));
 		} catch (Error e) {
 			try {
 				error(e);
@@ -4626,7 +4633,8 @@ namespace rtmidi{
 					    Error::DRIVER_ERROR));
 			return 0;
 		}
-		return new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName());
+		return Pointer<PortDescriptor>(
+			new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName()));
 
 	}
 
@@ -5047,7 +5055,8 @@ namespace rtmidi {
 		const char ** ports = seq.getPortList(flags);
 		if (!ports) return list;
 		for (const char ** port = ports; *port; port++) {
-			list.push_back(new JackPortDescriptor(*port, clientName));
+			list.push_back(Pointer<PortDescriptor>(
+				new JackPortDescriptor(*port, clientName)));
 		}
 		jack_free(ports);
 		return list;
@@ -5451,11 +5460,13 @@ namespace rtmidi {
 		try {
 			if (local) {
 				if (data && data->local) {
-					return new JackPortDescriptor(data->local,data->getClientName());
+					return Pointer<PortDescriptor>(
+						new JackPortDescriptor(data->local,data->getClientName()));
 				}
 			} else {
 				if (data && *data) {
-					return new JackPortDescriptor(*data,data->getClientName());
+					return Pointer<PortDescriptor>(
+						new JackPortDescriptor(*data,data->getClientName()));
 				}
 			}
 		} catch (Error e) {
@@ -5665,11 +5676,13 @@ namespace rtmidi {
 		try {
 			if (local) {
 				if (data && data->local) {
-					return new JackPortDescriptor(data->local,data->getClientName());
+					return Pointer<PortDescriptor>(
+						new JackPortDescriptor(data->local,data->getClientName()));
 				}
 			} else {
 				if (data && *data) {
-					return new JackPortDescriptor(*data,data->getClientName());
+					return Pointer<PortDescriptor>(
+						new JackPortDescriptor(*data,data->getClientName()));
 				}
 			}
 		} catch (Error e) {
