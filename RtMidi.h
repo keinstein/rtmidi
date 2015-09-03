@@ -54,6 +54,16 @@
 #define RTMIDI_DEPRECATED(func,message) func [[deprecated(message)]]
 #endif
 
+// Check for C++11 support
+#ifdef _MSC_VER && _MSC_VER >= 1800
+// At least Visual Studio 2013
+#define RTMIDI_SUPPORTS_CPP11 1
+#elif __cplusplus >= 201103L
+#define RTMIDI_SUPPORTS_CPP11 1
+#else
+#define RTMIDI_SUPPORTS_CPP11 0
+#endif
+
 #include <exception>
 #include <iostream>
 #include <string>
@@ -265,7 +275,7 @@ namespace rtmidi {
 
 
 
-#if __cplusplus < 201103L
+#if !RTMIDI_SUPPORTS_CPP11
 	class PortDescriptor;
 
 	template<class T>

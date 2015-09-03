@@ -39,7 +39,9 @@
 #include "RtMidi.h"
 #include <sstream>
 #include <cstring>
+#include <cctype>
 #include <algorithm>
+#include <functional>
 
 namespace rtmidi {
 #ifdef RTMIDI_GETTEXT
@@ -4365,8 +4367,7 @@ namespace rtmidi{
 		}
 		WinMMPortDescriptor * retval = NULL;
 		try {
-			retval = Pointer<PortDescriptor>(
-				new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName()));
+			retval = new WinMMPortDescriptor(devid, getPortName(devid), true, data->getClientName());
 		} catch (Error e) {
 			try {
 				error(e);
@@ -4375,7 +4376,7 @@ namespace rtmidi{
 				throw;
 			}
 		}
-                return retval;
+                return Pointer<PortDescriptor>(retval);
 
 	}
 
