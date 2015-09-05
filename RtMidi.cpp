@@ -3715,7 +3715,7 @@ namespace rtmidi {
 			} else {
 				if (data && data->client) {
 					return Pointer<PortDescriptor>(
-						new AlsaPortDescriptor(*data, data->getClientName())));
+						new AlsaPortDescriptor(*data, data->getClientName()));
 				}
 			}
 		} catch (Error e) {
