@@ -462,6 +462,8 @@ namespace rtmidi {
 
 	MidiInApi :: ~MidiInApi( void )
 	{
+		if (userCallback)
+			userCallback->delete_me();
 		// Delete the MIDI queue.
 		if ( queue.ringSize > 0 ) delete [] queue.ring;
 	}
@@ -508,6 +510,7 @@ namespace rtmidi {
 			return;
 		}
 
+		userCallback->delete_me();
 		userCallback = 0;
 	}
 
