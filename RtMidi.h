@@ -46,7 +46,11 @@
 #define RTMIDI_VERSION "3.0.0alpha"
 
 #ifdef __GNUC__
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 4)
 #define RTMIDI_DEPRECATED(func,message) func __attribute__ ((deprecated(message)))
+#else
+#define RTMIDI_DEPRECATED(func,message) func __attribute__ ((deprecated))
+#endif
 #elif defined(_MSC_VER)
 #define RTMIDI_DEPRECATED(func,message) __declspec(deprecated(message)) func
 #else
