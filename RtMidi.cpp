@@ -568,11 +568,12 @@ namespace rtmidi {
 		s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
 		return s;
 	}
-
+#if 0
         // trim from both ends
 	static inline std::string &trim(std::string &s) {
 		return ltrim(rtrim(s));
 	}
+#endif
 }
 #undef RTMIDI_CLASSNAME
 
