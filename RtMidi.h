@@ -1602,6 +1602,7 @@ namespace rtmidi {
 
 #if defined(__RTMIDI_DUMMY__)
 
+#define RTMIDI_CLASSNAME "MidiInDummy"
 	class MidiInDummy: public MidiInApi
 	{
 	public:
@@ -1610,11 +1611,11 @@ namespace rtmidi {
 			error( RTMIDI_ERROR(_("MidiInDummy: This class provides no functionality."),
 					    Error::WARNING) );
 		}
-		ApiType getCurrentApi( void ) { return RTMIDI_DUMMY; }
+		ApiType getCurrentApi( void ) throw() { return DUMMY; }
 		bool hasVirtualPorts() const { return false; }
-		void openPort( unsigned int /*portNumber*/, const & std::string /*portName*/ ) {}
+		void openPort( unsigned int portNumber, const &std::string portName ) {}
 		void openVirtualPort( const std::string /*portName*/ ) {}
-		void openPort( const PortDescriptor & port, const & std::string portName) {}
+		void openPort( const PortDescriptor & port, const &std::string portName) {}
 		Pointer<PortDescriptor> getDescriptor(bool local=false) { return 0; }
 		PortList getPortList(int capabilities) { return PortList(); }
 		void closePort( void ) {}
@@ -1624,7 +1625,9 @@ namespace rtmidi {
 	protected:
 		void initialize( const std::string& /*clientName*/ ) {}
 	};
+#undef RTMIDI_CLASSNAME
 
+#define RTMIDI_CLASSNAME "MidiOutDummy"
 	class MidiOutDummy: public MidiOutApi
 	{
 	public:
@@ -1632,7 +1635,7 @@ namespace rtmidi {
 			error( RTMIDI_ERROR(_("MidiInDummy: This class provides no functionality."),
 					    Error::WARNING) );
 		}
-		ApiType getCurrentApi( void ) { return RTMIDI_DUMMY; }
+		ApiType getCurrentApi( void ) { return DUMMY; }
 		bool hasVirtualPorts() const { return false; }
 		void openPort( unsigned int /*portNumber*/, const & std::string /*portName*/ ) {}
 		void openVirtualPort( const std::string /*portName*/ ) {}
