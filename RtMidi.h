@@ -1527,7 +1527,7 @@ namespace rtmidi {
 	protected:
 		static void * alsaMidiHandler( void *ptr ) throw();
 		void initialize( const std::string& clientName );
-		friend class AlsaMidiData;
+		friend struct AlsaMidiData;
 	};
 
 	class MidiOutAlsa: public MidiOutApi
