@@ -275,8 +275,19 @@ namespace rtmidi {
 			else return (*ptr->descriptor);
 		}
 
+		const datatype & operator * () const {
+			if (!ptr || !ptr->descriptor) {
+				throw std::invalid_argument("rtmidi::Pointer: trying to dereference a NULL pointer.");
+			}
+			else return (*ptr->descriptor);
+		}
+
 		bool operator ! () {
 			return (!ptr || !ptr->descriptor);
+		}
+
+		operator bool () {
+			return (ptr && ptr->descriptor);
 		}
 
 		Pointer & operator = (const Pointer<datatype> & other) {
@@ -293,6 +304,17 @@ namespace rtmidi {
 	protected:
 		countPointer * ptr;
 	};
+
+	template <class T, class U>
+	bool operator==(const Pointer<T>& lhs, const Pointer<U>& rhs) {
+		return (&(*lhs)) == (&(*rhs));
+	}
+
+	template <class T, class U>
+	bool operator!=(const Pointer<T>& lhs, const Pointer<U>& rhs) {
+		return (&(*lhs)) != (&(*rhs));
+	}
+
 #else
 	template<class T>
 	using Pointer = std::shared_ptr<T>;
