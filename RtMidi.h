@@ -404,6 +404,7 @@ namespace rtmidi {
 	/*! Port descriptors are stored as shared pointers. This avoids
 	  unnecessary duplication of the data structure and handles automatic
 	  deletion if all references have been removed. */
+	typedef Pointer<PortDescriptor> PortPointer;
 	typedef std::list<Pointer<PortDescriptor> > PortList;
 
 
