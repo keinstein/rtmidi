@@ -429,7 +429,10 @@ namespace rtmidi {
 	typedef Pointer<PortDescriptor> PortPointer;
 	typedef std::list<Pointer<PortDescriptor> > PortList;
 
-
+	/* A depricated type. See below for the documentation.  We
+	   split the definiton into several pieces to work around some
+	   intended warnings. */
+	typedef void (*ErrorCallback_t)( Error::Type type, const std::string &errorText, void * userdata );
 	//! RtMidi error callback function prototype.
 	/*!
 	  \param type Type of error.
@@ -437,9 +440,17 @@ namespace rtmidi {
 
 	  Note that class behaviour is undefined after a critical error (not
 	  a warning) is reported.
+	  \sa ErrorInterface
+	  \depricated
 	*/
-	RTMIDI_DEPRECATED(typedef void (*ErrorCallback)( Error::Type type, const std::string &errorText, void * userdata ),"RtMidi now provides a class MidiInterface for error callbacks");
+	RTMIDI_DEPRECATED(typedef ErrorCallback_t ErrorCallback,"RtMidi now provides a class MidiInterface for error callbacks");
 
+	/* A depricated type. See below for the documentation.  We
+	   split the definiton into several pieces to work around some
+	   intended warnings. */
+#define ErrorCallback ErrorCallback_t
+
+	typedef void (*MidiCallback_t)( double timeStamp, std::vector<unsigned char> *message, void *userData);
 	//! C style user callback function type definition.
 	/*!
 	  This interface type has been replaced by a MidiInterface class.
@@ -452,7 +463,8 @@ namespace rtmidi {
 	  \sa MidiInterface
 	  \deprecated
 	*/
-	RTMIDI_DEPRECATED(typedef void (*MidiCallback)( double timeStamp, std::vector<unsigned char> *message, void *userData),"RtMidi now provides a class MidiInterface for MIDI callbacks");
+	RTMIDI_DEPRECATED(typedef MidiCallback_t MidiCallback,"RtMidi now provides a class MidiInterface for MIDI callbacks");
+#define MidiCallback MidiCallback_t
 
 	// **************************************************************** //
 	//
@@ -626,8 +638,6 @@ namespace rtmidi {
 		 */
 		void error( Error e );
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 		//! Virtual function to set an error callback function to be invoked when an error has occured.
 		/*!
@@ -636,7 +646,6 @@ namespace rtmidi {
 		*/
 		RTMIDI_DEPRECATED(virtual void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 ), "RtMidi now provides a typesafe ErrorInterface class");
 
-#pragma GCC diagnostic pop
 	protected:
 		virtual void initialize( const std::string& clientName ) = 0;
 
@@ -683,8 +692,6 @@ namespace rtmidi {
 				:front(0), back(0), size(0), ringSize(0) {}
 		};
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 
 		RTMIDI_DEPRECATED(void setCallback( MidiCallback callback, void *userData = 0 ),
@@ -698,8 +705,6 @@ namespace rtmidi {
 			}
 			return getMessage(*message);
 		}
-
-#pragma GCC diagnostic pop
 
 	protected:
 		// The RtMidiInData structure is used to pass private class data to
@@ -864,19 +869,20 @@ namespace rtmidi {
 
 		//! A basic error reporting function for RtMidi classes.
 		void error( Error e );
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+		enum Api_t {
+			UNSPECIFIED  = rtmidi::UNSPECIFIED,
+			MACOSX_CORE  = rtmidi::MACOSX_CORE,
+			LINUX_ALSA   = rtmidi::LINUX_ALSA,
+			UNIX_JACK    = rtmidi::UNIX_JACK,
+			WINDOWS_MM   = rtmidi::WINDOWS_MM,
+			RTMIDI_DUMMY = rtmidi::DUMMY
+		};
 
 		/* old functions */
-		RTMIDI_DEPRECATED(enum,
-				  "enum RtMidi::Api has been replaced by enum rtmidi::ApiType") Api {
-			UNSPECIFIED  = rtmidi::UNSPECIFIED,
-				MACOSX_CORE  = rtmidi::MACOSX_CORE,
-				LINUX_ALSA   = rtmidi::LINUX_ALSA,
-				UNIX_JACK    = rtmidi::UNIX_JACK,
-				WINDOWS_MM   = rtmidi::WINDOWS_MM,
-				RTMIDI_DUMMY = rtmidi::DUMMY
-				};
+		RTMIDI_DEPRECATED(typedef Api_t Api,
+				  "enum RtMidi::Api has been replaced by enum rtmidi::ApiType");
+#define Api Api_t
 		RTMIDI_DEPRECATED(static void getCompiledApi( std::vector<Api> &apis, bool
 							      preferSystem
 		= true ) throw(), "enum RtMidi::Api has been replaced by enum rtmidi::ApiType" ) {
@@ -957,7 +963,14 @@ namespace rtmidi {
 		*/
 		RTMIDI_DEPRECATED(void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 ), "setErrorCallback now expects an object of type ErrorInterface")
 		{
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 			if (rtapi_) rtapi_->setErrorCallback(errorCallback, userData);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 		}
 
 
@@ -988,7 +1001,6 @@ namespace rtmidi {
 		return getApiName((ApiType)type);
 	}
 
-#pragma GCC diagnostic pop
 #undef RTMIDI_CLASSNAME
 
 	/**********************************************************************/
@@ -1195,8 +1207,6 @@ namespace rtmidi {
 			return 0.0;
 		}
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 		//! Set a callback function to be invoked for incoming MIDI messages.
 		/*!
@@ -1212,8 +1222,15 @@ namespace rtmidi {
 		RTMIDI_DEPRECATED(void setCallback( MidiCallback callback, void *userData = 0 ),
 			"RtMidi now provides a type-safe MidiInterface class.")
 		{
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 			if (rtapi_)
 				static_cast<MidiInApi*>(rtapi_)->setCallback(callback,userData);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 		}
 		//! Fill the user-provided vector with the data bytes for the next available MIDI message in the input queue and return the event delta-time in seconds.
 		/*!
@@ -1238,7 +1255,6 @@ namespace rtmidi {
 					    Error::WARNING));
 			return 0.0;
 		}
-#pragma GCC diagnostic pop
 	protected:
 		static MidiApiList queryApis;
 		int queueSizeLimit;
@@ -1666,10 +1682,6 @@ namespace rtmidi {
 
 	// old API
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
 
 	//! Compatibility interface to hold a C style callback function
 	struct CompatibilityMidiInterface: MidiInterface {
@@ -1721,8 +1733,5 @@ public:
 			clientName) {}
 };
 typedef rtmidi::Error   RtMidiError;
-#ifdef GCC
-#pragma GCC diagnostic pop
-#endif
 
 #endif
