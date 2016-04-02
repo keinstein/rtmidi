@@ -507,7 +507,7 @@ namespace rtmidi {
 
 		  \sa hasVirtualPorts
 		*/
-		virtual void openVirtualPort( const std::string portName = std::string( "RtMidi virtual port" ) ) = 0;
+		virtual void openVirtualPort( const std::string & portName = std::string( "RtMidi virtual port" ) ) = 0;
 
 		//! Pure virtual function to open a MIDI connection given by enumeration number.
 		/*! \param portNumber An optional port number greater than 0
@@ -897,8 +897,8 @@ namespace rtmidi {
 
 		//! Compatibilty function for older code
 		virtual
-		RTMIDI_DEPRECATED(void openVirtualPort( const
-		std::string portName = std::string( "RtMidi virtual port" ) ),
+		RTMIDI_DEPRECATED(void openVirtualPort( const std::string & portName
+							= std::string( "RtMidi virtual port" ) ),
 				  "For better usability you should call this function from a derived class") = 0;
 
 		//! Pure virtual function to open a MIDI connection given by enumeration number.
@@ -913,7 +913,7 @@ namespace rtmidi {
 		  \deprecated
 		*/
 		RTMIDI_DEPRECATED(void openPort( unsigned int portNumber = 0,
-						 const std::string portName = std::string( "RtMidi" )
+						 const std::string & portName = std::string( "RtMidi" )
 					  ),"Port numbers are unreliable. Use port descriptors instead (see examples for a demonstration)")
 		{
 			if (rtapi_) rtapi_->openPort(portNumber,portName);
@@ -1069,7 +1069,7 @@ namespace rtmidi {
 		  versa.
 		*/
 		MidiIn( ApiType api=rtmidi::UNSPECIFIED,
-			const std::string clientName = std::string( "RtMidi Input Client"),
+			const std::string & clientName = std::string( "RtMidi Input Client"),
 			unsigned int queueSizeLimit = 100,
 			bool pfsystem = true);
 
@@ -1117,7 +1117,7 @@ namespace rtmidi {
 		  \param portName An optional name for the application port that is
 		  used to connect to portId can be specified.
 		*/
-		void openVirtualPort( const std::string portName = std::string( "RtMidi virtual input port" ) )
+		void openVirtualPort( const std::string & portName = std::string( "RtMidi virtual input port" ) )
 		{
 			if (!rtapi_ && list && !list->empty()) {
 				Pointer<MidiApi> api = list->front();
@@ -1308,7 +1308,7 @@ namespace rtmidi {
 		  versa.
 		*/
 		MidiOut( ApiType api=rtmidi::UNSPECIFIED,
-			 const std::string clientName = std::string( "RtMidi Output Client"),
+			 const std::string & clientName = std::string( "RtMidi Output Client"),
 			 bool pfsystem = true);
 
 		//! The destructor closes any open MIDI connections.
@@ -1355,7 +1355,7 @@ namespace rtmidi {
 		  \param portName An optional name for the applicaction port that is
 		  used to connect to portId can be specified.
 		*/
-		void openVirtualPort( const std::string portName = std::string( "RtMidi virtual output port" ) )
+		void openVirtualPort( const std::string & portName = std::string( "RtMidi virtual output port" ) )
 		{
 			if (!rtapi_ && list && !list->empty()) {
 				Pointer<MidiApi> api = list->front();
@@ -1437,12 +1437,12 @@ namespace rtmidi {
 	class MidiInCore: public MidiInApi
 	{
 	public:
-		MidiInCore( const std::string clientName, unsigned int queueSizeLimit );
+		MidiInCore( const std::string & clientName, unsigned int queueSizeLimit );
 		~MidiInCore( void );
 		ApiType getCurrentApi( void ) throw() { return MACOSX_CORE; };
 		bool hasVirtualPorts() const { return true; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1462,12 +1462,12 @@ namespace rtmidi {
 	class MidiOutCore: public MidiOutApi
 	{
 	public:
-		MidiOutCore( const std::string clientName );
+		MidiOutCore( const std::string & clientName );
 		~MidiOutCore( void );
 		ApiType getCurrentApi( void ) throw() { return MACOSX_CORE; };
 		bool hasVirtualPorts() const { return true; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1487,12 +1487,12 @@ namespace rtmidi {
 	class MidiInJack: public MidiInApi
 	{
 	public:
-		MidiInJack( const std::string clientName, unsigned int queueSizeLimit );
+		MidiInJack( const std::string & clientName, unsigned int queueSizeLimit );
 		~MidiInJack( void );
 		ApiType getCurrentApi( void ) throw() { return UNIX_JACK; };
 		bool hasVirtualPorts() const { return true; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1510,12 +1510,12 @@ namespace rtmidi {
 	class MidiOutJack: public MidiOutApi
 	{
 	public:
-		MidiOutJack( const std::string clientName );
+		MidiOutJack( const std::string & clientName );
 		~MidiOutJack( void );
 		ApiType getCurrentApi( void ) throw() { return UNIX_JACK; };
 		bool hasVirtualPorts() const { return true; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1538,12 +1538,12 @@ namespace rtmidi {
 	class MidiInAlsa: public MidiInApi
 	{
 	public:
-		MidiInAlsa( const std::string clientName, unsigned int queueSizeLimit );
+		MidiInAlsa( const std::string & clientName, unsigned int queueSizeLimit );
 		~MidiInAlsa( void );
 		ApiType getCurrentApi( void ) throw() { return LINUX_ALSA; };
 		bool hasVirtualPorts() const { return true; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1560,12 +1560,12 @@ namespace rtmidi {
 	class MidiOutAlsa: public MidiOutApi
 	{
 	public:
-		MidiOutAlsa( const std::string clientName );
+		MidiOutAlsa( const std::string & clientName );
 		~MidiOutAlsa( void );
 		ApiType getCurrentApi( void ) throw() { return LINUX_ALSA; };
 		bool hasVirtualPorts() const { return true; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1585,12 +1585,12 @@ namespace rtmidi {
 	class MidiInWinMM: public MidiInApi
 	{
 	public:
-		MidiInWinMM( const std::string clientName, unsigned int queueSizeLimit );
+		MidiInWinMM( const std::string & clientName, unsigned int queueSizeLimit );
 		~MidiInWinMM( void );
 		ApiType getCurrentApi( void ) throw() { return WINDOWS_MM; };
 		bool hasVirtualPorts() const { return false; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1607,12 +1607,12 @@ namespace rtmidi {
 	class MidiOutWinMM: public MidiOutApi
 	{
 	public:
-		MidiOutWinMM( const std::string clientName );
+		MidiOutWinMM( const std::string & clientName );
 		~MidiOutWinMM( void );
 		ApiType getCurrentApi( void ) throw() { return WINDOWS_MM; };
 		bool hasVirtualPorts() const { return false; }
 		void openPort( unsigned int portNumber, const std::string & portName );
-		void openVirtualPort( const std::string portName );
+		void openVirtualPort( const std::string & portName );
 		void openPort( const PortDescriptor & port, const std::string & portName);
 		Pointer<PortDescriptor> getDescriptor(bool local=false);
 		PortList getPortList(int capabilities);
@@ -1633,7 +1633,7 @@ namespace rtmidi {
 	class MidiInDummy: public MidiInApi
 	{
 	public:
-		MidiInDummy( const std::string /*clientName*/, unsigned int queueSizeLimit )
+		MidiInDummy( const std::string & /*clientName*/, unsigned int queueSizeLimit )
 			: MidiInApi( queueSizeLimit ) {
 			error( RTMIDI_ERROR(_("MidiInDummy: This class provides no functionality."),
 					    Error::WARNING) );
@@ -1641,7 +1641,7 @@ namespace rtmidi {
 		ApiType getCurrentApi( void ) throw() { return DUMMY; }
 		bool hasVirtualPorts() const { return false; }
 		void openPort( unsigned int portNumber, const &std::string portName ) {}
-		void openVirtualPort( const std::string /*portName*/ ) {}
+		void openVirtualPort( const std::string & /*portName*/ ) {}
 		void openPort( const PortDescriptor & port, const &std::string portName) {}
 		Pointer<PortDescriptor> getDescriptor(bool local=false) { return 0; }
 		PortList getPortList(int capabilities) { return PortList(); }
@@ -1658,14 +1658,14 @@ namespace rtmidi {
 	class MidiOutDummy: public MidiOutApi
 	{
 	public:
-		MidiOutDummy( const std::string /*clientName*/ ) {
+		MidiOutDummy( const std::string & /*clientName*/ ) {
 			error( RTMIDI_ERROR(_("MidiInDummy: This class provides no functionality."),
 					    Error::WARNING) );
 		}
 		ApiType getCurrentApi( void ) { return DUMMY; }
 		bool hasVirtualPorts() const { return false; }
 		void openPort( unsigned int /*portNumber*/, const & std::string /*portName*/ ) {}
-		void openVirtualPort( const std::string /*portName*/ ) {}
+		void openVirtualPort( const std::string & /*portName*/ ) {}
 		void openPort( const PortDescriptor & port, const & std::string portName) {}
 		Pointer<PortDescriptor> getDescriptor(bool local=false) { return 0; }
 		PortList getPortList(int capabilities) { return PortList(); }
@@ -1719,7 +1719,7 @@ typedef rtmidi::Midi RTMIDI_DEPRECATED(RtMidi,"RtMidi has been replaced by rtmid
 class RtMidiIn: public rtmidi::MidiIn {
 public:
 	RTMIDI_DEPRECATED(RtMidiIn( RtMidi::Api api = RtMidi::UNSPECIFIED,
-				    const std::string clientName = std::string( "RtMidi Input Client")),
+				    const std::string & clientName = std::string( "RtMidi Input Client")),
 			  "Class RtMidiIn has been replaced by rtmidi::MidiIn"):
 		MidiIn((rtmidi::ApiType)api,
 		       clientName) {}
@@ -1727,7 +1727,7 @@ public:
 class RtMidiOut: public rtmidi::MidiOut {
 public:
 	RTMIDI_DEPRECATED(RtMidiOut( RtMidi::Api api = RtMidi::UNSPECIFIED,
-				     const std::string clientName = std::string( "RtMidi Output Client")),
+				     const std::string & clientName = std::string( "RtMidi Output Client")),
 			  "Class RtMidiOut has been replaced by rtmidi::MidiOut"):
 		MidiOut((rtmidi::ApiType)api,
 			clientName) {}

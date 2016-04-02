@@ -233,7 +233,7 @@ namespace rtmidi {
 	MidiApiList MidiIn::queryApis;
 
 	MidiIn :: MidiIn( ApiType api,
-			  const std::string clientName,
+			  const std::string & clientName,
 			  unsigned int queueSize,
 			  bool pfsystem )
 		: Midi(&queryApis,pfsystem,clientName),
@@ -339,7 +339,7 @@ namespace rtmidi {
 
 	MidiApiList MidiOut::queryApis;
 
-	MidiOut :: MidiOut( ApiType api, const std::string clientName, bool pfsystem )
+	MidiOut :: MidiOut( ApiType api, const std::string & clientName, bool pfsystem )
 		: Midi(&queryApis, pfsystem, clientName)
 	{
 		if ( api == rtmidi::ALL_API) {
@@ -2997,7 +2997,7 @@ namespace rtmidi {
 		return 0;
 	}
 
-	MidiInAlsa :: MidiInAlsa( const std::string clientName,
+	MidiInAlsa :: MidiInAlsa( const std::string & clientName,
 				  unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
 	{
 		initialize( clientName );
@@ -3313,7 +3313,7 @@ namespace rtmidi {
 
 
 
-	void MidiInAlsa :: openVirtualPort( std::string portName )
+	void MidiInAlsa :: openVirtualPort(const std::string & portName )
 	{
 		AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
 		if ( !data->local.client ) {
@@ -3412,7 +3412,7 @@ namespace rtmidi {
 	//*********************************************************************//
 
 #define RTMIDI_CLASSNAME "MidiOutAlsa"
-	MidiOutAlsa :: MidiOutAlsa( const std::string clientName ) : MidiOutApi()
+	MidiOutAlsa :: MidiOutAlsa( const std::string & clientName ) : MidiOutApi()
 	{
 		initialize( clientName );
 	}
@@ -3584,7 +3584,7 @@ namespace rtmidi {
 		}
 	}
 
-	void MidiOutAlsa :: openVirtualPort( std::string portName )
+	void MidiOutAlsa :: openVirtualPort(const std::string & portName )
 	{
 		AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
 		if ( !data->local.client ) {
@@ -5312,7 +5312,7 @@ namespace rtmidi {
 #undef RTMIDI_CLASSNAME
 
 #define RTMIDI_CLASSNAME "MidiInJack"
-	MidiInJack :: MidiInJack( const std::string clientName, unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
+	MidiInJack :: MidiInJack( const std::string & clientName, unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
 	{
 		initialize( clientName );
 	}
@@ -5394,7 +5394,7 @@ namespace rtmidi {
 		jack_connect( *(data->seq), name.c_str(), jack_port_name( data->local ) );
 	}
 
-	void MidiInJack :: openVirtualPort( const std::string portName )
+	void MidiInJack :: openVirtualPort( const std::string & portName )
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 
@@ -5544,7 +5544,7 @@ namespace rtmidi {
 
 
 #define RTMIDI_CLASSNAME "MidiOutJack"
-	MidiOutJack :: MidiOutJack( const std::string clientName ) : MidiOutApi()
+	MidiOutJack :: MidiOutJack( const std::string & clientName ) : MidiOutApi()
 	{
 		initialize( clientName );
 	}
@@ -5611,7 +5611,7 @@ namespace rtmidi {
 		jack_connect( *(data->seq), jack_port_name( data->local ), name.c_str() );
 	}
 
-	void MidiOutJack :: openVirtualPort( const std::string portName )
+	void MidiOutJack :: openVirtualPort( const std::string & portName )
 	{
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 
