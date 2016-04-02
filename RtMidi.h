@@ -145,33 +145,6 @@ namespace rtmidi {
 		virtual void delete_me() {}
 	};
 
-	//! C style user callback function type definition.
-	/*!
-	  This interface type has been replaced by a MidiInterface class.
-
-	  \param timeStamp  timestamp indicating when the event has been received
-	  \param message    a pointer to the binary MIDI message
-	  \param userData   a pointer that can be set using setUserdata
-	  \sa MidiIn
-	  \sa MidiInApi
-	  \sa MidiInterface
-	  \deprecated
-	 */
-	RTMIDI_DEPRECATED(typedef void (*MidiCallback)( double timeStamp, std::vector<unsigned char> *message, void *userData),"RtMidi now provides a class MidiInterface for MIDI callbacks");
-
-	//! Compatibility interface to hold a C style callback function
-	struct CompatibilityMidiInterface: MidiInterface {
-		CompatibilityMidiInterface(MidiCallback cb, void * ud):
-			callback(cb),
-			userData(ud) {}
-		void rtmidi_midi_in(double timestamp, std::vector<unsigned char> *message) {
-			callback (timestamp, message, userData);
-		}
-		void delete_me() { delete this; }
-		MidiCallback callback;
-		void * userData;
-	};
-
 	/************************************************************************/
 	/*! \class Error
 	  \brief Exception handling class for RtMidi.
@@ -245,35 +218,12 @@ namespace rtmidi {
 		Type type_;
 	};
 
-	//! RtMidi error callback function prototype.
-	/*!
-	  \param type Type of error.
-	  \param errorText Error description.
 
-	  Note that class behaviour is undefined after a critical error (not
-	  a warning) is reported.
-	*/
-	typedef void (*ErrorCallback)( Error::Type type, const std::string &errorText, void * userdata );
 	struct ErrorInterface {
 		virtual ~ErrorInterface() {}
 		virtual void rtmidi_error (Error e) = 0;
 		virtual void delete_me() {};
 	};
-
-	struct CompatibilityErrorInterface: ErrorInterface {
-		CompatibilityErrorInterface(ErrorCallback cb, void * ud): callback(cb),
-									  userdata(ud) {}
-		void rtmidi_error(Error e) {
-			callback(e.getType(),e.getMessage(),userdata);
-		}
-
-		void delete_me() { delete this; }
-	private:
-		ErrorCallback callback;
-		void * userdata;
-	};
-
-
 
 #if !RTMIDI_SUPPORTS_CPP11
 	class PortDescriptor;
@@ -325,8 +275,19 @@ namespace rtmidi {
 			else return (*ptr->descriptor);
 		}
 
+		const datatype & operator * () const {
+			if (!ptr || !ptr->descriptor) {
+				throw std::invalid_argument("rtmidi::Pointer: trying to dereference a NULL pointer.");
+			}
+			else return (*ptr->descriptor);
+		}
+
 		bool operator ! () {
 			return (!ptr || !ptr->descriptor);
+		}
+
+		operator bool () {
+			return (ptr && ptr->descriptor);
 		}
 
 		Pointer & operator = (const Pointer<datatype> & other) {
@@ -343,6 +304,17 @@ namespace rtmidi {
 	protected:
 		countPointer * ptr;
 	};
+
+	template <class T, class U>
+	bool operator==(const Pointer<T>& lhs, const Pointer<U>& rhs) {
+		return (&(*lhs)) == (&(*rhs));
+	}
+
+	template <class T, class U>
+	bool operator!=(const Pointer<T>& lhs, const Pointer<U>& rhs) {
+		return (&(*lhs)) != (&(*rhs));
+	}
+
 #else
 	template<class T>
 	using Pointer = std::shared_ptr<T>;
@@ -454,9 +426,33 @@ namespace rtmidi {
 	/*! Port descriptors are stored as shared pointers. This avoids
 	  unnecessary duplication of the data structure and handles automatic
 	  deletion if all references have been removed. */
+	typedef Pointer<PortDescriptor> PortPointer;
 	typedef std::list<Pointer<PortDescriptor> > PortList;
 
 
+	//! RtMidi error callback function prototype.
+	/*!
+	  \param type Type of error.
+	  \param errorText Error description.
+
+	  Note that class behaviour is undefined after a critical error (not
+	  a warning) is reported.
+	*/
+	RTMIDI_DEPRECATED(typedef void (*ErrorCallback)( Error::Type type, const std::string &errorText, void * userdata ),"RtMidi now provides a class MidiInterface for error callbacks");
+
+	//! C style user callback function type definition.
+	/*!
+	  This interface type has been replaced by a MidiInterface class.
+
+	  \param timeStamp  timestamp indicating when the event has been received
+	  \param message    a pointer to the binary MIDI message
+	  \param userData   a pointer that can be set using setUserdata
+	  \sa MidiIn
+	  \sa MidiInApi
+	  \sa MidiInterface
+	  \deprecated
+	*/
+	RTMIDI_DEPRECATED(typedef void (*MidiCallback)( double timeStamp, std::vector<unsigned char> *message, void *userData),"RtMidi now provides a class MidiInterface for MIDI callbacks");
 
 	// **************************************************************** //
 	//
@@ -630,6 +626,9 @@ namespace rtmidi {
 		 */
 		void error( Error e );
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 		//! Virtual function to set an error callback function to be invoked when an error has occured.
 		/*!
 		  The callback function will be called whenever an error has occured. It is best
@@ -637,6 +636,7 @@ namespace rtmidi {
 		*/
 		RTMIDI_DEPRECATED(virtual void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 ), "RtMidi now provides a typesafe ErrorInterface class");
 
+#pragma GCC diagnostic pop
 	protected:
 		virtual void initialize( const std::string& clientName ) = 0;
 
@@ -683,6 +683,10 @@ namespace rtmidi {
 				:front(0), back(0), size(0), ringSize(0) {}
 		};
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+
 		RTMIDI_DEPRECATED(void setCallback( MidiCallback callback, void *userData = 0 ),
 			"RtMidi now provides a type-safe MidiInterface class.");
 		RTMIDI_DEPRECATED(double getMessage( std::vector<unsigned char> *message ),
@@ -694,6 +698,8 @@ namespace rtmidi {
 			}
 			return getMessage(*message);
 		}
+
+#pragma GCC diagnostic pop
 
 	protected:
 		// The RtMidiInData structure is used to pass private class data to
@@ -858,6 +864,8 @@ namespace rtmidi {
 
 		//! A basic error reporting function for RtMidi classes.
 		void error( Error e );
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 		/* old functions */
 		RTMIDI_DEPRECATED(enum,
@@ -980,7 +988,7 @@ namespace rtmidi {
 		return getApiName((ApiType)type);
 	}
 
-
+#pragma GCC diagnostic pop
 #undef RTMIDI_CLASSNAME
 
 	/**********************************************************************/
@@ -1187,6 +1195,9 @@ namespace rtmidi {
 			return 0.0;
 		}
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 		//! Set a callback function to be invoked for incoming MIDI messages.
 		/*!
 		  The callback function will be called whenever an incoming MIDI
@@ -1227,7 +1238,7 @@ namespace rtmidi {
 					    Error::WARNING));
 			return 0.0;
 		}
-
+#pragma GCC diagnostic pop
 	protected:
 		static MidiApiList queryApis;
 		int queueSizeLimit;
@@ -1653,6 +1664,42 @@ namespace rtmidi {
 
 #endif
 
+	// old API
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+	//! Compatibility interface to hold a C style callback function
+	struct CompatibilityMidiInterface: MidiInterface {
+		CompatibilityMidiInterface(MidiCallback cb, void * ud):
+			callback(cb),
+			userData(ud) {}
+		void rtmidi_midi_in(double timestamp, std::vector<unsigned char> *message) {
+			callback (timestamp, message, userData);
+		}
+		void delete_me() { delete this; }
+		MidiCallback callback;
+		void * userData;
+	};
+
+
+	struct CompatibilityErrorInterface: ErrorInterface {
+		CompatibilityErrorInterface(ErrorCallback cb, void * ud): callback(cb),
+									  userdata(ud) {}
+		void rtmidi_error(Error e) {
+			callback(e.getType(),e.getMessage(),userdata);
+		}
+
+		void delete_me() { delete this; }
+	private:
+		ErrorCallback callback;
+		void * userdata;
+	};
+
+
+
 }
 
 typedef rtmidi::Midi RTMIDI_DEPRECATED(RtMidi,"RtMidi has been replaced by rtmidi::Midi");
@@ -1674,4 +1721,8 @@ public:
 			clientName) {}
 };
 typedef rtmidi::Error   RtMidiError;
+#ifdef GCC
+#pragma GCC diagnostic pop
+#endif
+
 #endif
