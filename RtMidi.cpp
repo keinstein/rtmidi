@@ -2969,7 +2969,7 @@ namespace rtmidi {
 			if ( message.bytes.size() == 0 || continueSysex ) continue;
 
 			if ( data->userCallback ) {
-				data->userCallback->rtmidi_midi_in( message.timeStamp, &message.bytes);
+				data->userCallback->rtmidi_midi_in( message.timeStamp, message.bytes);
 			}
 			else {
 				// As long as we haven't reached our queue size limit, push the message.
@@ -4148,7 +4148,7 @@ namespace rtmidi{
 			}
 
 			if ( data->userCallback ) {
-				data->userCallback->rtmidi_midi_in( apiData->message.timeStamp, &apiData->message.bytes );
+				data->userCallback->rtmidi_midi_in( apiData->message.timeStamp, apiData->message.bytes );
 			}
 			else {
 				// As long as we haven't reached our queue size limit, push the message.
@@ -5222,7 +5222,7 @@ namespace rtmidi {
 
 			if ( !rtData->continueSysex ) {
 				if ( rtData->userCallback ) {
-					rtData->userCallback->rtmidi_midi_in( message.timeStamp, &message.bytes);
+					rtData->userCallback->rtmidi_midi_in( message.timeStamp, message.bytes);
 				}
 				else {
 					// As long as we haven't reached our queue size limit, push the message.
