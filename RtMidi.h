@@ -1724,6 +1724,7 @@ namespace rtmidi {
 	protected:
 		void initialize( const std::string& /*clientName*/ ) {}
 	};
+#undef RTMIDI_CLASSNAME
 
 #endif
 
