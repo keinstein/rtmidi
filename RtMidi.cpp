@@ -151,7 +151,7 @@ namespace rtmidi {
 		// DUMMY is a no-backend class so we add it at
 		// the very end.
 #if defined(__RTMIDI_DUMMY__)
-		apis.push_back( rtmidi::RTMIDI_DUMMY );
+		apis.push_back( rtmidi::DUMMY );
 #endif
 	}
 
@@ -1088,7 +1088,7 @@ namespace rtmidi {
 //				os << ":" << externaldevicename;
 				os << ":" << connections;
 //				os << ":" << recommendedname;
-				if (flags & PortDescriptor::UNIQUE_NAME)
+				if (flags & PortDescriptor::UNIQUE_PORT_NAME)
 					os << ";" << port;
 				break;
 			case PortDescriptor::LONG_NAME:
@@ -1117,15 +1117,15 @@ namespace rtmidi {
 				}
 				if (flags &
 				    (PortDescriptor::INCLUDE_API
-				     | PortDescriptor::UNIQUE_NAME)) {
+				     | PortDescriptor::UNIQUE_PORT_NAME)) {
 					os << " (";
 					if (flags &
 					    PortDescriptor::INCLUDE_API) {
 						os << "CORE";
-						if (flags & PortDescriptor::UNIQUE_NAME)
+						if (flags & PortDescriptor::UNIQUE_PORT_NAME)
 							os << ":";
 					}
-					if (flags & PortDescriptor::UNIQUE_NAME) {
+					if (flags & PortDescriptor::UNIQUE_PORT_NAME) {
 						os << port;
 					}
 					os << ")";
@@ -1155,15 +1155,15 @@ namespace rtmidi {
 				}
 				if (flags &
 				    (PortDescriptor::INCLUDE_API
-				     | PortDescriptor::UNIQUE_NAME)) {
+				     | PortDescriptor::UNIQUE_PORT_NAME)) {
 					os << " (";
 					if (flags &
 					    PortDescriptor::INCLUDE_API) {
 						os << "CORE";
-						if (flags & PortDescriptor::UNIQUE_NAME)
+						if (flags & PortDescriptor::UNIQUE_PORT_NAME)
 							os << ":";
 					}
-					if (flags & PortDescriptor::UNIQUE_NAME) {
+					if (flags & PortDescriptor::UNIQUE_PORT_NAME) {
 						os << port;
 					}
 					os << ")";
@@ -1431,7 +1431,7 @@ namespace rtmidi {
 			return endpoint;
 		}
 
-		std::string getName(int flags = SHORT_NAME | UNIQUE_NAME) {
+		std::string getName(int flags = SHORT_NAME | UNIQUE_PORT_NAME) {
 			return seq.getPortName(endpoint,flags);
 		}
 
@@ -2337,16 +2337,16 @@ namespace rtmidi {
 				os << snd_seq_client_info_get_name(cinfo);
 				os << ":";
 				os << snd_seq_port_info_get_name(pinfo);
-				if (flags & PortDescriptor::UNIQUE_NAME)
+				if (flags & PortDescriptor::UNIQUE_PORT_NAME)
 					os << ";" << client << ":" << port;
 				break;
 			case PortDescriptor::LONG_NAME:
 				os << snd_seq_client_info_get_name( cinfo );
-				if (flags & PortDescriptor::UNIQUE_NAME) {
+				if (flags & PortDescriptor::UNIQUE_PORT_NAME) {
 					os << " " << client;
 				}
 				os << ":";
-				if (flags & PortDescriptor::UNIQUE_NAME) {
+				if (flags & PortDescriptor::UNIQUE_PORT_NAME) {
 					os << port;
 				}
 
@@ -2357,7 +2357,7 @@ namespace rtmidi {
 			case PortDescriptor::SHORT_NAME:
 			default:
 				os << snd_seq_client_info_get_name( cinfo );
-				if (flags & PortDescriptor::UNIQUE_NAME) {
+				if (flags & PortDescriptor::UNIQUE_PORT_NAME) {
 					os << " ";
 					os << client;
 				}
@@ -2548,7 +2548,7 @@ namespace rtmidi {
 			else
 				return 0;
 		}
-		std::string getName(int flags = SHORT_NAME | UNIQUE_NAME) {
+		std::string getName(int flags = SHORT_NAME | UNIQUE_PORT_NAME) {
 			return seq.GetPortName(client,port,flags);
 		}
 
@@ -3742,9 +3742,9 @@ namespace rtmidi {
 #define  RT_SYSEX_BUFFER_SIZE 1024
 #define  RT_SYSEX_BUFFER_COUNT 4
 
-/* some header defines UNIQUE_NAME as a macro */
-#ifdef UNIQUE_NAME
-#undef UNIQUE_NAME
+/* some header defines UNIQUE_PORT_NAME as a macro */
+#ifdef UNIQUE_PORT_NAME
+#undef UNIQUE_PORT_NAME
 #endif
 namespace rtmidi{
 	/*! An abstraction layer for the ALSA sequencer layer. It provides
@@ -3868,14 +3868,14 @@ namespace rtmidi{
 				if (flags & PortDescriptor::INCLUDE_API)
 					os << "WinMM:";
 				os << name.c_str();
-				if (flags & PortDescriptor::UNIQUE_NAME)
+				if (flags & PortDescriptor::UNIQUE_PORT_NAME)
 					os << ";" << port;
 				break;
 			case PortDescriptor::LONG_NAME:
 			case PortDescriptor::SHORT_NAME:
 			default:
 				os << name.c_str();
-				if (flags & PortDescriptor::UNIQUE_NAME) {
+				if (flags & PortDescriptor::UNIQUE_PORT_NAME) {
 					os << " ";
 					os << port;
 				}
@@ -3946,7 +3946,7 @@ namespace rtmidi{
 			else
 				return 0;
 		}
-		std::string getName(int flags = SHORT_NAME | UNIQUE_NAME) {
+		std::string getName(int flags = SHORT_NAME | UNIQUE_PORT_NAME) {
 			return seq.getPortName(port,is_input,flags);
 		}
 
@@ -4175,7 +4175,8 @@ namespace rtmidi{
 #undef RTMIDI_CLASSNAME
 
 #define RTMIDI_CLASSNAME "MidiInWinMM"
-	MidiInWinMM :: MidiInWinMM( const std::string clientName, unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
+	MidiInWinMM :: MidiInWinMM( const std::string & clientName,
+				    unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
 	{
 		initialize( clientName );
 	}
@@ -4286,7 +4287,7 @@ namespace rtmidi{
 		connected_ = true;
 	}
 
-	void MidiInWinMM :: openVirtualPort( std::string /*portName*/ )
+	void MidiInWinMM :: openVirtualPort(const std::string & /*portName*/ )
 	{
 		// This function cannot be implemented for the Windows MM MIDI API.
 		error(RTMIDI_ERROR(gettext_noopt("Virtual ports are not available Windows Multimedia MIDI API."),
@@ -4446,7 +4447,7 @@ namespace rtmidi{
 	//*********************************************************************//
 
 #define RTMIDI_CLASSNAME "MidiOutWinMM"
-	MidiOutWinMM :: MidiOutWinMM( const std::string clientName ) : MidiOutApi()
+	MidiOutWinMM :: MidiOutWinMM( const std::string & clientName ) : MidiOutApi()
 	{
 		initialize( clientName );
 	}
@@ -4562,7 +4563,7 @@ namespace rtmidi{
 		}
 	}
 
-	void MidiOutWinMM :: openVirtualPort( std::string /*portName*/ )
+	void MidiOutWinMM :: openVirtualPort(const std::string & /*portName*/ )
 	{
 		// This function cannot be implemented for the Windows MM MIDI API.
 		error(RTMIDI_ERROR(gettext_noopt("Virtual ports are not available Windows Multimedia MIDI API."),
@@ -5007,7 +5008,7 @@ namespace rtmidi {
 		}
 
 
-		std::string getName(int flags = SHORT_NAME | UNIQUE_NAME) {
+		std::string getName(int flags = SHORT_NAME | UNIQUE_PORT_NAME) {
 			return seq.getPortName(port,flags);
 		}
 
