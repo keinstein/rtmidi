@@ -1681,10 +1681,14 @@ namespace rtmidi {
 		}
 		ApiType getCurrentApi( void ) throw() { return DUMMY; }
 		bool hasVirtualPorts() const { return false; }
-		void openPort( unsigned int portNumber, const &std::string portName ) {}
+		void openPort( unsigned int /* portNumber*/,
+			       const std::string & /*portName*/ ) {}
 		void openVirtualPort( const std::string & /*portName*/ ) {}
-		void openPort( const PortDescriptor & port, const &std::string portName) {}
-		Pointer<PortDescriptor> getDescriptor(bool local=false) { return 0; }
+		void openPort( const PortDescriptor & /* port */,
+			       const std::string & /* portName */) {}
+		Pointer<PortDescriptor> getDescriptor(bool /* local=false */) {
+			return 0;
+		}
 		PortList getPortList(int capabilities) { return PortList(); }
 		void closePort( void ) {}
 		unsigned int getPortCount( void ) { return 0; }
@@ -1703,13 +1707,15 @@ namespace rtmidi {
 			error( RTMIDI_ERROR(rtmidi_gettext("MidiInDummy: This class provides no functionality."),
 					    Error::WARNING) );
 		}
-		ApiType getCurrentApi( void ) { return DUMMY; }
+		ApiType getCurrentApi( void ) throw() { return DUMMY; }
 		bool hasVirtualPorts() const { return false; }
-		void openPort( unsigned int /*portNumber*/, const & std::string /*portName*/ ) {}
+		void openPort( unsigned int /*portNumber*/, const std::string & /*portName*/ ) {}
 		void openVirtualPort( const std::string & /*portName*/ ) {}
-		void openPort( const PortDescriptor & port, const & std::string portName) {}
-		Pointer<PortDescriptor> getDescriptor(bool local=false) { return 0; }
-		PortList getPortList(int capabilities) { return PortList(); }
+		void openPort( const PortDescriptor & port, const std::string & portName) {}
+		Pointer<PortDescriptor> getDescriptor(bool /* local=false */) { return 0; }
+		PortList getPortList(int /*capabilities*/) {
+			return PortList();
+		}
 		void closePort( void ) {}
 		unsigned int getPortCount( void ) { return 0; }
 		std::string getPortName( unsigned int /*portNumber*/ ) { return ""; }
