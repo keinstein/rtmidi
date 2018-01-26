@@ -2929,7 +2929,7 @@ namespace rtmidi {
 						break;
 					}
 				}
-
+				FALLTHROUGH;
 			default:
 				doDecode = true;
 			}
