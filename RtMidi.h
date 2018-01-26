@@ -434,7 +434,7 @@ namespace rtmidi {
 	typedef Pointer<PortDescriptor> PortPointer;
 	typedef std::list<Pointer<PortDescriptor> > PortList;
 
-	/* A depricated type. See below for the documentation.  We
+	/* A deprecated type. See below for the documentation.  We
 	   split the definiton into several pieces to work around some
 	   intended warnings. */
 	typedef void (*ErrorCallback_t)( Error::Type type, const std::string &errorText, void * userdata );
@@ -446,11 +446,11 @@ namespace rtmidi {
 	  Note that class behaviour is undefined after a critical error (not
 	  a warning) is reported.
 	  \sa ErrorInterface
-	  \depricated
+	  \deprecated
 	*/
 	RTMIDI_DEPRECATED(typedef ErrorCallback_t ErrorCallback,"RtMidi now provides a class MidiInterface for error callbacks");
 
-	/* A depricated type. See below for the documentation.  We
+	/* A deprecated type. See below for the documentation.  We
 	   split the definiton into several pieces to work around some
 	   intended warnings. */
 #define ErrorCallback ErrorCallback_t
