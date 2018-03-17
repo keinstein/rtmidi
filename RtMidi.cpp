@@ -42,8 +42,8 @@
 #include <cctype>
 #include <algorithm>
 #include <functional>
-#ifndef FALLTHROUGH
-#define FALLTHROUGH
+#ifdef RTMIDI_FALLTHROUGH
+#define RTMIDI_FALLTHROUGH
 #endif
 
 namespace rtmidi {
@@ -2938,7 +2938,7 @@ namespace rtmidi {
 						break;
 					}
 				}
-				FALLTHROUGH;
+				RTMIDI_FALLTHROUGH;
 			default:
 				doDecode = true;
 			}
