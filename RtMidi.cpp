@@ -1633,7 +1633,8 @@ namespace rtmidi {
 					if ( !continueSysex ) {
 						// If not a continuing sysex message, invoke the user callback function or queue the message.
 						if ( data->userCallback ) {
-							data->userCallback->rtmidi_midi_in( message.timeStamp, &message.bytes);
+							data->userCallback->rtmidi_midi_in( message.timeStamp,
+											    message.bytes);
 						}
 						else {
 							// As long as we haven't reached our queue size limit, push the message.
@@ -1703,7 +1704,8 @@ namespace rtmidi {
 						if ( !continueSysex ) {
 							// If not a continuing sysex message, invoke the user callback function or queue the message.
 							if ( data->userCallback ) {
-								data->userCallback->rtmidi_midi_in( message.timeStamp, &message.bytes);
+								data->userCallback->rtmidi_midi_in( message.timeStamp,
+												    message.bytes);
 							}
 							else {
 								// As long as we haven't reached our queue size limit, push the message.
