@@ -42,6 +42,9 @@
 #include <cctype>
 #include <algorithm>
 #include <functional>
+#ifndef FALLTHROUGH
+#define FALLTHROUGH
+#endif
 
 namespace rtmidi {
 #ifdef RTMIDI_GETTEXT
