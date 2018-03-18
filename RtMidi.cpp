@@ -5596,7 +5596,6 @@ namespace rtmidi {
 
 	void MidiOutJack :: connect()
 	{
-		abort();
 #if 0
 		JackMidiData *data = static_cast<JackMidiData *> (apiData_);
 		if ( *(data->seq) )
