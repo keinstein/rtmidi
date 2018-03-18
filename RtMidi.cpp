@@ -2527,7 +2527,7 @@ namespace rtmidi {
 				scoped_lock lock(mutex);
 				int result = snd_seq_open(&s, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
 				if ( result < 0 ) {
-					throw RTMIDI_ERROR(gettext_noopt("Error creating ALSA sequencer client object."),
+					throw RTMIDI_ERROR(snd_strerror(result),
 							   Error::DRIVER_ERROR );
 					return;
 				}
