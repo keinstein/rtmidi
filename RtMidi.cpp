@@ -133,7 +133,7 @@ namespace rtmidi {
 		}
 
 		// check OS provided backends
-#if defined(__MACOSX_CORE__)
+#if defined(__MACOSX_COREMIDI__)
 		apis.push_back( rtmidi::MACOSX_CORE );
 #endif
 #if defined(__LINUX_ALSA__)
@@ -214,7 +214,7 @@ namespace rtmidi {
 #endif
 				break;
 			case rtmidi::MACOSX_CORE:
-#if defined(__MACOSX_CORE__)
+#if defined(__MACOSX_COREMIDI__)
 				rtapi_ = new MidiInCore( clientName, queueSizeLimit );
 #endif
 				break;
@@ -330,7 +330,7 @@ namespace rtmidi {
 #endif
 				break;
 			case rtmidi::MACOSX_CORE:
-#if defined(__MACOSX_CORE__)
+#if defined(__MACOSX_COREMIDI__)
 				rtapi_ = new MidiOutCore( clientName );
 #endif
 				break;
@@ -614,7 +614,7 @@ namespace rtmidi {
 //
 // *************************************************** //
 
-#if defined(__MACOSX_CORE__)
+#if defined(__MACOSX_COREMIDI__)
 
 // The CoreMIDI API is based on the use of a callback function for
 // MIDI input.  We convert the system specific time stamps to delta
@@ -2245,7 +2245,7 @@ namespace rtmidi {
 	}
 #undef RTMIDI_CLASSNAME
 }
-#endif  // __MACOSX_CORE__
+#endif  // __MACOSX_COREMIDI__
 
 
 //*********************************************************************//
