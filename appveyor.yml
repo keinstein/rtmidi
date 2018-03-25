@@ -11,8 +11,11 @@ build_script:
   - dir C:\
   - dir C:\msys64
   - dir C:\mingw64
-  - SET PATH=C:\mingw64\bin;C:\msys64;%PATH%	
-  - bash -c configure
+  - SET PATH=C:\mingw64\bin;C:\msys64\mingw64\bin;%PATH%	
+  - echo "%PATH%"
+  - path
+  - bash -c "env"
+  - bash -c ./configure
   - bash -c make
   - bash -c "make check"
   - bash -c "make distcheck"
