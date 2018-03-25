@@ -23,6 +23,7 @@ build_script:
   - SET PATH=C:\mingw-w64\bin;C:\msys64\mingw64\bin;%PATH%	
   - echo "%PATH%"
   - path
+  - bash -c "pacman -Suuy"
   - bash -c "env"
   - bash -c pwd
   - bash -c ls
