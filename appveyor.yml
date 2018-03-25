@@ -3,10 +3,30 @@ environment:
     ###
     - TOOLCHAIN: "default"
       CONFIG: Release
+      _CC: MinGW
 
     - TOOLCHAIN: "default"
       CONFIG: Debug
-      
+      _CC: MinGW
+
+# example see: https://github.com/wang-bin/avbuild/blob/master/appveyor.yml
+init:
+  - echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
+  - echo PROCESSOR_IDENTIFIER=%PROCESSOR_IDENTIFIER%
+  - set MSYS2_PATH_TYPE=inherit
+  - set MSYS2_DIR=C:\msys64
+
+install:
+# can not starts with %
+#  - git submodule update --init
+  - if /i %_CC%==MinGW (
+      C:\msys64\usr\bin\pacman -Syyuu --noconfirm &&
+      C:\msys64\usr\bin\pacman -Suu --noconfirm   &&
+      C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-gcc mingw-w64-x86_64-gcc &&
+      C:\msys64\usr\bin\pacman -Sc --noconfirm
+    )
+  - C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x68_64-wxmsw mingw-w64-x68_64-boost
+
 build_script:
   - dir C:\
   - dir C:\msys64
