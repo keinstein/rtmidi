@@ -18,8 +18,6 @@ build_script:
   - dir C:\mingw-w64
   - dir C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin
   - dir C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\opt\bin
-  - dir C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\usr
-  - dir C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\usr\bin
   - SET PATH=C:\mingw-w64\bin;C:\msys64\mingw64\bin;%PATH%	
   - echo "%PATH%"
   - path
