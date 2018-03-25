@@ -10,8 +10,8 @@ environment:
 build_script:
   - dir C:\
   - dir C:\msys64
-  - dir C:\mingw64
-  - SET PATH=C:\mingw64\bin;C:\msys64\mingw64\bin;%PATH%	
+  - dir C:\mingw-w64
+  - SET PATH=C:\mingw-w64\bin;C:\msys64\mingw64\bin;%PATH%	
   - echo "%PATH%"
   - path
   - bash -c "env"
