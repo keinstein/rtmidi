@@ -9,7 +9,9 @@ environment:
       
 build_script:
   - dir C:\
-  - SET PATH=C:\MinGW\bin;%PATH%	
+  - dir C:\msys64
+  - dir C:\mingw64
+  - SET PATH=C:\mingw64\bin;C:\msys64;%PATH%	
   - bash -c configure
   - bash -c make
   - bash -c "make check"
