@@ -25,7 +25,8 @@ install:
       C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-gcc mingw-w64-x86_64-gcc &&
       C:\msys64\usr\bin\pacman -Sc --noconfirm
     )
-  - C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x68_64-wxmsw mingw-w64-x68_64-boost
+  - C:\msys64\usr\bin\pacman —Ss boost
+#  - C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x68_64-wxmsw mingw-w64-x68_64-boost
 
 build_script:
   - dir C:\
