@@ -15,7 +15,9 @@ build_script:
   - echo "%PATH%"
   - path
   - bash -c "env"
-  - bash -c ./configure
+  - bash -c pwd
+  - bash -c ls
+  - bash -c "./configure"
   - bash -c make
   - bash -c "make check"
   - bash -c "make distcheck"
