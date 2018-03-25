@@ -17,6 +17,7 @@ build_script:
   - bash -c "env"
   - bash -c pwd
   - bash -c ls
+  - mingw-get install autoconf automake gettext libtool
   - bash -c autoreconf -i -f
   - bash -c "./configure"
   - bash -c make
