@@ -25,7 +25,7 @@ install:
       C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-gcc mingw-w64-x86_64-gcc &&
       C:\msys64\usr\bin\pacman -Sc --noconfirm
     )
-  - C:\msys64\usr\bin\pacman -Ss --noconfirm boost
+  - C:\msys64\usr\bin\pacman -Ss --noconfirm boost autoconf automake libtool gettext
   - C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x86_64-boost
 
 build_script:
