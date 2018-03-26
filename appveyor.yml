@@ -46,7 +46,6 @@ build_script:
   - bash -c pwd
   - bash -c ls
   - dir c:\msys64\mingw64\bin
-  - mingw-get install autoconf automake gettext libtool
   - bash -c autoreconf -i -f
   - bash -c "./configure"
   - bash -c make
