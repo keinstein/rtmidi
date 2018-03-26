@@ -3,11 +3,11 @@ environment:
     ###
     - TOOLCHAIN: "default"
       CONFIG: Release
-      _CC: MinGW
+      _CC: MINGW
 
     - TOOLCHAIN: "default"
       CONFIG: Debug
-      _CC: MinGW
+      _CC: MINGW
 
 # example see: https://github.com/wang-bin/avbuild/blob/master/appveyor.yml
 init:
@@ -26,6 +26,8 @@ install:
       C:\msys64\usr\bin\pacman -Sc --noconfirm
     )
   - C:\msys64\usr\bin\pacman -Ss --noconfirm boost
+    C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x86_64-boost
+    C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw64/mingw-w64-x86_64-boost
   - C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw64/mingw-w64-x68_64-boost
 
 build_script:
@@ -42,7 +44,6 @@ build_script:
   - SET PATH=C:\mingw-w64\bin;C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%	
   - echo "%PATH%"
   - path
-  - bash -c "pacman -Suuy"
   - bash -c "env"
   - bash -c pwd
   - bash -c ls
