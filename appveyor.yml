@@ -51,6 +51,7 @@ build_script:
   - bash -c "env"
   - bash -c pwd
   - bash -c ls
+  - bash -c aclocal -I m4 --install
   - bash -c autoconf --add-missing
   - bash -c autoreconf -i -f
   - bash -c "./configure"
