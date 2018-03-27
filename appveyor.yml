@@ -25,7 +25,11 @@ install:
       C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-gcc mingw-w64-x86_64-gcc &&
       C:\msys64\usr\bin\pacman -Sc --noconfirm
     )
-  - C:\msys64\usr\bin\pacman -Ss --noconfirm boost autoconf automake libtool gettext
+  - C:\msys64\usr\bin\pacman -Ss --noconfirm boost
+  - C:\msys64\usr\bin\pacman -Ss --noconfirm autoconf
+  - C:\msys64\usr\bin\pacman -Ss --noconfirm automake
+  - C:\msys64\usr\bin\pacman -Ss --noconfirm libtool
+  - C:\msys64\usr\bin\pacman -Ss --noconfirm gettext
   - C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x86_64-boost
 
 build_script:
@@ -46,6 +50,7 @@ build_script:
   - bash -c pwd
   - bash -c ls
   - dir c:\msys64\mingw64\bin
+    bash -c autoconfi --add-missing
   - bash -c autoreconf -i -f
   - bash -c "./configure"
   - bash -c make
