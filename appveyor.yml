@@ -39,6 +39,7 @@ build_script:
   - dir C:\msys64\usr\bin
   - dir C:\msys64\opt
   - dir C:\msys64\mingw64
+  - dir c:\msys64\mingw64\bin
   - dir C:\msys64\mingw64\x86_64-w64-mingw32
   - dir C:\msys64\mingw64\x86_64-w64-mingw32\bin
   - dir C:\mingw-w64
@@ -50,8 +51,7 @@ build_script:
   - bash -c "env"
   - bash -c pwd
   - bash -c ls
-  - dir c:\msys64\mingw64\bin
-    bash -c autoconfi --add-missing
+  - bash -c autoconf --add-missing
   - bash -c autoreconf -i -f
   - bash -c "./configure"
   - bash -c make
