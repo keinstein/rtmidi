@@ -58,6 +58,8 @@ build_script:
   - bash -c "#autoconf --add-missing"
   - bash -c "autoreconf -i -f"
   - bash -c "./configure"
+  - bash -c "mkdir -p config"
+  - bash -c "touch config/config.rpath"
   - bash -c make
   - bash -c "make check"
   - bash -c "make distcheck"
