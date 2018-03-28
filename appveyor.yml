@@ -51,7 +51,6 @@ build_script:
   - bash -c "env"
   - bash -c pwd
   - bash -c ls
-  - bash -c autoheader -f
   - bash -c aclocal -I m4 --install
   - bash -c automake -a -f
   - bash -c autopoint -f
