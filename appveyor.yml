@@ -51,12 +51,12 @@ build_script:
   - bash -c "env"
   - bash -c pwd
   - bash -c ls
-  - bash -c aclocal -I m4 --install
-  - bash -c automake --add-missing -f
-  - bash -c autopoint -f
-  - bash -c libtoolize -i -f
-  - bash -c autoconf --add-missing
-  - bash -c autoreconf -i -f
+  - bash -c "#aclocal -I m4 --install"
+  - bash -c "#automake --add-missing -f"
+  - bash -c "#autopoint -f"
+  - bash -c "#libtoolize -i -f"
+  - bash -c "#autoconf --add-missing"
+  - bash -c "autoreconf -i -f"
   - bash -c "./configure"
   - bash -c make
   - bash -c "make check"
