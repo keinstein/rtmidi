@@ -1,12 +1,15 @@
 # -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-ifdef([lt_current],,[m4_include(configure.version)])
+m4_ifdef([rtmididir],,
+	AC_MSG_FAILURE([[you must add "m4""_define(rtmididir,[path/to/rtmidi])" to your configure.ac]]))
 
-m4_define([lt_version_info], [lt_current:lt_revision:lt_age])
-m4_define([lt_current_minus_age], [m4_eval(lt_current - lt_age)])
 
-RTMIDI_SO_VERSION=lt_version_info
-AC_SUBST(RTMIDI_SO_VERSION)
+dnl NOTE: aclocal will not find configure.version.
+dnl but that is OK, since there are only version definitions that don't bother aclocal
+m4_ifdef([rtmidi_current],,
+	m4_include(rtmididir[/configure.version]))
+
+AC_SUBST(RTMIDI_SO_VERSION,[rtmidi_so_version_info])
+AC_SUBST(RTMIDI_PACKAGE_VERSION,[ac_rtmidi_version])
 
 # Checks for package options and external software
 AC_CANONICAL_HOST
@@ -18,7 +21,6 @@ AC_SUBST(TESTS)
 dnl AC_SUBST(SUBDIRS)
 AC_SUBST(lib_LTLIBRARIES)
 AC_SUBST(EXTRA_DIST)
-AC_SUBST(RTMIDI_TS_SUFFIX,[ts])
 AC_SUBST(rtmidi_visibility)
 AC_SUBST(rtmidi_pkconfig_requirements)
 AM_CONDITIONAL(RTMIDI_STANDALONE,test "$rtmidi_standalone" = "yes")
@@ -44,21 +46,24 @@ rtmidi_visibility="-fvisibility=hidden"
 AC_HEADER_STDC
 #AC_CHECK_HEADERS(sys/ioctl.h unistd.h)
 
+# make rtmididir available for sed
+rtmidi_dir="rtmididir"
 # Check version number coherency between RtMidi.h and configure.ac
 AC_MSG_CHECKING([that version numbers are coherent])
-RTMIDI_VERSION=`sed -n 's/#define RTMIDI_VERSION "\(.*\)"/\1/p' "$rtmidi_subdir/RtMidi.h"`
+RTMIDI_HEADER_VERSION=`sed -n 's/#define RTMIDI_VERSION "\(.*\)"/\1/p' "$srcdir/$rtmidi_dir/RtMidi.h"`
 AS_IF(
-   [test "x$RTMIDI_VERSION" != "x$PACKAGE_VERSION"],
-   [AC_MSG_FAILURE([testing RTMIDI_VERSION==PACKAGE_VERSION failed, check that RtMidi.h defines RTMIDI_VERSION as "$PACKAGE_VERSION" or that the first line of configure.ac has been updated.])])
+   [test "x$RTMIDI_HEADER_VERSION" != "x$RTMIDI_PACKAGE_VERSION"],
+   [AC_MSG_FAILURE([testing RTMIDI_VERSION==RTMIDI_PACKAGE_VERSION failed, check that RtMidi.h defines RTMIDI_VERSION as "$RTMIDI_PACKAGE_VERSION" or that the version information in configure.version has been updated.])])
+set +x
 
 
 
-
-AC_ARG_WITH(suffix,
-AS_HELP_STRING([--with-suffix],[add a suffix to the library. Default is $rtmidi_suffix]),
-[AS_IF(test "x$with_suffix" = "xno",
-		[ rtmidi_suffix=""],
-		[ rtmidi_suffix="$with_suffix"])])
+AC_ARG_WITH(rtmidi-suffix,
+AS_HELP_STRING([--with-rtmidi-suffix],[add a suffix to the RtMidi library. Default is ac_rtmidi_suffix]),
+[AS_IF(test "x$with_rtmidi_suffix" = "xno",
+		[ rtmidi_suffix=ac_rtmidi_suffix],
+		[ rtmidi_suffix="$with_rtmidi_suffix"])],
+		[ rtmidi_suffix=ac_rtmidi_suffix])
 AC_SUBST(rtmidi_suffix)
 
 
@@ -84,11 +89,11 @@ AC_CHECK_PROG( DOXYGEN, [doxygen], [doxygen] )
 AM_CONDITIONAL( MAKE_DOC, [test "x${DOXYGEN}" != x] )
 
 # Copy doc files to build dir if necessary
-AC_CONFIG_LINKS( [doc/doxygen/footer.html:doc/doxygen/footer.html] )
-AC_CONFIG_LINKS( [doc/doxygen/header.html:doc/doxygen/header.html] )
-AC_CONFIG_LINKS( [doc/doxygen/tutorial.txt:doc/doxygen/tutorial.txt] )
-AC_CONFIG_LINKS( [doc/images/ccrma.gif:doc/images/ccrma.gif] )
-AC_CONFIG_LINKS( [doc/images/mcgill.gif:doc/images/mcgill.gif] )
+AC_CONFIG_LINKS( rtmididir[/doc/doxygen/footer.html:]rtmididir[/doc/doxygen/footer.html] )
+AC_CONFIG_LINKS( rtmididir[/doc/doxygen/header.html:]rtmididir[/doc/doxygen/header.html] )
+AC_CONFIG_LINKS( rtmididir[/doc/doxygen/tutorial.txt:]rtmididir[/doc/doxygen/tutorial.txt] )
+AC_CONFIG_LINKS( rtmididir[/doc/images/ccrma.gif:]rtmididir[/doc/images/ccrma.gif] )
+AC_CONFIG_LINKS( rtmididir[/doc/images/mcgill.gif:]rtmididir[/doc/images/mcgill.gif] )
 
 
 dnl # Set paths if prefix is defined

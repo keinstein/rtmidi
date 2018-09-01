@@ -49,9 +49,9 @@ pkgconfigdatadir = $(libdir)/pkgconfig
 pkgconfigdata_DATA = %D%/rtmidi@rtmidi_suffix@.pc
 
 %D%/rtmidi@rtmidi_suffix@.pc: %D%/rtmidi.pc
-	if cmp "$<" "$@" ; then : ; else cp "$<" "$@" ; fi
+	-if cmp "$<" "$@" ; then : ; else cp "$<" "$@" ; fi
 %D%/rtmidi@rtmidi_suffix@-config: %D%/rtmidi-config
-	if cmp "$<" "$@" ; then : ; else cp -a "$<" "$@" ; fi
+	-if cmp "$<" "$@" ; then : ; else cp -a "$<" "$@" ; fi
 
 
 

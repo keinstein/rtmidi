@@ -1,3 +1,4 @@
+# -*- Autoconf -*-
 # libtool version: current:revision:age
 #
 # If the library source code has changed at all since the last update, then
@@ -11,6 +12,16 @@
 #
 # If any interfaces have been removed since the last public release, then set
 # age to 0.
-m4_define([lt_current], 4)
-m4_define([lt_revision], 0)
-m4_define([lt_age], 0)
+#
+# ac_rtmidi_suffix is used to set the default suffix
+
+m4_define([rtmidi_current], 4)
+m4_define([rtmidi_revision], 0)
+m4_define([rtmidi_age], 0)
+m4_define([ac_rtmidi_suffix],[-ts])
+
+
+
+m4_define([rtmidi_so_version_info], [rtmidi_current:rtmidi_revision:rtmidi_age])
+m4_define([rtmidi_current_minus_age], [m4_eval(rtmidi_current - rtmidi_age)])
+m4_define([ac_rtmidi_version], [rtmidi_current_minus_age.rtmidi_age.rtmidi_revision])

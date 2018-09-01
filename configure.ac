@@ -3,10 +3,10 @@
 
 m4_include(configure.version)
 
-m4_define([ac_rtmidi_version],[lt_current.lt_revision.lt_age])
+m4_define([ac_rtmidi_name],[RtMidi]ac_rtmidi_suffix)
+m4_define([ac_rtmidi_package_name],[rtmidi]ac_rtmidi_suffix)
 
-
-AC_INIT(RtMidi-ts, ac_rtmidi_version, keinstein_junior@gmx.net, rtmidi-ts)
+AC_INIT(ac_rtmidi_name, ac_rtmidi_version, [keinstein@users.sf.net], ac_rtmidi_package_name)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(RtMidi.cpp)
 AC_CONFIG_FILES([Makefile doc/Makefile po/Makefile.in rtmidi-config rtmidi.pc  doc/doxygen/Doxyfile],[chmod oug+x rtmidi-config])
@@ -24,10 +24,10 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_CONFIG_MACRO_DIR([m4])
 
-rtmidi_suffix="-ts"
 rtmidi_standalone="yes"
 SUBDIRS="$SUBDIRS %D%/po"
 rtmidi_subdir="$srcdir"
+m4_define(rtmididir,[.])
 m4_include(configure.library)
 
 AC_OUTPUT
