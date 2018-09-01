@@ -103,13 +103,13 @@
 #define RTMIDI_NAMESPACE_END }
 
 RTMIDI_NAMESPACE_START
-
 #ifdef RTMIDI_GETTEXT
-const char * rtmidi_gettext(const char * s);
 void init_rtmidi_gettext();
+RTMIDI_DLL_PUBLIC const char * rtmidi_gettext(const char * s);
 #else
 #define rtmidi_gettext(arg) (arg)
 #endif
+
 
 //! MIDI API specifier arguments.
 enum ApiType {

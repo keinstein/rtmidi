@@ -354,18 +354,19 @@ class MidiOutDummy: public MidiOutApi
 //*********************************************************************//
 
 #ifdef RTMIDI_GETTEXT
-const char * rtmidi_gettext (const char * s) {
-  init_rtmidi_gettext();
-  return dgettext("rtmidi",s);
-}
-
-void init_rtmidi_gettext() {
+void RTMIDI_DLL_PUBLIC init_rtmidi_gettext() {
   static bool initialized = false;
   if (initialized)
     return;
   bindtextdomain("rtmidi",LOCALEDIR);
   initialized = true;
 }
+
+RTMIDI_DLL_PUBLIC const char * rtmidi_gettext (const char * s) {
+  init_rtmidi_gettext();
+  return dgettext("rtmidi",s);
+}
+
 #endif
 
 //! The constructor.
