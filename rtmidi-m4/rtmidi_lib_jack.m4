@@ -47,7 +47,8 @@ return jack_client_close(NULL);
 		])
 	])
 	AS_IF(test "x$rtmidi_have_jack" = "xyes",[
-		AC_CHECK_LIB(jack, jack_port_rename, AC_DEFINE(JACK_HAS_PORT_RENAME), )
+		AC_CHECK_LIB(jack, jack_port_rename, AC_DEFINE(JACK_HAS_PORT_RENAME,1,
+		[Define this if JACK supports the new function `jack_port_rename']), )
 		rtmidi_save_libs="$LIBS"
 		LIBS="$LIBS $JACK_LIBS"
 		AC_TRY_LINK([
