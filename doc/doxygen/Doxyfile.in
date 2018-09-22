@@ -667,9 +667,9 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = tutorial.txt \
-                         ../../RtMidi.h \
-			 ../../tests
+INPUT                  = @srcdir@/tutorial.txt \
+                         @srcdir@/../../RtMidi.h \
+			 @srcdir@/../../tests
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -729,7 +729,8 @@ EXCLUDE_SYMBOLS        =
 # directories that contain example code fragments that are included (see 
 # the \include command).
 
-EXAMPLE_PATH           =  ../../tests samples
+EXAMPLE_PATH           =  @srcdir@/../../tests
+EXAMPLE_PATH           += @srcdir@/samples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the 
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -1546,7 +1547,7 @@ ENABLE_PREPROCESSING   = YES
 # compilation will be performed. Macro expansion can be done in a controlled 
 # way by setting EXPAND_ONLY_PREDEF to YES.
 
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
 
 # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES 
 # then the macro expansion is limited to the macros specified with the 
@@ -1659,7 +1660,8 @@ CLASS_DIAGRAMS         = YES
 # the mscgen tool resides. If left empty the tool is assumed to be found in the 
 # default search path.
 
-MSCGEN_PATH            = /Applications/Doxygen.app/Contents/Resources/
+#MSCGEN_PATH            = /Applications/Doxygen.app/Contents/Resources/
+MSCGEN_PATH            =
 
 # If set to YES, the inheritance and collaboration graphs will hide 
 # inheritance and usage relations if the target is undocumented 
@@ -1803,7 +1805,8 @@ INTERACTIVE_SVG        = NO
 # The tag DOT_PATH can be used to specify the path where the dot tool can be 
 # found. If left blank, it is assumed the dot tool can be found in the path.
 
-DOT_PATH               = /Applications/Doxygen.app/Contents/Resources/
+#DOT_PATH               = /Applications/Doxygen.app/Contents/Resources/
+DOT_PATH               =
 
 # The DOTFILE_DIRS tag can be used to specify one or more directories that 
 # contain dot files that are included in the documentation (see the 
