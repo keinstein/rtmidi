@@ -89,6 +89,7 @@
 #include <list>
 #include <memory>
 #include <stdexcept>
+#include <atomic>
 // the following are used in the error constructor
 #include <cstdarg>
 #include <cstring>
@@ -1286,7 +1287,7 @@ protected:
   MidiQueue queue;
   MidiMessage message;
   unsigned char ignoreFlags;
-  bool doInput;
+  std::atomic_bool doInput;
   bool firstMessage;
   MidiInterface * userCallback;
   bool continueSysex;
