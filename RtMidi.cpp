@@ -3512,13 +3512,13 @@ MidiInAlsa :: ~MidiInAlsa()
   }
 
   // Cleanup.
-  close ( data->trigger_fds[0] );
-  close ( data->trigger_fds[1] );
   if ( data->local.client ) data->deletePort();
 #ifndef AVOID_TIMESTAMPING
   snd_seq_free_queue( data->seq, data->queue_id );
   data->queue_id = -1;
 #endif
+  close ( data->trigger_fds[0] );
+  close ( data->trigger_fds[1] );
   delete data;
 }
 
