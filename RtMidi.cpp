@@ -43,6 +43,7 @@
 #include <cctype>
 #include <algorithm>
 #include <functional>
+#include <cerrno>
 #ifndef RTMIDI_FALLTHROUGH
 #define RTMIDI_FALLTHROUGH
 #endif
@@ -2959,13 +2960,13 @@ protected:
 	switch (result) {
 	case -ENOENT: // /dev/snd/seq does not exist
 	  // Error numbers are defined to be positive
-	case ENOENT: // just in case ...
+	case -EACCES: // /dev/snd/seq cannot be opened
 	  throw RTMIDI_ERROR(snd_strerror(result),
 			     Error::NO_DEVICES_FOUND);
 	  return;
 	default:
 	  std::cerr << __FILE__ << ":" << __LINE__
-		    << "Got unhandled error number " << result << std::endl;
+		    << ":  Got unhandled error number " << result << std::endl;
 	  throw RTMIDI_ERROR(snd_strerror(result),
 			     Error::DRIVER_ERROR );
 	  return;
