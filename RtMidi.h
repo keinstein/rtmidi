@@ -445,6 +445,11 @@ public:
    *  \sa PortCapabilities
    */
   virtual int getCapabilities() const = 0;
+
+  //! Compare two PortDescriptors
+  /*! \return true if both descriptors describe the same port
+   */
+  virtual bool operator == (const PortDescriptor & o) = 0;
 };
 
 //! A list of port descriptors.

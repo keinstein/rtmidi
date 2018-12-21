@@ -1830,6 +1830,12 @@ struct CorePortDescriptor:public PortDescriptor	{
     if (!endpoint) return 0;
     return seq.getPortCapabilities(endpoint);
   }
+
+  virtual bool operator == (const PortDescriptor & o) {
+    const CorePortDescriptor * desc = dynamic_cast<const CorePortDescriptor*>(&o);
+    if (!desc) return false;
+    return endpoint == desc->endpoint;
+  }
   static PortList getPortList(int capabilities, const std::string &clientName);
 protected:
   MidiApi * api;
@@ -3026,6 +3032,12 @@ struct AlsaPortDescriptor:public PortDescriptor,
   int getCapabilities() const {
     if (!client) return 0;
     return seq.getPortCapabilities(client,port);
+  }
+
+  virtual bool operator == (const PortDescriptor & o) {
+    const AlsaPortDescriptor * desc = dynamic_cast<const AlsaPortDescriptor*>(&o);
+    if (!desc) return false;
+    return client == desc->client && port == desc->port;
   }
   static PortList getPortList(int capabilities, const std::string &clientName);
 protected:
@@ -4548,6 +4560,12 @@ struct WinMMPortDescriptor:public PortDescriptor
 
   unsigned int getPortNumber() const { return port; }
 
+  virtual bool operator == (const PortDescriptor & o) {
+    const WinMMPortDescriptor * desc = dynamic_cast<const WinMMPortDescriptor *>(&o);
+    if (!desc) return false;
+    return is_input == desc->is_input && port == desc->port;
+  }
+
   static PortList getPortList(int capabilities, const std::string &clientName);
 protected:
   /* There is no perfect port descriptor available in this API.
@@ -5616,6 +5634,21 @@ struct JackPortDescriptor:public PortDescriptor
   int getCapabilities() const {
     return seq.getPortCapabilities(port);
   }
+
+  // TODO: better comparison
+  virtual bool operator == (const PortDescriptor & o) {
+    const JackPortDescriptor * desc = dynamic_cast<const JackPortDescriptor *>(&o);
+    if (!desc) return false;
+    if (!port) return false;
+    return port == desc->port;
+    // in case the above turns out not to work properly:
+#if 0
+    if (port == desc->port) return true;
+    return  (seq.getPortName(port,SESSION_PATH) ==
+	     desc->seq.getPortName(desc->port,SESSION_PATH));
+#endif
+  }
+
   static PortList getPortList(int capabilities, const std::string &clientName);
 
   operator jack_port_t * () const { return port; }
