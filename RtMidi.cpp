@@ -2815,13 +2815,13 @@ public:
     if ((error = snd_seq_get_port_info( seq, port, pinfo ))<0) {
       throw RTMIDI_ERROR1(gettext_noopt("Could not get ALSA port information: %s"),
 			  Error::DRIVER_ERROR,
-			  snd_strerror(error));      
+			  snd_strerror(error));
     }
     snd_seq_port_info_set_name( pinfo, name.c_str() );
     if ((error = snd_seq_set_port_info( seq, port, pinfo ) )) {
       throw RTMIDI_ERROR1(gettext_noopt("Could not set ALSA port information: %s"),
 			  Error::DRIVER_ERROR,
-			  snd_strerror(error));      
+			  snd_strerror(error));
     }
   }
 
@@ -5398,6 +5398,12 @@ public:
     return jack_port_by_name(client,name);
   }
 
+#if __UNIX_JACK_HAS_UUID__
+  static int jack_port_uuid(jack_port_t *) {
+    return 0;
+  }
+#endif
+
   std::string getPortName(jack_port_t * port, int flags) {
     init();
     int naming = flags & PortDescriptor::NAMING_MASK;
@@ -5405,14 +5411,17 @@ public:
     std::ostringstream os;
     switch (naming) {
     case PortDescriptor::SESSION_PATH:
-      if (flags & PortDescriptor::INCLUDE_API)
-	os << "JACK:";
-#if __UNIX_JACK_HAS_UUID__
-      os << "UUID:" << std::hex << jack_port_uuid(port);
-#else
-      os << jack_port_name(port);
-#endif
-      break;
+      {
+	if (flags & PortDescriptor::INCLUDE_API)
+	  os << "JACK:";
+	// currently Jackd2 implements a dummy UUID returning zero.
+	auto uuid = jack_port_uuid(port);
+	if (uuid)
+	  os << "UUID:" << std::hex << uuid;
+	else
+	  os << jack_port_name(port);
+	break;
+      }
     case PortDescriptor::STORAGE_PATH:
       if (flags & PortDescriptor::INCLUDE_API)
 	os << "JACK:";
@@ -5436,7 +5445,7 @@ public:
   int getPortCapabilities(jack_port_t * port) {
     if (!port) return 0;
     const char * type = jack_port_type(port);
-    if (strcmp(type,JACK_DEFAULT_MIDI_TYPE)) return 0;
+    if (!type || strcmp(type,JACK_DEFAULT_MIDI_TYPE)) return 0;
     int flags = jack_port_flags(port);
     int retval = 0;
     /* a JACK input port is capable of handling output to it and vice versa */
@@ -5466,7 +5475,7 @@ public:
     return jack_port_set_name( port, portName.c_str() );
 #endif
   }
-  
+
   void deletePort(jack_port_t * port) {
     init();
     scoped_lock lock (mutex);
@@ -5562,7 +5571,7 @@ struct JackPortDescriptor:public PortDescriptor
   }
   JackPortDescriptor(const char * portname, const std::string &name):api(0),clientName(name)
   {
-    seq.setName(name);
+    seq.setName(clientName);
     port = seq.getPort(portname);
   }
   JackPortDescriptor(jack_port_t * other,
@@ -5570,15 +5579,16 @@ struct JackPortDescriptor:public PortDescriptor
 					       clientName(name)
   {
     port = other;
-    seq.setName(name);
+    seq.setName(clientName);
   }
   JackPortDescriptor(JackPortDescriptor & other,
 		     const std::string &name):api(0),
 					       clientName(name)
   {
     port = other.port;
-    seq.setName(name);
+    seq.setName(clientName);
   }
+
   ~JackPortDescriptor()
   {
   }
@@ -6103,7 +6113,6 @@ void MidiInJack :: openPort( const PortDescriptor & p,
   } catch (Error & e) {
     error (e);
   }
-
 }
 
 Pointer<PortDescriptor> MidiInJack :: getDescriptor(bool local)

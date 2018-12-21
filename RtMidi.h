@@ -427,7 +427,8 @@ public:
    *  API should handle this object. This can be used to get
    *  an API which can receive data from the given port.
    *
-   * \return API that can use this object to connect to an output port.
+   * \return API that can use this object to connect to an output port or 0
+   * if no output API can be created.
    */
   virtual MidiOutApi * getOutputApi() const = 0;
 
@@ -533,7 +534,6 @@ public:
 
   //! Returns the MIDI API specifier for the current instance of rtmidi::MidiIn.
   ApiType getCurrentApi( void ) throw();
-
 
   //! Pure virtual function to return a port descirptor if the port is open
   Pointer<PortDescriptor> getDescriptor(bool local=false);
@@ -754,6 +754,9 @@ public:
   //! If a MIDI connection is still open, it will be closed by the destructor.
   ~MidiIn ( void ) throw();
 
+  //! Returns true if we can open virtual ports;
+  virtual bool hasVirtualPorts();
+
   using Midi::openPort;
 
   //! Open a MIDI connection given by a port descriptor.
@@ -939,6 +942,9 @@ public:
 
   //! The destructor closes any open MIDI connections.
   ~MidiOut( void ) throw();
+
+  //! Returns true if we can open virtual ports;
+  virtual bool hasVirtualPorts();
 
   using Midi::openPort;
 
@@ -1386,6 +1392,7 @@ inline void Midi :: getCompiledApi( std::vector<Api> &apis, bool
     apis.push_back((Api)api2[i]);
   }
 }
+
 inline void Midi :: openPort( unsigned int portNumber,
 	       const std::string &portName) {
   if (rtapi_) rtapi_->openPort(portNumber,portName);
@@ -1422,6 +1429,27 @@ inline Midi :: ~Midi() {
 
 #define RTMIDI_CLASSNAME "MidiIn"
 // rtmidi::MidiIn
+inline bool MidiIn :: hasVirtualPorts() {
+  if (rtapi_) return rtapi_->hasVirtualPorts();
+
+  if (list && !list->empty()) {
+    Pointer<MidiApi> api = list->front();
+
+    std::vector< ApiType > apis;
+    getCompiledApi( apis );
+    for (size_t i = 0 ; i < apis.size() ; i++) {
+      openMidiApi( apis[0] );
+      if (rtapi_ && rtapi_->hasVirtualPorts()) {
+	delete rtapi_;
+	rtapi_ = 0;
+	return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 inline void MidiIn :: openPort( const PortDescriptor & port,
 				const std::string &portName ) {
   if (!rtapi_) rtapi_ = port.getInputApi();
@@ -1501,6 +1529,27 @@ inline double MidiIn :: getMessage( std::vector<unsigned char> *message ) {
 
 // rtmidi::MidiOut
 #define RTMIDI_CLASSNAME "MidiOut"
+inline bool MidiOut :: hasVirtualPorts() {
+  if (rtapi_)
+    return rtapi_->hasVirtualPorts();
+
+  if (list && !list->empty()) {
+    Pointer<MidiApi> api = list->front();
+
+    std::vector< ApiType > apis;
+    getCompiledApi( apis );
+    for (size_t i = 0 ; i < apis.size() ; i++) {
+      openMidiApi( apis[0] );
+      if (rtapi_ && rtapi_->hasVirtualPorts()) {
+	delete rtapi_;
+	rtapi_ = 0;
+	return true;
+      }
+    }
+  }
+
+  return false;
+}
 inline void MidiOut :: openPort( const PortDescriptor & port,
 				 const std::string &portName ) {
   if (!rtapi_) rtapi_ = port.getOutputApi();
