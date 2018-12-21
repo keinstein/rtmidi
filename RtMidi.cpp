@@ -5416,7 +5416,7 @@ public:
     return jack_port_by_name(client,name);
   }
 
-#if __UNIX_JACK_HAS_UUID__
+#if !__UNIX_JACK_HAS_UUID__
   static int jack_port_uuid(jack_port_t *) {
     return 0;
   }
