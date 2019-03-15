@@ -34,7 +34,7 @@ int main()
   try {
 
     // rtmidi::MidiIn constructor ... exception possible
-    rtmidi::MidiIn midiin;
+    rtmidi::MidiIn midiin(rtmidi::ALL_API);
 
     std::cout << "\nCurrent input API: " << apiMap[ midiin.getCurrentApi() ] << std::endl;
 
