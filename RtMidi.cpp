@@ -69,17 +69,35 @@
   #define __RTMIDI_DUMMY__
 #endif
 
+
+RTMIDI_NAMESPACE_START
+
 enum {
       IGNORE_SYSEX   = 0x01,
       IGNORE_TIME    = 0x02,
       IGNORE_SENSING = 0x04
 } ignore_flags;
 
-RTMIDI_NAMESPACE_START
+template<bool locking>
+struct scoped_lock {
+  pthread_mutex_t * mutex;
+  scoped_lock(pthread_mutex_t & m): mutex(&m)
+  {
+    if (locking)
+      while (pthread_mutex_lock(mutex) == EINTR) ;
+  }
+  ~scoped_lock()
+  {
+    if (locking)
+      while (pthread_mutex_unlock(mutex) == EINTR) ;
+  }
+};
+
 #if defined(__MACOSX_COREMIDI__)
 RTMIDI_NAMESPACE_END
 struct MIDIPacketList;
 RTMIDI_NAMESPACE_START
+
 
 
 class MidiInCore: public MidiInApi
@@ -851,7 +869,7 @@ void MidiInApi :: ignoreTypes( bool midiSysex, bool midiTime, bool midiSense )
 {
   ignoreFlags = 0;
   if ( midiSysex ) ignoreFlags = IGNORE_SYSEX;
-  if ( midiTime ) ignoreFlags |= IGNORE_TIME;
+  if ( midiTime ) ignoreFlags  |= IGNORE_TIME;
   if ( midiSense ) ignoreFlags |= IGNORE_SENSING;
 }
 
@@ -1179,7 +1197,7 @@ public:
   ~CoreSequencer()
   {
     if (seq) {
-      scoped_lock lock(mutex);
+      scoped_lock<locking> lock(mutex);
       MIDIClientDispose(seq);
       seq = 0;
     }
@@ -1657,7 +1675,7 @@ public:
 			  MidiInCore * data = NULL)
   {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     MIDIPortRef port = 0;
     OSStatus result;
     switch (flags) {
@@ -1692,7 +1710,7 @@ public:
 				     MidiInCore * data = NULL)
   {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     MIDIEndpointRef port = 0;
     OSStatus result;
     switch (flags) {
@@ -1735,19 +1753,6 @@ public:
     return seq;
   }
 protected:
-  struct scoped_lock {
-    pthread_mutex_t * mutex;
-    scoped_lock(pthread_mutex_t & m): mutex(&m)
-    {
-      if (locking)
-	pthread_mutex_lock(mutex);
-    }
-    ~scoped_lock()
-    {
-      if (locking)
-	pthread_mutex_unlock(mutex);
-    }
-  };
   pthread_mutex_t mutex;
   MIDIClientRef seq;
   std::string name;
@@ -1762,7 +1767,7 @@ protected:
   {
     if (client) return;
     {
-      scoped_lock lock(mutex);
+      scoped_lock<locking> lock(mutex);
 
       OSStatus result = MIDIClientCreate(CFStringWrapper(name), NULL, NULL, &client );
       if ( result != noErr ) {
@@ -2727,7 +2732,7 @@ public:
     }
     init();
     {
-      scoped_lock lock(mutex);
+      scoped_lock<locking> lock(mutex);
       snd_seq_set_client_name( seq, name.c_str() );
     }
   }
@@ -2735,7 +2740,7 @@ public:
   ~AlsaSequencer()
   {
     if (seq) {
-      scoped_lock lock(mutex);
+      scoped_lock<locking> lock(mutex);
       snd_seq_close(seq);
       seq = 0;
     }
@@ -2758,14 +2763,14 @@ public:
     snd_seq_client_info_t *cinfo;
     snd_seq_client_info_alloca( &cinfo );
     {
-      scoped_lock lock (mutex);
+      scoped_lock<locking> lock (mutex);
       snd_seq_get_any_client_info(seq,client,cinfo);
     }
 
     snd_seq_port_info_t *pinfo;
     snd_seq_port_info_alloca( &pinfo );
     {
-      scoped_lock lock (mutex);
+      scoped_lock<locking> lock (mutex);
       snd_seq_get_any_port_info(seq,client,port,pinfo);
     }
 
@@ -2843,7 +2848,7 @@ public:
     snd_seq_port_info_t *pinfo;
     snd_seq_port_info_alloca( &pinfo );
     {
-      scoped_lock lock (mutex);
+      scoped_lock<locking> lock (mutex);
       snd_seq_get_any_port_info(seq,client,port,pinfo);
     }
     unsigned int caps = snd_seq_port_info_get_capability(pinfo);
@@ -2856,25 +2861,25 @@ public:
 
   int getNextClient(snd_seq_client_info_t * cinfo ) {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     return snd_seq_query_next_client (seq, cinfo);
   }
 
   int getNextPort(snd_seq_port_info_t * pinfo ) {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     return snd_seq_query_next_port (seq, pinfo);
   }
 
   int createPort (snd_seq_port_info_t *pinfo) {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     return snd_seq_create_port(seq, pinfo);
   }
 
   void deletePort(int port) {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     snd_seq_delete_port( seq, port );
   }
 
@@ -2896,7 +2901,7 @@ public:
       snd_seq_port_subscribe_set_time_real(subscription, 1);
     }
     {
-      scoped_lock lock (mutex);
+      scoped_lock<locking> lock (mutex);
       if ( snd_seq_subscribe_port(seq, subscription) ) {
 	snd_seq_port_subscribe_free( subscription );
 	subscription = 0;
@@ -2910,13 +2915,13 @@ public:
 
   void closePort(snd_seq_port_subscribe_t * subscription ) {
     init();
-    scoped_lock lock(mutex);
+    scoped_lock<locking> lock(mutex);
     snd_seq_unsubscribe_port( seq, subscription );
   }
 
   void startQueue(int queue_id) {
     init();
-    scoped_lock lock(mutex);
+    scoped_lock<locking> lock(mutex);
     snd_seq_start_queue( seq, queue_id, NULL );
     snd_seq_drain_output( seq );
   }
@@ -2932,19 +2937,6 @@ public:
     return seq;
   }
 protected:
-  struct scoped_lock {
-    pthread_mutex_t * mutex;
-    scoped_lock(pthread_mutex_t & m): mutex(&m)
-    {
-      if (locking)
-	pthread_mutex_lock(mutex);
-    }
-    ~scoped_lock()
-    {
-      if (locking)
-	pthread_mutex_unlock(mutex);
-    }
-  };
   pthread_mutex_t mutex;
   snd_seq_t * seq;
   std::string name;
@@ -2953,7 +2945,7 @@ protected:
   snd_seq_client_info_t * GetClient(int id) {
     init();
     snd_seq_client_info_t * cinfo;
-    scoped_lock lock(mutex);
+    scoped_lock<locking> lock(mutex);
     snd_seq_get_any_client_info(seq,id,cinfo);
     return cinfo;
   }
@@ -2967,7 +2959,7 @@ protected:
   {
     if (s) return;
     {
-      scoped_lock lock(mutex);
+      scoped_lock<locking> lock(mutex);
       int result = snd_seq_open(&s, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
       if ( result < 0 ) {
 	switch (result) {
@@ -4367,7 +4359,7 @@ public:
     }
     init();
     {
-      scoped_lock lock(mutex);
+      scoped_lock<locking> lock(mutex);
     }
   }
 
@@ -4470,23 +4462,6 @@ public:
   }
 
 protected:
-  struct scoped_lock {
-    //			pthread_mutex_t * mutex;
-    scoped_lock(unsigned int &)
-    {
-#if 0
-      if (locking)
-	pthread_mutex_lock(mutex);
-#endif
-    }
-    ~scoped_lock()
-    {
-#if 0
-      if (locking)
-	pthread_mutex_unlock(mutex);
-#endif
-    }
-  };
   // to keep the API simple
   int mutex;
   std::string name;
@@ -5386,7 +5361,7 @@ public:
   ~JackSequencer()
   {
     {
-      scoped_lock lock (mutex);
+      scoped_lock<locking> lock (mutex);
       if (client) {
 	jack_deactivate (client);
 	// the latter doesn't flush the queue
@@ -5485,7 +5460,7 @@ public:
 
   jack_port_t * createPort (const std::string &portName, unsigned long portOptions) {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     return jack_port_register(client,
 			      portName.c_str(),
 			      JACK_DEFAULT_MIDI_TYPE,
@@ -5503,7 +5478,7 @@ public:
 
   void deletePort(jack_port_t * port) {
     init();
-    scoped_lock lock (mutex);
+    scoped_lock<locking> lock (mutex);
     jack_port_unregister( client, port );
   }
 
@@ -5535,19 +5510,6 @@ public:
   }
 
 protected:
-  struct scoped_lock {
-    pthread_mutex_t * mutex;
-    scoped_lock(pthread_mutex_t & m): mutex(&m)
-    {
-      if (locking)
-	pthread_mutex_lock(mutex);
-    }
-    ~scoped_lock()
-    {
-      if (locking)
-	pthread_mutex_unlock(mutex);
-    }
-  };
   pthread_mutex_t mutex;
   jack_client_t * client;
   std::string name;
@@ -5563,7 +5525,7 @@ protected:
   {
     if (c) return;
     {
-      scoped_lock lock(mutex);
+      scoped_lock<locking> lock(mutex);
       if (( c = jack_client_open( name.c_str(),
 				  JackNoStartServer,
 				  NULL )) == 0) {
