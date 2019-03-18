@@ -3351,6 +3351,7 @@ void * MidiInAlsa::alsaMidiHandler( void *ptr ) throw()
     doDecode = false;
     switch ( ev->type ) {
 
+    // ignore management data
     case SND_SEQ_EVENT_PORT_SUBSCRIBED:
 #if defined(__RTMIDI_DEBUG__)
       std::cout << "MidiInAlsa::alsaMidiHandler: port connection made!\n";
@@ -3385,30 +3386,37 @@ void * MidiInAlsa::alsaMidiHandler( void *ptr ) throw()
       break;
 
     case SND_SEQ_EVENT_SYSEX:
-      if ( (data->ignoreFlags & 0x01) ) break;
-      if ( ev->data.ext.len > apiData->bufferSize ) {
-	apiData->bufferSize = ev->data.ext.len;
-	free( buffer );
-	buffer = (unsigned char *) malloc( apiData->bufferSize );
-	if ( buffer == NULL ) {
-	  data->doInput = false;
-	  try {
-	    data->error(RTMIDI_ERROR(rtmidi_gettext("Error resizing buffer memory."),
-				     Error::WARNING));
-	  } catch (Error & e) {
-	    // don't bother ALSA with an unhandled exception
-	  }
-	  break;
-	}
-      }
-      RTMIDI_FALLTHROUGH;
+      if ( ! (data->ignoreFlags & 0x01) ) doDecode = true;
+      break;
+
     default:
       doDecode = true;
     }
 
-    if ( doDecode ) {
+    if ( doDecode &&
+	 ev->data.ext.len > apiData->bufferSize ) {
+      unsigned char * newbuffer
+	= (unsigned char *) malloc( ev->data.ext.len );
+      if ( newbuffer ) {
+	free (buffer);
+	buffer = newbuffer;
+	apiData->bufferSize = ev->data.ext.len;
+      } else {
+	try {
+	  data->error(RTMIDI_ERROR(rtmidi_gettext("Error resizing buffer memory."),
+				   Error::WARNING));
+	} catch (Error & e) {
+	  // don't bother ALSA with an unhandled exception
+	}
+	doDecode = false ;
+      }
+    }
 
-      nBytes = snd_midi_event_decode( apiData->coder, buffer, apiData->bufferSize, ev );
+    if ( doDecode ) {
+      nBytes = snd_midi_event_decode( apiData->coder,
+				      buffer,
+				      apiData->bufferSize,
+				      ev );
       if ( nBytes > 0 ) {
 	// The ALSA sequencer has a maximum buffer size for MIDI sysex
 	// events of 256 bytes.  If a device sends sysex messages larger
@@ -3462,8 +3470,7 @@ void * MidiInAlsa::alsaMidiHandler( void *ptr ) throw()
 	    data->firstMessage = false;
 	  else
 	    message.timeStamp = time * 0.000001;
-	}
-	else {
+	} else {
 #if defined(__RTMIDI_DEBUG__)
 	  try {
 	    data->error(RTMIDI_ERROR(rtmidi_gettext("Event parsing error or not a MIDI event."),
@@ -3477,7 +3484,6 @@ void * MidiInAlsa::alsaMidiHandler( void *ptr ) throw()
     }
 
     snd_seq_free_event( ev );
-    ev = 0;
     if ( message.bytes.size() == 0 || continueSysex ) continue;
 
     if ( data->userCallback ) {
