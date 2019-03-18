@@ -69,11 +69,18 @@
   #define __RTMIDI_DUMMY__
 #endif
 
+enum {
+      IGNORE_SYSEX   = 0x01,
+      IGNORE_TIME    = 0x02,
+      IGNORE_SENSING = 0x04
+} ignore_flags;
+
 RTMIDI_NAMESPACE_START
 #if defined(__MACOSX_COREMIDI__)
 RTMIDI_NAMESPACE_END
 struct MIDIPacketList;
 RTMIDI_NAMESPACE_START
+
 
 class MidiInCore: public MidiInApi
 {
@@ -843,9 +850,9 @@ void MidiInApi :: cancelCallback()
 void MidiInApi :: ignoreTypes( bool midiSysex, bool midiTime, bool midiSense )
 {
   ignoreFlags = 0;
-  if ( midiSysex ) ignoreFlags = 0x01;
-  if ( midiTime ) ignoreFlags |= 0x02;
-  if ( midiSense ) ignoreFlags |= 0x04;
+  if ( midiSysex ) ignoreFlags = IGNORE_SYSEX;
+  if ( midiTime ) ignoreFlags |= IGNORE_TIME;
+  if ( midiSense ) ignoreFlags |= IGNORE_SENSING;
 }
 
 double MidiInApi :: getMessage( std::vector<unsigned char> &message )
@@ -2001,14 +2008,14 @@ void MidiInCore::midiInputCallback( const MIDIPacketList *list,
     iByte = 0;
     if ( continueSysex ) {
       // We have a continuing, segmented sysex message.
-      if ( !( data->ignoreFlags & 0x01 ) ) {
+      if ( !( data->ignoreFlags & IGNORE_SYSEX ) ) {
 	// If we're not ignoring sysex messages, copy the entire packet.
 	for ( unsigned int j=0; j<nBytes; ++j )
 	  message.bytes.push_back( packet->data[j] );
       }
       continueSysex = packet->data[nBytes-1] != 0xF7;
 
-      if ( !( data->ignoreFlags & 0x01 ) ) {
+      if ( !( data->ignoreFlags & IGNORE_SYSEX ) ) {
 	if ( !continueSysex ) {
 	  // If not a continuing sysex message, invoke the user callback function or queue the message.
 	  if ( data->userCallback ) {
@@ -2042,7 +2049,7 @@ void MidiInCore::midiInputCallback( const MIDIPacketList *list,
 	else if ( status < 0xF0 ) size = 3;
 	else if ( status == 0xF0 ) {
 	  // A MIDI sysex
-	  if ( data->ignoreFlags & 0x01 ) {
+	  if ( data->ignoreFlags & IGNORE_SYSEX ) {
 	    size = 0;
 	    iByte = nBytes;
 	  }
@@ -2051,7 +2058,7 @@ void MidiInCore::midiInputCallback( const MIDIPacketList *list,
 	}
 	else if ( status == 0xF1 ) {
 	  // A MIDI time code message
-	  if ( data->ignoreFlags & 0x02 ) {
+	  if ( data->ignoreFlags & IGNORE_TIME ) {
 	    size = 0;
 	    iByte += 2;
 	  }
@@ -2059,12 +2066,12 @@ void MidiInCore::midiInputCallback( const MIDIPacketList *list,
 	}
 	else if ( status == 0xF2 ) size = 3;
 	else if ( status == 0xF3 ) size = 2;
-	else if ( status == 0xF8 && ( data->ignoreFlags & 0x02 ) ) {
+	else if ( status == 0xF8 && ( data->ignoreFlags & IGNORE_TIME ) ) {
 	  // A MIDI timing tick message and we're ignoring it.
 	  size = 0;
 	  iByte += 1;
 	}
-	else if ( status == 0xFE && ( data->ignoreFlags & 0x04 ) ) {
+	else if ( status == 0xFE && ( data->ignoreFlags & IGNORE_SENSING ) ) {
 	  // A MIDI active sensing message and we're ignoring it.
 	  size = 0;
 	  iByte += 1;
@@ -3370,23 +3377,17 @@ void * MidiInAlsa::alsaMidiHandler( void *ptr ) throw()
       break;
 
     case SND_SEQ_EVENT_QFRAME: // MIDI time code
-      if ( !( data->ignoreFlags & 0x02 ) ) doDecode = true;
-      break;
-
     case SND_SEQ_EVENT_TICK: // 0xF9 ... MIDI timing tick
-      if ( !( data->ignoreFlags & 0x02 ) ) doDecode = true;
-      break;
-
     case SND_SEQ_EVENT_CLOCK: // 0xF8 ... MIDI timing (clock) tick
-      if ( !( data->ignoreFlags & 0x02 ) ) doDecode = true;
+      if ( !( data->ignoreFlags & IGNORE_TIME ) ) doDecode = true;
       break;
 
     case SND_SEQ_EVENT_SENSING: // Active sensing
-      if ( !( data->ignoreFlags & 0x04 ) ) doDecode = true;
+      if ( !( data->ignoreFlags & IGNORE_SENSING ) ) doDecode = true;
       break;
 
     case SND_SEQ_EVENT_SYSEX:
-      if ( ! (data->ignoreFlags & 0x01) ) doDecode = true;
+      if ( ! (data->ignoreFlags & IGNORE_SYSEX) ) doDecode = true;
       break;
 
     default:
@@ -4680,16 +4681,16 @@ struct WinMMCallbacks {
       else if ( status < 0xE0 ) nBytes = 2;
       else if ( status < 0xF0 ) nBytes = 3;
       else if ( status == 0xF1 ) {
-	if ( data->ignoreFlags & 0x02 ) return;
+	if ( data->ignoreFlags & IGNORE_TIME ) return;
 	else nBytes = 2;
       }
       else if ( status == 0xF2 ) nBytes = 3;
       else if ( status == 0xF3 ) nBytes = 2;
-      else if ( status == 0xF8 && (data->ignoreFlags & 0x02) ) {
+      else if ( status == 0xF8 && (data->ignoreFlags & IGNORE_TIME) ) {
 	// A MIDI timing tick message and we're ignoring it.
 	return;
       }
-      else if ( status == 0xFE && (data->ignoreFlags & 0x04) ) {
+      else if ( status == 0xFE && (data->ignoreFlags & IGNORE_SENSING) ) {
 	// A MIDI active sensing message and we're ignoring it.
 	return;
       }
@@ -4700,7 +4701,7 @@ struct WinMMCallbacks {
     }
     else { // Sysex message ( MIM_LONGDATA or MIM_LONGERROR )
       MIDIHDR *sysex = ( MIDIHDR *) midiMessage;
-      if ( !( data->ignoreFlags & 0x01 ) && inputStatus != MIM_LONGERROR ) {
+      if ( !( data->ignoreFlags & IGNORE_SYSEX ) && inputStatus != MIM_LONGERROR ) {
 	// Sysex message and we're not ignoring it
 	for ( int i=0; i<(int)sysex->dwBytesRecorded; ++i )
 	  apiData->message.bytes.push_back( sysex->lpData[i] );
@@ -4728,7 +4729,7 @@ struct WinMMCallbacks {
 	  }
 	}
 
-	if ( data->ignoreFlags & 0x01 ) return;
+	if ( data->ignoreFlags & IGNORE_SYSEX ) return;
       }
       else return;
     }
