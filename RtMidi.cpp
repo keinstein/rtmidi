@@ -2516,8 +2516,13 @@ struct AlsaMidiData:public AlsaPortDescriptor {
   }
   ~AlsaMidiData()
   {
-    if (local.client)
-      deletePort();
+    try {
+      if (local.client && local.port)
+	deletePort();
+    } catch (const Error & e) {
+      // we don't have access to the error handler
+      e.printMessage();
+    }
   }
   void init () {
     local.port   = 0;
