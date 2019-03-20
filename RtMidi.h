@@ -1229,9 +1229,6 @@ public:
   RTMIDI_DEPRECATED(virtual void setErrorCallback( ErrorCallback errorCallback = NULL, void * userData = 0 ), "RtMidi now provides a typesafe ErrorInterface class");
 
 protected:
-  virtual void initialize( const std::string &clientName ) = 0;
-
-  void *apiData_;
   bool connected_;
   bool firstErrorOccurred_;
   std::string errorString_;
