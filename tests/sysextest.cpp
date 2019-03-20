@@ -79,16 +79,21 @@ int main( int argc, char *argv[] )
   midiout->sendMessage( &message );
   SLEEP( 500 ); // pause a little
 
-  // Create a long sysex message of numbered bytes and send it out ... twice.
-  for ( int n=0; n<2; n++ ) {
-    message.clear();
-    message.push_back( 240 );
-    for ( i=0; i<nBytes; i++ )
-      message.push_back( i % 128 );
-    message.push_back( 247 );
-    midiout->sendMessage( &message );
+  try {
+    // Create a long sysex message of numbered bytes and send it out ... twice.
+    for ( int n=0; n<2; n++ ) {
+      message.clear();
+      message.push_back( 240 );
+      for ( i=0; i<nBytes; i++ )
+	message.push_back( i % 128 );
+      message.push_back( 247 );
+      midiout->sendMessage( &message );
 
-    SLEEP( 500 ); // pause a little
+      SLEEP( 500 ); // pause a little
+    }
+  } catch (const rtmidi::Error & e) {
+    e.printMessage();
+    goto cleanup;
   }
 
   // Clean up

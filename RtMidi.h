@@ -1041,7 +1041,6 @@ public:
 protected:
   static MidiApiList queryApis;
   void openMidiApi( ApiType api );
-  bool firstErrorOccurred_;
 };
 #undef RTMIDI_CLASSNAME
 
@@ -1284,7 +1283,8 @@ public:
   {
     if (!message) {
       error( RTMIDI_ERROR(gettext_noopt("Passed NULL pointer."),
-			  Error::WARNING ));
+			  Error::INVALID_PARAMETER ));
+      return -100.0;
     }
     return getMessage(*message);
   }
@@ -1324,7 +1324,8 @@ public:
   {
     if (!message) {
       error( RTMIDI_ERROR(gettext_noopt("No data in message argument."),
-			  Error::WARNING));
+			  Error::INVALID_PARAMETER));
+      return;
     }
     sendMessage(*message);
   }
@@ -1519,7 +1520,8 @@ inline void MidiIn :: setCallback( MidiCallback callback, void *userData) {
 inline double MidiIn :: getMessage( std::vector<unsigned char> *message ) {
   if (!message) {
     error( RTMIDI_ERROR(gettext_noopt("Passed NULL pointer."),
-			Error::WARNING));
+			Error::INVALID_PARAMETER));
+    return -100.0;
   }
   if (rtapi_)
     return static_cast<MidiInApi*>(rtapi_)->getMessage(*message);
@@ -1587,7 +1589,8 @@ inline void MidiOut :: openVirtualPort( const std::string &portName ) {
 inline void MidiOut :: sendMessage( const unsigned char *message, size_t size ) {
   if (!message) {
     error( RTMIDI_ERROR(gettext_noopt("No data in MIDI message."),
-			Error::WARNING));
+			Error::INVALID_PARAMETER));
+    return;
   }
   if (rtapi_)
     static_cast<MidiOutApi *>(rtapi_)->sendMessage(message,size);

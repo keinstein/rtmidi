@@ -79,7 +79,13 @@ int main( int argc, char *argv[] )
   // Periodically check input queue.
   std::cout << "Reading MIDI from port " << midiin->getPortName() << " ... quit with Ctrl-C.\n";
   while ( !done ) {
-    stamp = midiin->getMessage( &message );
+    try {
+      stamp = midiin->getMessage( &message );
+    } catch (const rtmidi::Error & e) {
+      e.printMessage();
+      break;
+    }
+
     nBytes = message.size();
     for ( i=0; i<nBytes; i++ )
       std::cout << "Byte " << i << " = " << (int)message[i] << ", ";

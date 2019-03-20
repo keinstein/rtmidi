@@ -2912,7 +2912,15 @@ MidiInAlsa :: ~MidiInAlsa()
   }
 
   // Cleanup.
-  if ( local.client ) deletePort();
+  // TODO: Merge with AlsaMidiApi
+  try {
+    if (local.client && local.port)
+      deletePort();
+  } catch (const Error & e) {
+    // we don't have access to the error handler
+    e.printMessage();
+  }
+
 #ifndef AVOID_TIMESTAMPING
   snd_seq_free_queue( seq, queue_id );
   queue_id = -1;

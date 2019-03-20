@@ -125,37 +125,49 @@ int clock_out()
   // MIDI start
   message.clear();
   message.push_back( 0xFA );
-  midiout->sendMessage( &message );
+  try {
+    midiout->sendMessage( &message );
+  } catch (const rtmidi::Error & e) {
+    e.printMessage();
+    return -1;
+  }
+  
   std::cout << "MIDI start" << std::endl;
 
-  for (j=0; j < 8; j++)
-  {
-    if (j > 0)
-    {
-      // MIDI continue
-      message.clear();
-      message.push_back( 0xFB );
-      midiout->sendMessage( &message );
-      std::cout << "MIDI continue" << std::endl;
-    }
+  try {
+    for (j=0; j < 8; j++)
+      {
+	if (j > 0)
+	  {
+	    // MIDI continue
+	    message.clear();
+	    message.push_back( 0xFB );
+	    midiout->sendMessage( &message );
+	    std::cout << "MIDI continue" << std::endl;
+	  }
 
-    for (k=0; k < 96; k++) {
-      // MIDI clock
-      message.clear();
-      message.push_back( 0xF8 );
-      midiout->sendMessage( &message );
-      if (k % 24 == 0)
-        std::cout << "MIDI clock (one beat)" << std::endl;
-      SLEEP( sleep_ms );
-    }
+	for (k=0; k < 96; k++) {
+	  // MIDI clock
+	  message.clear();
+	  message.push_back( 0xF8 );
+	  midiout->sendMessage( &message );
+	  if (k % 24 == 0)
+	    std::cout << "MIDI clock (one beat)" << std::endl;
+	  SLEEP( sleep_ms );
+	}
 
-    // MIDI stop
-    message.clear();
-    message.push_back( 0xFC );
-    midiout->sendMessage( &message );
-    std::cout << "MIDI stop" << std::endl;
-    SLEEP( 500 );
+	// MIDI stop
+	message.clear();
+	message.push_back( 0xFC );
+	midiout->sendMessage( &message );
+	std::cout << "MIDI stop" << std::endl;
+	SLEEP( 500 );
+      }
+  } catch (const rtmidi::Error & e) {
+    e.printMessage();
+    return -1;
   }
+
 
   // MIDI stop
   message.clear();
