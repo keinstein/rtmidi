@@ -3055,7 +3055,7 @@ bool MidiInAlsa::doAlsaEvent(snd_seq_event_t * event,
   } else {
 #if defined(__RTMIDI_DEBUG__)
     try {
-      data->error(RTMIDI_ERROR(rtmidi_gettext("Event parsing error or not a MIDI event."),
+      error(RTMIDI_ERROR(rtmidi_gettext("Event parsing error or not a MIDI event."),
 			       Error::WARNING));
     } catch (Error & e) {
       // don't bother ALSA with an unhandled exception
@@ -3453,6 +3453,7 @@ void MidiOutAlsa :: initialize( const std::string &clientName )
 
   // Save our api-specific connection information.
   AlsaMidiData *data = new AlsaMidiData(clientName);
+  apiData_ = (void *) data;
   // data->seq = seq;
   //	data->portNum = -1;
 
@@ -3464,7 +3465,6 @@ void MidiOutAlsa :: initialize( const std::string &clientName )
     return;
   }
   snd_midi_event_init( data->coder );
-  apiData_ = (void *) data;
 }
 
 unsigned int MidiOutAlsa :: getPortCount()

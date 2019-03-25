@@ -76,7 +76,12 @@ int main( int argc, char *argv[] )
   midiin->setCallback( &mycallback );
 
   message.push_back( 0xF6 );
-  midiout->sendMessage( &message );
+  try {
+    midiout->sendMessage( &message );
+  } catch (const rtmidi::Error & e) {
+    e.printMessage();
+    goto cleanup;
+  }
   SLEEP( 500 ); // pause a little
 
   try {

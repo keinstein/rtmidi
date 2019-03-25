@@ -129,6 +129,7 @@ int clock_out()
     midiout->sendMessage( &message );
   } catch (const rtmidi::Error & e) {
     e.printMessage();
+    delete midiout;
     return -1;
   }
   
@@ -165,6 +166,7 @@ int clock_out()
       }
   } catch (const rtmidi::Error & e) {
     e.printMessage();
+    delete midiout;
     return -1;
   }
 
@@ -172,7 +174,13 @@ int clock_out()
   // MIDI stop
   message.clear();
   message.push_back( 0xFC );
-  midiout->sendMessage( &message );
+  try {
+    midiout->sendMessage( &message );
+  } catch (const rtmidi::Error & e) {
+    e.printMessage();
+    delete midiout;
+    return -1;
+  }
   std::cout << "MIDI stop" << std::endl;
 
   SLEEP( 500 );
