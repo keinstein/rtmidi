@@ -73,7 +73,9 @@ int main( int argc, char *argv[] )
     goto cleanup;
   }
 
-  midiin->setCallback( &mycallback );
+  catch (RtMidiError &error) {
+    midiin->setCallback( &mycallback );
+  }
 
   message.push_back( 0xF6 );
   try {
