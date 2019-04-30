@@ -73,8 +73,12 @@ int main( int argc, char *argv[] )
     goto cleanup;
   }
 
-  catch (RtMidiError &error) {
+  try {
     midiin->setCallback( &mycallback );
+  }
+  catch ( RtMidiError &error ) {
+    error.printMessage();
+    goto cleanup;
   }
 
   message.push_back( 0xF6 );
