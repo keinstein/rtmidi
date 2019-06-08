@@ -81,6 +81,11 @@
   #endif
 #endif
 
+// some fake libintl implementations may need special headers.
+#ifdef RTMIDI_GETTEXT
+#include "libintl.h"
+#endif
+
 
 #include <exception>
 #include <iostream>
@@ -95,9 +100,7 @@
 #include <cstring>
 #include <cstdio>
 
-#ifdef RTMIDI_GETTEXT
-#include "libintl.h"
-#endif
+
 #define gettext_noopt(str) (str)
 
 #define RTMIDI_NAMESPACE_START namespace rtmidi {

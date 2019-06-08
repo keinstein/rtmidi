@@ -4,10 +4,11 @@
 //
 // by Gary Scavone, 2003-2012.
 
+#include "RtMidi.h"
+
 #include <iostream>
 #include <cstdlib>
 #include <map>
-#include "RtMidi.h"
 
 int main()
 {

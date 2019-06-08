@@ -6,10 +6,10 @@
 */
 //*****************************************//
 
+#include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
 #include <typeinfo>
-#include "RtMidi.h"
 
 void usage( void ) {
   std::cout << "\nuseage: sysextest N\n";

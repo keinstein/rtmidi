@@ -10,9 +10,9 @@
 //
 //*****************************************//
 
+#include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
-#include "RtMidi.h"
 
 void mycallback( double deltatime, std::vector< unsigned char > *message, void * /* userData */ )
 {

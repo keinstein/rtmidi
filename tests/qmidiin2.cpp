@@ -9,10 +9,10 @@
 */
 //*****************************************//
 
+#include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
 #include <signal.h>
-#include "RtMidi.h"
 
 // Platform-dependent sleep routines.
 #if defined(__WINDOWS_MM__)

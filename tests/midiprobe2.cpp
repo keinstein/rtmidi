@@ -6,10 +6,10 @@
 // by Gary Scavone, 2003-2014.
 // and Tobias Schlemmer 2014
 
+#include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
 #include <map>
-#include "RtMidi.h"
 
 int main()
 {
