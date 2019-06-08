@@ -74,6 +74,12 @@ enum {
       IGNORE_SENSING = 0x04
 } ignore_flags;
 
+#if !defined(__LINUX_ALSA__) && !defined(__UNIX_JACK__) && !defined(__MACOSX_COREMIDI__) && defined(__WINDOWS_MM__)
+struct pthread_mutex_t;
+constexpr inline int pthread_mutex_lock(pthread_mutex_t * ) { return 0; }
+constexpr inline int pthread_mutex_unlock(pthread_mutex_t * ) { return 0; }
+#endif
+
 template<bool locking>
 struct scoped_lock {
   pthread_mutex_t * mutex;
