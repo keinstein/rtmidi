@@ -2,69 +2,30 @@ git:
   depth: 1
 branches:
   except:
-    - /(?i:appveyor)/
-sudo: false  # docker VM
-matrix:
-  include:
-  - os: linux
-    env: HOST="" API="alsa"
-    compiler: gcc
-  - os: linux
-    env: HOST="" API="alsa"
-    compiler: clang
-  - os: linux
-    env: HOST="" API="jack"
-    compiler: gcc
-  - os: linux
-    env: HOST="" API="jack"
-    compiler: clang
-  - os: linux
-    env: HOST="--with-jack" API="alsa"
-    compiler: gcc
-  - os: linux
-    env: HOST="--with-jack" API="alsa"
-    compiler: clang
-  # - os: linux
-  #   env: HOST="--host=i686-w64-mingw32" API="winmm"
-  #  compiler: gcc
-  # - os: linux
-  #  env: HOST="--host=x86_64-w64-mingw32" API="winmm"
-  #  compiler: gcc
-  # jack and asound not found on ARM gnueabihf
-  # - os: linux
-  #   env: HOST="--host=arm-linux-gnueabihf" API="alsa"
-  #   compiler: gcc
-  # - os: linux
-  #   env: HOST="--host=arm-linux-gnueabihf" API="jack"
-  #   compiler: gcc
-  - os: osx
-    env: HOST="" API="coremidi"
-    compiler: gcc
-  - os: osx
-    env: HOST="" API="coremidi"
-    compiler: clang
-  - os: osx
-    env: HOST="" API="jack"
-    compiler: gcc
-  - os: osx
-    env: HOST="" API="jack"
-    compiler: clang
-  - os: osx
-    env: HOST="--with-jack" API="coremidi"
-    compiler: gcc
-  - os: osx
-    env: HOST="--with-jack" API="coremidi"
-    compiler: clang
+  - "/(?i:appveyor)/"
 language: c++
+sudo: required
 group: travis_latest
-
+compiler:
+- gcc
+  #- clang
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "n9CpGYuwqD1CgAb/B4tRSZdlmUV1huax0bp/Xm+avASyiB1O6ZI+hJNpwrbZMjGF/lvMUnLfLaxr16AD+sWafjRR+PMgrYEGwFM+NdQPxzs2Vwa65WdiZRKmAnyoA99oRAdl6WZbjeo8OQymE9J+SDasCroA2Dqux5kuyOwixRqoh1JqbWDVs4oCmLSYrh231mjWWEGylUFrIPNzrF6a5uT2DOa1i1G+gidMMdPfBVQQyp+roaSJr7GSlx4FVbVlWXpHBSyBajIr55NY9TnB/hNtbh0DLHgMhs9hwCR+wrFXHx3uMfRY/oJJ90pccD3YfZryAOF/678IYtuIXn9hA8DAb0jcsTEtSMQ1hB73hFWuPzdfi1MrHoziiO0aKXPMam9triK4DOlQFCxnF1VTFckQA/qxwiBYPBIlFy5igu9FTeJaMCvO7XOZt+Eufe29LgC+5pG6+Lra6zA8jBFzYtsPqEW5fTGnuq6vMA2EdA1mm5O75p51L/qekEG/mjJ6bjcPxsV2N18HQtv3dmzl/LU/JhUng+zlYgs/2ssO3MkB1OQprHjv8nH1MmZeocTaBzVmjzj88Oi46jb6dar6L+up0m8z3TAu4bc5/JF//32//M7Z4GrKkoo9K8Epx48SbEwsCDpg24IHIhu/+JpBG7Ki5plMztVz4K1JD8hl3Q8="
 
 addons:
   apt:
     packages:
+    - devscripts
+    - pbuilder
+    - fakeroot
+    - debhelper
     - autoconf
     - libtool
     - autopoint
+    - gettext
     - automake
     - libasound-dev
     - libjack-dev
@@ -73,21 +34,39 @@ addons:
     - g++-mingw-w64-i686
     - g++-mingw-w64-x86-64
     - g++-arm-linux-gnueabihf
-
-
+    
+  coverity_scan:
+    project:
+      name: "keinstein/rtmidi"
+      description: "Library for MIDI processing"
+    notification_email: keinstein_junior@gmx.net
+    build_command_prepend: "(cd lib/rtmidi && autoreconf -i -f) && autoreconf -i -f && ./configure --with-alsa --with-jack"
+    build_command: "$TEST_RUNNER make -j4 multitarget"
+    branch_pattern: coverity_scan
 before_install:
-    - eval "${MATRIX_EVAL}"
-    - if test "$TRAVIS_OS_NAME" = osx ; then  brew update ; fi
-    - if test "$TRAVIS_OS_NAME" = osx ; then if brew upgrade boost ; then echo "upgraded" ; else echo "nothing to be done"; fi ;  fi
-    - if test "$TRAVIS_OS_NAME" = osx ; then rm -rf /usr/local/include/c++ ; fi # fix broken gcc installation
-    - if test "$TRAVIS_OS_NAME" = osx ; then brew install $EXTRA_BREW  gettext flex bison libtool autoconf jack   doxygen ; fi
-    - if test "$TRAVIS_OS_NAME" = osx ; then brew link --force $EXTRA_BREW gettext flex bison libtool autoconf jack ; fi
-    - mkdir -p config
-    - touch config/config.rpath
+- mkdir -p config lib/rtmidi/config
+- touch config/config.rpath
+- eval "${MATRIX_EVAL}"
+- pwd
+- ls
+- |
+  if test "$TRAVIS_OS_NAME" = osx
+  then
+    brew update 
+  fi
+- if test "$TRAVIS_OS_NAME" = osx ; then brew pin postgis ; fi
+- if test "$TRAVIS_OS_NAME" = osx ; then brew upgrade boost automake ; fi
+- if test "$TRAVIS_OS_NAME" = osx ; then rm -rf /usr/local/include/c++ ; fi
+- if test "$TRAVIS_OS_NAME" = osx ; then brew install $EXTRA_BREW wxmac gettext flex bison libtool jack ; fi
+- if test "$TRAVIS_OS_NAME" = osx ; then brew link --force $EXTRA_BREW boost wxmac gettext flex bison libtool autoconf jack ; fi
+- if test "$TRAVIS_OS_NAME" = linux ; then eval TEST_RUNNER=xvfb-run ; else eval TEST_RUNNER= ; fi
+- which gettextize
+- gettextize --version
+- which autopoint
+- autopoint --version
+- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
+  #- "(cd lib/rtmidi && autoreconf -i -f)"
+  #- autoreconf -i -f && ./configure
 
 script:
-    - mkdir -p config
-    - touch config/config.rpath
-    - ./autogen.sh --disable-apisearch --with-$API $HOST && make && make -j4 && $TEST_RUNNER make check || (cat test-suite.log ; false)
-    - make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
-    - cat tests/errors.log
+        - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then $TEST_RUNNER make -j3 all check ; fi
