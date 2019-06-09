@@ -13,7 +13,7 @@ env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    #   via the "travis encrypt" command using the project repo's public key
-   - secure: "n9CpGYuwqD1CgAb/B4tRSZdlmUV1huax0bp/Xm+avASyiB1O6ZI+hJNpwrbZMjGF/lvMUnLfLaxr16AD+sWafjRR+PMgrYEGwFM+NdQPxzs2Vwa65WdiZRKmAnyoA99oRAdl6WZbjeo8OQymE9J+SDasCroA2Dqux5kuyOwixRqoh1JqbWDVs4oCmLSYrh231mjWWEGylUFrIPNzrF6a5uT2DOa1i1G+gidMMdPfBVQQyp+roaSJr7GSlx4FVbVlWXpHBSyBajIr55NY9TnB/hNtbh0DLHgMhs9hwCR+wrFXHx3uMfRY/oJJ90pccD3YfZryAOF/678IYtuIXn9hA8DAb0jcsTEtSMQ1hB73hFWuPzdfi1MrHoziiO0aKXPMam9triK4DOlQFCxnF1VTFckQA/qxwiBYPBIlFy5igu9FTeJaMCvO7XOZt+Eufe29LgC+5pG6+Lra6zA8jBFzYtsPqEW5fTGnuq6vMA2EdA1mm5O75p51L/qekEG/mjJ6bjcPxsV2N18HQtv3dmzl/LU/JhUng+zlYgs/2ssO3MkB1OQprHjv8nH1MmZeocTaBzVmjzj88Oi46jb6dar6L+up0m8z3TAu4bc5/JF//32//M7Z4GrKkoo9K8Epx48SbEwsCDpg24IHIhu/+JpBG7Ki5plMztVz4K1JD8hl3Q8="
+   - secure: "H1Y0cm6NKEtzbOLzwaAsTQnbd/LkX4yTtBmd2FMAU3s9O0VOS3Q7E7XNYPIEScldgRCg3UknFjazTTUfTHipIKepSuGMBbQO8PhG01M5hxghDDbGUuePA9qnmzL+1wTnMPXkMeSCU1hrHGtSl1JhQvaUHQWtOfdfSOA84IBMVjuE3s6doWpAIe3slHl3vDO/Tx+IKLF4UDXXYK+ezOkvdvaKT9zMzaIt1ud1YujKd9M26Fpa0WIiSCUZfALS+CU8Bj0fuvp2aK9LEflgCFMtIXWa5eL1QS4aGAjtGoPCmfbi0Icv2HbhOH3cJ/boh9puaf7NymI+8Ql4HNynYX/tSa/oEy4A6XhSCPYFJeyexvG1bIZJe1HoUEz8VHdaBw2hqEa/gLDhdNpEDlfyi6GNaLMhcGmktezdLiv3n2qfJDio0K9RYEtt799tA28hx1yxzjYjlKHDrAEmGXoC3H6PRuMxguappMw9ZNPbVnxrroj9zTnw9lWYOsHkVaxC9P1JWodwOi7TvCnsNruafYeNJZ5NvLsa5eowjogtw/rnUirzEpN0PZc63y0Zfs0B6k06U/b6axR4W7EtZPJpBN18Gba3qPesfQLUcZGoM2H/vgbUSerRA9dhFdXnPxmuo8e8uagyP169IF/iLWFtmzlpHAVYAtL3lWMrditw0ussWog="
 
 addons:
   apt:
@@ -53,12 +53,12 @@ before_install:
   if test "$TRAVIS_OS_NAME" = osx
   then
     brew update 
+    brew pin postgis
+    brew upgrade boost automake
+    rm -rf /usr/local/include/c++
+    brew install $EXTRA_BREW wxmac gettext flex bison libtool jack
+    brew link --force $EXTRA_BREW boost wxmac gettext flex bison libtool autoconf jack
   fi
-- if test "$TRAVIS_OS_NAME" = osx ; then brew pin postgis ; fi
-- if test "$TRAVIS_OS_NAME" = osx ; then brew upgrade boost automake ; fi
-- if test "$TRAVIS_OS_NAME" = osx ; then rm -rf /usr/local/include/c++ ; fi
-- if test "$TRAVIS_OS_NAME" = osx ; then brew install $EXTRA_BREW wxmac gettext flex bison libtool jack ; fi
-- if test "$TRAVIS_OS_NAME" = osx ; then brew link --force $EXTRA_BREW boost wxmac gettext flex bison libtool autoconf jack ; fi
 - if test "$TRAVIS_OS_NAME" = linux ; then eval TEST_RUNNER=xvfb-run ; else eval TEST_RUNNER= ; fi
 - which gettextize
 - gettextize --version
