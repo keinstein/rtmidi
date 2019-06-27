@@ -2564,8 +2564,18 @@ struct AlsaMidiData:public AlsaPortDescriptor {
     subscription = seq.connectPorts(from, to, real_time);
   }
 
-  int openPort(int alsaCapabilities,
-	       const std::string &portName) {
+  /**
+   * Do the base work of creating ports. In order to avoid name clashes
+   * we have the name in the first place and the capabilities in the secound.
+   *
+   * \param portName Name of the port to be created.
+   * \param alsaCapabilities ALSA bitmask that explains what the port can do.
+   *
+   * \return error code
+   * \retval 0 if everything is ok
+   */
+  int createPort(int alsaCapabilities,
+		 const std::string &portName) {
     if (subscription) {
       api->error( RTMIDI_ERROR(gettext_noopt("Could not allocate ALSA port subscription."),
 			       Error::DRIVER_ERROR ));
@@ -2647,6 +2657,8 @@ struct AlsaMidiData:public AlsaPortDescriptor {
 class MidiInAlsa: public AlsaMidiData,
 		  public MidiInApi {
  public:
+  typedef AlsaMidiData base;
+  typedef MidiInApi api;
   typedef MidiInApi::MidiMessage MidiMessage;
   MidiInAlsa( const std::string &clientName, unsigned int queueSizeLimit );
   ~MidiInAlsa( void );
@@ -3270,7 +3282,7 @@ void MidiInAlsa :: openPort( const PortDescriptor & port,
 
   try {
     if (!local.client)
-      openPort (SND_SEQ_PORT_CAP_WRITE
+      createPort (SND_SEQ_PORT_CAP_WRITE
 		| SND_SEQ_PORT_CAP_SUBS_WRITE,
 		portName);
     setRemote(remote);
@@ -3642,10 +3654,9 @@ void MidiOutAlsa :: sendMessage( const unsigned char *message, size_t size )
   snd_seq_ev_set_direct(&ev);
 
   // In case there are more messages in the stream we send everything
-  result = size;
-  while ((result = snd_midi_event_encode( data->coder,
-					  message+result,
-					  result, &ev )) > 0) {
+  while (size && (result = snd_midi_event_encode( data->coder,
+						  message,
+						  size, &ev )) > 0) {
     // Send the event.
     if ( snd_seq_event_output(data->seq, &ev) < 0 ) {
       error(RTMIDI_ERROR(gettext_noopt("Error sending MIDI message to port."),
@@ -3653,6 +3664,13 @@ void MidiOutAlsa :: sendMessage( const unsigned char *message, size_t size )
       return;
     }
     snd_seq_drain_output(data->seq);
+    if (size < result)  {
+      error(RTMIDI_ERROR(gettext_noopt("ALSA consumed more bytes than availlable."),
+			 Error::WARNING) );
+      return;
+    }
+    message += result;
+    size -= result;
   }
 }
 
@@ -3685,8 +3703,8 @@ void MidiOutAlsa :: openPort( const PortDescriptor & port,
 
   try {
     if (!data->local.client)
-      data->openPort (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-		      portName);
+      data->createPort (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+			portName);
     data->setRemote(remote);
     data->connectPorts(data->local,*remote,true);
 
