@@ -90,4 +90,4 @@ script:
     - touch config/config.rpath
     - ./autogen.sh --disable-apisearch --with-$API $HOST && make && make -j4 && $TEST_RUNNER make check || (cat test-suite.log ; false)
     - make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
-    - cat tests/errors.log
+    - cat tests/*.log
