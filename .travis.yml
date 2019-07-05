@@ -8,13 +8,9 @@ sudo: required
 group: travis_latest
 compiler:
 - gcc
-  #- clang
 env:
   global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "H1Y0cm6NKEtzbOLzwaAsTQnbd/LkX4yTtBmd2FMAU3s9O0VOS3Q7E7XNYPIEScldgRCg3UknFjazTTUfTHipIKepSuGMBbQO8PhG01M5hxghDDbGUuePA9qnmzL+1wTnMPXkMeSCU1hrHGtSl1JhQvaUHQWtOfdfSOA84IBMVjuE3s6doWpAIe3slHl3vDO/Tx+IKLF4UDXXYK+ezOkvdvaKT9zMzaIt1ud1YujKd9M26Fpa0WIiSCUZfALS+CU8Bj0fuvp2aK9LEflgCFMtIXWa5eL1QS4aGAjtGoPCmfbi0Icv2HbhOH3cJ/boh9puaf7NymI+8Ql4HNynYX/tSa/oEy4A6XhSCPYFJeyexvG1bIZJe1HoUEz8VHdaBw2hqEa/gLDhdNpEDlfyi6GNaLMhcGmktezdLiv3n2qfJDio0K9RYEtt799tA28hx1yxzjYjlKHDrAEmGXoC3H6PRuMxguappMw9ZNPbVnxrroj9zTnw9lWYOsHkVaxC9P1JWodwOi7TvCnsNruafYeNJZ5NvLsa5eowjogtw/rnUirzEpN0PZc63y0Zfs0B6k06U/b6axR4W7EtZPJpBN18Gba3qPesfQLUcZGoM2H/vgbUSerRA9dhFdXnPxmuo8e8uagyP169IF/iLWFtmzlpHAVYAtL3lWMrditw0ussWog="
-
+  - secure: alTYBlj1gsFtkyq+cdypfdNE1DyjyfpegwJ6pBEVH3Dn8XuZeFsfsi38SEgHV0RH+iWqczH24nKh5cdH5lzbvE99+Y8M8PSPt50JE1OIHLjYcFYsqLRon2PGJUXqvYN/Hfxb3IWYID/bLw0YGfZwrL6/9KiMQojtaI6xQagNrRp/4RsS21Gx4M/QYGYl25Q/PvWA7WEwiEZfmRYoqn3u25MkDC5g0UetiPUMoDSP6+Ef1HbhBFBxGJdFfAWxYTp2iO55hJz4ADf3aJ6H2g9HoP0c8vnTSumJe02bZDDyx/x/SCgBP9pWsYSYS9ogLnbT7bopo2hntWZi5Rdfaw7PeHg+4UAwNhH5hX5qC8VdhGapA5e5/WNBAaiK3i//fmIEejO3jQAVAHY/aBDPYSzvhyeA+lt9uWflGxWTIoIzRmxer3Zh1GlQDjANS42U/HUBWbc6RzFXziIGXCNyTQ/q5BZ44gw2/Gcb/bDkwJiQWPMJZWT0W2tgJXXaaOCCmS3CsjjPh2xS7bq8xqoV0++CUh8O6SHXX26vMS1R3eDFARphVyF7+Lrv8nzSqo5yli5aUhPnkGVrXNjSCXbxtXfLK4u0GzSsVWutkC3rf6qwVNOYzyAZON/mbo22wpqKcLqNasW3sPeG1vosKDScp3B49y5n7Wt2O+XDW8if9/0QBZk=
 addons:
   apt:
     packages:
@@ -34,13 +30,13 @@ addons:
     - g++-mingw-w64-i686
     - g++-mingw-w64-x86-64
     - g++-arm-linux-gnueabihf
-    
   coverity_scan:
     project:
-      name: "keinstein/rtmidi"
-      description: "Library for MIDI processing"
+      name: keinstein/rtmidi
+      description: Library for MIDI processing
     notification_email: keinstein_junior@gmx.net
-    build_command_prepend: "(cd lib/rtmidi && autoreconf -i -f) && autoreconf -i -f && ./configure --with-alsa --with-jack"
+    build_command_prepend: "(cd lib/rtmidi && autoreconf -i -f) && autoreconf -i -f
+      && ./configure --with-alsa --with-jack"
     build_command: "$TEST_RUNNER make -j4 multitarget"
     branch_pattern: coverity_scan
 before_install:
@@ -49,24 +45,17 @@ before_install:
 - eval "${MATRIX_EVAL}"
 - pwd
 - ls
-- |
-  if test "$TRAVIS_OS_NAME" = osx
-  then
-    brew update 
-    brew pin postgis
-    brew upgrade boost automake
-    rm -rf /usr/local/include/c++
-    brew install $EXTRA_BREW wxmac gettext flex bison libtool jack
-    brew link --force $EXTRA_BREW boost wxmac gettext flex bison libtool autoconf jack
-  fi
-- if test "$TRAVIS_OS_NAME" = linux ; then eval TEST_RUNNER=xvfb-run ; else eval TEST_RUNNER= ; fi
+- "if test \"$TRAVIS_OS_NAME\" = osx\nthen\n  brew update \n  brew pin postgis\n  brew
+  upgrade boost automake\n  rm -rf /usr/local/include/c++\n  brew install $EXTRA_BREW
+  wxmac gettext flex bison libtool jack\n  brew link --force $EXTRA_BREW boost wxmac
+  gettext flex bison libtool autoconf jack\nfi\n"
+- if test "$TRAVIS_OS_NAME" = linux ; then eval TEST_RUNNER=xvfb-run ; else eval TEST_RUNNER=
+  ; fi
 - which gettextize
 - gettextize --version
 - which autopoint
 - autopoint --version
-- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
-  #- "(cd lib/rtmidi && autoreconf -i -f)"
-  #- autoreconf -i -f && ./configure
-
+- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
+  CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
 script:
-        - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then $TEST_RUNNER make -j3 all check ; fi
+- if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then $TEST_RUNNER make -j3 all check ; fi
