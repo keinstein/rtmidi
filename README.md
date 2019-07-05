@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/75a08f00495c4027b11d7b7dbaf62f92)](https://app.codacy.com/app/keinstein/rtmidi?utm_source=github.com&utm_medium=referral&utm_content=keinstein/rtmidi&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/keinstein/rtmidi.svg?branch=master-ts)](https://travis-ci.org/keinstein/rtmidi)[![Build status](https://ci.appveyor.com/api/projects/status/ac98q210qscfjayk/branch/master-ts?svg=true)](https://ci.appveyor.com/project/keinstein/rtmidi/branch/travis-tests)
 
 Extended RtMidi fork for Mutabor, GUI based Software, and saving MIDI connections
