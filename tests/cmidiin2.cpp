@@ -102,7 +102,7 @@ bool chooseMidiPort( rtmidi::MidiIn &midi )
 		do {
 			std::cout << "\nChoose a port number: ";
 			std::cin >> nr;
-		} while ( nr >= (int)pointers.size() );
+		} while ( nr < 0 || nr >= (int)pointers.size() );
 		std::getline( std::cin, keyHit );  // used to clear out stdin
 		selected = pointers[nr];
 	}

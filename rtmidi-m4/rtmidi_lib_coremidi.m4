@@ -37,6 +37,7 @@ AC_DEFUN([RTMIDI_LIB_COREMIDI],[
 	AS_IF(test "x$rtmidi_have_coremidi" = "xyes",[
 		RTMIDI_API="$RTMIDI_API -D__MACOSX_COREMIDI__"
 		RTMIDI_LIBS="$RTMIDI_LIBS -framework CoreMIDI -framework CoreFoundation -framework CoreAudio"
+		RTMIDI_HAVE_VIRTUAL_DEVICES=yes
 		$1
 	], [
 		m4_default([$2],[AC_MSG_ERROR(CoreMIDI header files not found!)] )
