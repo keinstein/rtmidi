@@ -94,6 +94,9 @@ int main( int argc, char *argv[] )
     // Create a long sysex message of numbered bytes and send it out ... twice.
     for ( int n=0; n<2; n++ ) {
       message.clear();
+      if (nBytes >0) {
+	message.reserve(nBytes);
+      }
       message.push_back( 240 );
       for ( i=0; i<nBytes; i++ )
 	message.push_back( i % 128 );

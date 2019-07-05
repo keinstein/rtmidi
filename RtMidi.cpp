@@ -80,13 +80,20 @@ constexpr inline int pthread_mutex_lock(pthread_mutex_t * ) { return 0; }
 constexpr inline int pthread_mutex_unlock(pthread_mutex_t * ) { return 0; }
 #endif
 
+#define RTMIDI_CLASSNAME "scoped_lock"
 template<bool locking>
 struct scoped_lock {
   pthread_mutex_t * mutex;
   scoped_lock(pthread_mutex_t & m): mutex(&m)
   {
+    int retval = 0;
+    // pthread_mutex_lock may report errors.
     if (locking)
-      while (pthread_mutex_lock(mutex) == EINTR) ;
+      while ((retval = pthread_mutex_lock(mutex)) == EINTR) ;
+    if (retval) {
+      RTMIDI_ERROR(gettext_noopt("Internal error: Could not lock the mutex."),
+		   Error::WARNING);
+    }
   }
   ~scoped_lock()
   {
@@ -94,6 +101,7 @@ struct scoped_lock {
       while (pthread_mutex_unlock(mutex) == EINTR) ;
   }
 };
+#undef RTMIDI_CLASSNAME
 
 // trim from start
 static inline std::string &ltrim(std::string &s) {
@@ -2541,6 +2549,8 @@ struct AlsaMidiData:public AlsaPortDescriptor {
     queue_id = -1;
     trigger_fds[0] = -1;
     trigger_fds[1] = -1;
+    lastTime.tv_sec = 0;
+    lastTime.tv_nsec = 0;
   }
   snd_seq_addr_t local; /*!< Our port and client id. If client = 0 (default) this means we didn't aquire a port so far. */
   NonLockingAlsaSequencer seq;
@@ -3664,7 +3674,7 @@ void MidiOutAlsa :: sendMessage( const unsigned char *message, size_t size )
       return;
     }
     snd_seq_drain_output(data->seq);
-    if (size < result)  {
+    if (size < (size_t)result)  {
       error(RTMIDI_ERROR(gettext_noopt("ALSA consumed more bytes than availlable."),
 			 Error::WARNING) );
       return;
@@ -5186,6 +5196,7 @@ struct JackMidiData:public JackPortDescriptor {
   JackMidiData(const std::string &clientName,
 	       MidiInJack * inputData_):JackPortDescriptor(clientName),
 					stateflags(RUNNING),
+					state_response(OPEN),
 					local(0),
 					buffSize(0),
 					buffMessage(0),
@@ -5208,6 +5219,7 @@ struct JackMidiData:public JackPortDescriptor {
    */
   JackMidiData(const std::string &clientName):JackPortDescriptor(clientName),
 					      stateflags(RUNNING),
+					      state_response(OPEN),
 					      local(0),
 					      buffSize(jack_ringbuffer_create( JACK_RINGBUFFER_SIZE )),
 					      buffMessage(jack_ringbuffer_create( JACK_RINGBUFFER_SIZE )),
@@ -5225,7 +5237,11 @@ struct JackMidiData:public JackPortDescriptor {
   ~JackMidiData()
   {
     if (local)
-      deletePort();
+      try {
+	deletePort();
+      } catch (const Error & e) {
+	e.printMessage(std::cerr);
+      }
     if (seq)
       delete seq;
 #ifdef HAVE_SEMAPHORE
@@ -5512,18 +5528,9 @@ MidiInJack :: ~MidiInJack()
   try {
     MidiInJack::closePort();
   } catch (Error & e) {
-    try {
-      delete data;
-    } catch (...) {
-    }
-    error(e);
-    return;
+    e.printMessage(std::cerr);
   }
 
-#if 0
-  if ( data->client )
-    jack_client_close( data->client );
-#endif
   /* immediately shut down the JACK client */
   delete data;
 }
@@ -5757,7 +5764,11 @@ MidiOutJack :: ~MidiOutJack()
 {
   JackMidiData *data = static_cast<JackMidiData *> (apiData_);
   //		closePort();
-  data -> request_delete();
+  try {
+    data -> request_delete();
+  } catch (const Error & e) {
+    e.printMessage(std::cerr);
+  }
 }
 
 void MidiOutJack :: openPort( unsigned int portNumber, const std::string &portName )
