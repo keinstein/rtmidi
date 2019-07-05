@@ -80,16 +80,16 @@ before_install:
       eval "${MATRIX_EVAL}"
       if test "$TRAVIS_OS_NAME" = osx
       then
-	brew update
-	if brew upgrade boost
-	then
-		echo "upgraded"
-	else
-		echo "nothing to be done"
-	fi
-	rm -rf /usr/local/include/c++ # fix broken gcc installation
-    	brew install $EXTRA_BREW  gettext flex bison libtool autoconf jack   doxygen
-	brew link --force $EXTRA_BREW gettext flex bison libtool autoconf jack
+        brew update
+        if brew upgrade boost
+        then
+                echo "upgraded"
+        else
+                echo "nothing to be done"
+        fi
+        rm -rf /usr/local/include/c++ # fix broken gcc installation
+        brew install $EXTRA_BREW  gettext flex bison libtool autoconf jack   doxygen
+        brew link --force $EXTRA_BREW gettext flex bison libtool autoconf jack
       fi
       mkdir -p config
       touch config/config.rpath
@@ -99,8 +99,8 @@ script:
       mkdir -p config
       touch config/config.rpath
       ./autogen.sh --disable-apisearch --with-$API $HOST && \
-      		   make && \
-		   make -j4 && \
-		   $TEST_RUNNER make check || (cat test-suite.log ; false)
+                   make && \
+                   make -j4 && \
+                   $TEST_RUNNER make check || (cat test-suite.log ; false)
       make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
       cat tests/*.log
