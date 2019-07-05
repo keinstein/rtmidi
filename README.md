@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/keinstein/rtmidi.svg?branch=master-ts)](https://travis-ci.org/keinstein/rtmidi)[![Build status](https://ci.appveyor.com/api/projects/status/ac98q210qscfjayk/branch/master-ts?svg=true)](https://ci.appveyor.com/project/keinstein/rtmidi/branch/travis-tests)
+[![Build Status](https://travis-ci.org/keinstein/rtmidi.svg?branch=master-ts)](https://travis-ci.org/keinstein/rtmidi)[![Build status](https://ci.appveyor.com/api/projects/status/ac98q210qscfjayk/branch/master-ts?svg=true)](https://ci.appveyor.com/project/keinstein/rtmidi/branch/travis-tests) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/39ea41a871be4403b687e2707714d4aa)](https://www.codacy.com/app/keinstein/rtmidi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=keinstein/rtmidi&amp;utm_campaign=Badge_Grade)
 
 Extended RtMidi fork for Mutabor, GUI based Software, and saving MIDI connections
 =================================================================================
@@ -33,11 +33,20 @@ Incompatible changes against upstream
 - `__MACOSX_CORE__` has been renamed to `__MACOSX_COREMIDI__`
 
 - The classes of RtMidi now reside in the namespace rtmidi.
-- The beginning letters “Rt” are dropped from the names
-- For easy adoption of the new interface wrappers for the old API are provided.
-- The library uses backend provided port descriptors, now. This provides a more reliable port handling for changing environments (See below).
 
-- The way MIDI devices are enumerated has changed. The old way, using the ordinal number of MIDI devices works only in cases where MIDI devices are not added or removed during the program session. When a virtual MIDI port or USB MIDI device is added or removed the ordinal number of each of the other devices may change.
+- The beginning letters “Rt” are dropped from the names
+
+- For easy adoption of the new interface wrappers for the old API are provided.
+
+- The library uses backend provided port descriptors, now. This
+  provides a more reliable port handling for changing environments
+  (See below).
+
+- The way MIDI devices are enumerated has changed. The old way, using
+  the ordinal number of MIDI devices works only in cases where MIDI
+  devices are not added or removed during the program session. When a
+  virtual MIDI port or USB MIDI device is added or removed the ordinal
+  number of each of the other devices may change.
 
    Suppose your computer has the following list of MIDI devices.
       1. MIDI loopback device
