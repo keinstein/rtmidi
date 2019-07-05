@@ -11,3 +11,8 @@ CLEANFILES =
 DISTCLEANFILES =
 
 include %D%/Makefile.library
+
+MULTITARGETS = all check
+
+multitarget:
+	for t in $(MULTITARGETS) ; do $(MAKE) $$t ; done

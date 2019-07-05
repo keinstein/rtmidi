@@ -35,27 +35,25 @@ addons:
       name: keinstein/rtmidi
       description: Library for MIDI processing
     notification_email: keinstein_junior@gmx.net
-    build_command_prepend: "(cd lib/rtmidi && autoreconf -i -f) && autoreconf -i -f
+    build_command_prepend: "autoreconf -i -f
       && ./configure --with-alsa --with-jack"
-    build_command: "$TEST_RUNNER make -j4 multitarget"
+    build_command: "make -j4 multitarget"
     branch_pattern: coverity_scan
 before_install:
-- mkdir -p config lib/rtmidi/config
+- sudo usermod -a -G audio travis
+- mkdir -p config
 - touch config/config.rpath
-- eval "${MATRIX_EVAL}"
 - pwd
 - ls
 - "if test \"$TRAVIS_OS_NAME\" = osx\nthen\n  brew update \n  brew pin postgis\n  brew
   upgrade boost automake\n  rm -rf /usr/local/include/c++\n  brew install $EXTRA_BREW
   wxmac gettext flex bison libtool jack\n  brew link --force $EXTRA_BREW boost wxmac
   gettext flex bison libtool autoconf jack\nfi\n"
-- if test "$TRAVIS_OS_NAME" = linux ; then eval TEST_RUNNER=xvfb-run ; else eval TEST_RUNNER=
-  ; fi
-- which gettextize
-- gettextize --version
-- which autopoint
-- autopoint --version
-- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
-  CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
+- |
+  if test "$TRAVIS_OS_NAME" = linux
+  then
+    sudo modprobe snd_seq_dummy
+  fi
+- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
 script:
 - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then $TEST_RUNNER make -j3 all check ; fi
