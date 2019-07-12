@@ -17,23 +17,26 @@ env:
 addons:
   apt:
     packages:
-    - lcov
-    - devscripts
-    - pbuilder
-    - fakeroot
-    - debhelper
     - autoconf
     - libtool
     - autopoint
-    - gettext
     - automake
+    - lcov
+    - jackd
     - libasound-dev
+    - libjack0
     - libjack-dev
     - libcppunit-dev
     - doxygen
     - g++-mingw-w64-i686
     - g++-mingw-w64-x86-64
     - g++-arm-linux-gnueabihf
+    - devscripts
+    - pbuilder
+    - fakeroot
+    - debhelper
+    - gettext
+    - gdb
   coverity_scan:
     project:
       name: keinstein/rtmidi
@@ -44,15 +47,26 @@ addons:
     build_command: "make -j4 multitarget"
     branch_pattern: coverity_scan
 before_install:
-- sudo usermod -a -G audio travis
+- echo $USER
+- sudo usermod -a -G audio $USER
+- |
+  sudo tee -a /etc/security/limits.conf << EOF
+  @audio          -       rtprio          99
+  EOF
 - mkdir -p config
 - touch config/config.rpath
 - pwd
 - ls
-- "if test \"$TRAVIS_OS_NAME\" = osx\nthen\n  brew update \n  brew pin postgis\n  brew
-  upgrade boost automake\n  rm -rf /usr/local/include/c++\n  brew install $EXTRA_BREW
-  wxmac gettext flex bison libtool jack\n  brew link --force $EXTRA_BREW boost wxmac
-  gettext flex bison libtool autoconf jack\nfi\n"
+- |
+  if test "$TRAVIS_OS_NAME" = osx
+  then
+    brew update
+    brew pin postgis
+    brew upgrade boost automake
+    rm -rf /usr/local/include/c++
+    brew install $EXTRA_BREW wxmac gettext flex bison libtool jack
+    brew link --force $EXTRA_BREW boost wxmac gettext flex bison libtool autoconf jack
+  fi
 - |
   if test "$TRAVIS_OS_NAME" = linux
   then
@@ -68,7 +82,17 @@ script:
     echo cov-int/scm_log.txt:
     cat cov-int/scm_log.txt
   fi
-- find . -name \*.log | while read d ; do echo "$d:" ; cat "$d" ; done
+- find tests -name \*.log | while read d ; do echo "$d:" ; cat "$d" ; done
+- |
+  echo group check
+  groups
+  sudo sudo -u $USER groups
+- |
+  sudo sudo -u $USER bash << EOF
+  jackd -r -d dummy & JACKPID=\$!
+  make check-code-coverage
+  kill \$JACKPID
+  EOF
 - make gcov
 
 after_success:
