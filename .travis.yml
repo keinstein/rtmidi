@@ -11,6 +11,9 @@ compiler:
 env:
   global:
   - secure: alTYBlj1gsFtkyq+cdypfdNE1DyjyfpegwJ6pBEVH3Dn8XuZeFsfsi38SEgHV0RH+iWqczH24nKh5cdH5lzbvE99+Y8M8PSPt50JE1OIHLjYcFYsqLRon2PGJUXqvYN/Hfxb3IWYID/bLw0YGfZwrL6/9KiMQojtaI6xQagNrRp/4RsS21Gx4M/QYGYl25Q/PvWA7WEwiEZfmRYoqn3u25MkDC5g0UetiPUMoDSP6+Ef1HbhBFBxGJdFfAWxYTp2iO55hJz4ADf3aJ6H2g9HoP0c8vnTSumJe02bZDDyx/x/SCgBP9pWsYSYS9ogLnbT7bopo2hntWZi5Rdfaw7PeHg+4UAwNhH5hX5qC8VdhGapA5e5/WNBAaiK3i//fmIEejO3jQAVAHY/aBDPYSzvhyeA+lt9uWflGxWTIoIzRmxer3Zh1GlQDjANS42U/HUBWbc6RzFXziIGXCNyTQ/q5BZ44gw2/Gcb/bDkwJiQWPMJZWT0W2tgJXXaaOCCmS3CsjjPh2xS7bq8xqoV0++CUh8O6SHXX26vMS1R3eDFARphVyF7+Lrv8nzSqo5yli5aUhPnkGVrXNjSCXbxtXfLK4u0GzSsVWutkC3rf6qwVNOYzyAZON/mbo22wpqKcLqNasW3sPeG1vosKDScp3B49y5n7Wt2O+XDW8if9/0QBZk=
+  - secure: "KCWTRyZJclzGmh011zSR7vS0hrK7Ibna0sowNLJ+TTS84Fc9delNX2LZJ63CoUAi8mmySRo0ffuSzMyp3cew5633cjRZLH/5HgxCPFMvcriGi3MqZw9tVVIpqhcsFcxyBzdaLvP7dE1NM1J1y5wLYQP5fOJF5910pxfEwqBOWUxiJAjQRG3DeRVxbNYDd6JwB+aI+LyMZm2ddz8eOKRYcPC35misFrhTPqCJcfzTF38qRQ6a7D9G+q//uPBNx7Ph2Bj52sndM/r1aeLA7kK+eeB1+gO/judbuJRNLAZpgCL/XdhnHzScWTu7/aDfIWkNZsR8tfZPeJIFbVASrymVU/B6oKw5+C2bWtn8PCuemRkTQ0KIUSt4hbMIT88wbAz56dBVR+3tFC5if87M7SOi9jqvXf13R5jjfnAbdtP/l9pucz3ja15MRCZacfNeY9JPFRfD0Tyd7ntt5aP+NSGFK8HRssVr82cvzezy1H39vWSzlm04mN53eCvS2aU7o3mSXpLRnr9UOrZs0wk6b3t8hGqH0Aw6eVlRdzCeUjYs17x71HETcuoUUjXKSZBhthxtyXUo1JtyLAwPLg7KlS1U+U2UxN+qkRGHb00MFRdM/mQElB15NSLZyUerymuE3Hr0eRtJBCuPmg9UByv2Wy06LNqNug8RCQVMuvxJuIoFZeE="
+
+
 addons:
   apt:
     packages:
@@ -57,3 +60,7 @@ before_install:
 - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
 script:
 - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then $TEST_RUNNER make -j3 all check ; fi
+- make gcov
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)

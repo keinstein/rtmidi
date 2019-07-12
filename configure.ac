@@ -13,7 +13,6 @@ AC_CONFIG_FILES([Makefile doc/Makefile po/Makefile.in rtmidi-config rtmidi.pc  d
 AM_INIT_AUTOMAKE([1.14 -Wall -Werror foreign subdir-objects])
 
 
-
 # Fill GXX with something before test.
 GXX="no"
 
@@ -29,6 +28,12 @@ SUBDIRS="$SUBDIRS %D%/po"
 rtmidi_subdir="$srcdir"
 m4_define(rtmididir,[.])
 m4_include(configure.library)
+
+
+AC_LANG_PUSH(C++)
+AX_CODE_COVERAGE
+AC_LANG_POP(C++)
+
 
 AC_OUTPUT
 
