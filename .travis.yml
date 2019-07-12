@@ -60,7 +60,15 @@ before_install:
   fi
 - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
 script:
-- if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then $TEST_RUNNER make -j3 all check ; fi
+- |
+  if [ "${COVERITY_SCAN_BRANCH}" != 1 ]
+  then
+    $TEST_RUNNER make -j3 all check
+  else
+    echo cov-int/scm_log.txt:
+    cat cov-int/scm_log.txt
+  fi
+- find . -name \*.log | while read d ; do echo "$d:" ; cat "$d" ; done
 - make gcov
 
 after_success:
