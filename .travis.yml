@@ -57,7 +57,9 @@ matrix:
     compiler: clang
 language: c++
 group: travis_latest
-
+env:
+  global:
+    - secure: "KCWTRyZJclzGmh011zSR7vS0hrK7Ibna0sowNLJ+TTS84Fc9delNX2LZJ63CoUAi8mmySRo0ffuSzMyp3cew5633cjRZLH/5HgxCPFMvcriGi3MqZw9tVVIpqhcsFcxyBzdaLvP7dE1NM1J1y5wLYQP5fOJF5910pxfEwqBOWUxiJAjQRG3DeRVxbNYDd6JwB+aI+LyMZm2ddz8eOKRYcPC35misFrhTPqCJcfzTF38qRQ6a7D9G+q//uPBNx7Ph2Bj52sndM/r1aeLA7kK+eeB1+gO/judbuJRNLAZpgCL/XdhnHzScWTu7/aDfIWkNZsR8tfZPeJIFbVASrymVU/B6oKw5+C2bWtn8PCuemRkTQ0KIUSt4hbMIT88wbAz56dBVR+3tFC5if87M7SOi9jqvXf13R5jjfnAbdtP/l9pucz3ja15MRCZacfNeY9JPFRfD0Tyd7ntt5aP+NSGFK8HRssVr82cvzezy1H39vWSzlm04mN53eCvS2aU7o3mSXpLRnr9UOrZs0wk6b3t8hGqH0Aw6eVlRdzCeUjYs17x71HETcuoUUjXKSZBhthxtyXUo1JtyLAwPLg7KlS1U+U2UxN+qkRGHb00MFRdM/mQElB15NSLZyUerymuE3Hr0eRtJBCuPmg9UByv2Wy06LNqNug8RCQVMuvxJuIoFZeE="
 
 addons:
   apt:
@@ -104,3 +106,7 @@ script:
                    $TEST_RUNNER make check || (cat test-suite.log ; false)
       make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
       cat tests/*.log
+      make gcov
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
