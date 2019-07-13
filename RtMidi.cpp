@@ -5321,7 +5321,8 @@ struct JackMidiData:public JackPortDescriptor {
     //   - via signal in jackProcessOut
     //   - using a semaphore
 #ifdef HAVE_SEMAPHORE
-    closePort();
+    if (local)
+      closePort();
 
     // Cleanup
     delete this;

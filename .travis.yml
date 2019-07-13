@@ -78,6 +78,7 @@ addons:
     - g++-mingw-w64-i686
     - g++-mingw-w64-x86-64
     - g++-arm-linux-gnueabihf
+    - gdb
 
 
 before_install:
@@ -115,7 +116,17 @@ script:
       make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
       jackd -r -d dummy &
       JACKPID=$!
-      sudo su $USER -c "make check" || exit 1
+      sudo su $USER -c "make check" || true
+      ./libtool --mode=execute gdb tests/lostportdescriptor << EOF
+      r
+      bt full
+      q
+      EOF 
+      ./libtool --mode=execute gdb tests/testequalityoperator << EOF
+      r
+      bt full
+      q
+      EOF 
       kill $JACKPID
       cat tests/*.log
       make gcov
