@@ -13,6 +13,7 @@ DISTCLEANFILES += \
 %C%_librtmidi@rtmidi_suffix@_la_LDFLAGS = \
 	$(AM_LDFLAGS) \
 	$(RTMIDI_LIBS) \
+	$(RTMIDI_CXXFLAGS) \
 	$(LDADD) \
 	-export-dynamic \
 	-version-info  @RTMIDI_SO_VERSION@ \
@@ -21,6 +22,7 @@ DISTCLEANFILES += \
 %C%_librtmidi@rtmidi_suffix@_la_CXXFLAGS = \
 	$(AM_CXXFLAGS) \
 	$(rtmidi_visibility) \
+	$(RTMIDI_CXXFLAGS) \
 	$(CXXFLAGS) \
 	$(CPPFLAGS) \
 	$(RTMIDI_API) \

@@ -16,6 +16,10 @@ AM_INIT_AUTOMAKE([1.14 -Wall -Werror foreign subdir-objects])
 # Fill GXX with something before test.
 GXX="no"
 
+# Clear the default CFLAGS and CXXFLAGS which will be set to “-g -O2” if unset.
+: ${CFLAGS=""}
+: ${CXXFLAGS=""}
+
 # Enable some nice automake features if they are available
 m4_ifdef([AM_MAINTAINER_MODE], [AM_MAINTAINER_MODE])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
