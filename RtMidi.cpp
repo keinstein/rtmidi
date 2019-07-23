@@ -5054,18 +5054,17 @@ struct JackPortDescriptor:public PortDescriptor
     seq.setName(clientName);
     port = seq.getPort(portname);
   }
-  JackPortDescriptor(jack_port_t * other,
-		     const std::string &name):api(0),
-					       clientName(name)
-  {
-    port = other;
-    seq.setName(clientName);
-  }
+
   JackPortDescriptor(JackPortDescriptor & other,
 		     const std::string &name):api(0),
 					       clientName(name)
   {
+#if 0
     port = other.port;
+#else
+    // assign port to the permanent sequencer
+    port = other.clonePort(seq);
+#endif
     seq.setName(clientName);
   }
 
@@ -5097,11 +5096,29 @@ struct JackPortDescriptor:public PortDescriptor
     return seq.getPortCapabilities(port);
   }
 
+  /**
+   * Create a copy of the Jack port information that belongs to the
+   * given sequencer.
+   *
+   * \param other JackPortDescriptor
+   *
+   * \return port information of the same port as we point to, but
+   *         attached to another JACK sequencer. So that it survives
+   *         when our sequencer gets destroyed.
+   */
+  template<int i>
+  jack_port_t * clonePort(JackSequencer<i> & seq) const {
+    const char * portName  = jack_port_name(port);
+    return seq.getPort(portName);
+  }
+
+
   // TODO: better comparison
   virtual bool operator == (const PortDescriptor & o) {
     const JackPortDescriptor * desc = dynamic_cast<const JackPortDescriptor *>(&o);
     if (!desc) return false;
     if (!port) return false;
+    // danger! We must ensure that port always point to seq
     return port == desc->port;
     // in case the above turns out not to work properly:
 #if 0
@@ -5113,13 +5130,28 @@ struct JackPortDescriptor:public PortDescriptor
 
   static PortList getPortList(int capabilities, const std::string &clientName);
 
-  operator jack_port_t * () const { return port; }
+  //operator jack_port_t * () const { return port; }
 
 protected:
   std::string clientName;
   jack_port_t * port;
 
   friend struct JackMidiData;
+  JackPortDescriptor(jack_port_t * other,
+		     const std::string &name):api(0),
+					       clientName(name)
+  {
+    if (!port) {
+      throw RTMIDI_ERROR(gettext_noopt("Inavlid port submitted to JackPortDescriptor()."),
+			 Error::DRIVER_ERROR);
+    }
+    // copy the port structure in 2 steps to avoid crashes.
+    // Set ourself to the desired structure.
+    port = other;
+    // clone the structure with our sequencer.
+    port = clonePort(seq);
+    seq.setName(clientName);
+  }
 };
 
 LockingJackSequencer JackPortDescriptor::seq;
@@ -5263,14 +5295,18 @@ struct JackMidiData:public JackPortDescriptor {
     seq->init(!isinput);
   }
 
-
-  void setRemote(jack_port_t * remote) {
-    port   = remote;
+  void setRemote(const JackPortDescriptor & o) {
+    port = o.clonePort(*seq);
   }
 
-  void connectPorts(jack_port_t * from,
-		    jack_port_t * to) {
-    seq->connectPorts(from, to);
+  void connectFrom(const JackPortDescriptor & from) {
+    setRemote(from);
+    seq->connectPorts(port, local);
+  }
+
+  void connectTo(const JackPortDescriptor & to) {
+    setRemote(to);
+    seq->connectPorts(local, port);
   }
 
   int openPort(unsigned long jackCapabilities,
@@ -5286,6 +5322,19 @@ struct JackMidiData:public JackPortDescriptor {
 
   int rename(const std::string &portName) {
     return seq->renamePort(local,portName);
+  }
+
+
+  Pointer<PortDescriptor> getDescriptor(bool isLocal)
+  {
+    if (isLocal) {
+      if (local) {
+	return Pointer<PortDescriptor>(new JackPortDescriptor(local,getClientName()));
+      }
+    } else {
+      return Pointer<PortDescriptor>(new JackPortDescriptor(*this,getClientName()));
+    }
+    return NULL;
   }
 
   void delayedDeletePort() {
@@ -5601,8 +5650,7 @@ void MidiInJack :: openPort( const PortDescriptor & p,
     if (!data->local)
       data->openPort (JackPortIsInput,
 		      portName);
-    data->setRemote(*port);
-    data->connectPorts(*port,data->local);
+    data->connectFrom(*port);
   } catch (Error & e) {
     error (e);
   }
@@ -5611,18 +5659,13 @@ void MidiInJack :: openPort( const PortDescriptor & p,
 Pointer<PortDescriptor> MidiInJack :: getDescriptor(bool isLocal)
 {
   JackMidiData *data = static_cast<JackMidiData *> (apiData_);
+  if ( !data ) {
+    error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+		       Error::SYSTEM_ERROR) );
+    return NULL;
+  }
   try {
-    if (isLocal) {
-      if (data && data->local) {
-	return Pointer<PortDescriptor>(
-				       new JackPortDescriptor(data->local,data->getClientName()));
-      }
-    } else {
-      if (data && *data) {
-	return Pointer<PortDescriptor>(
-				       new JackPortDescriptor(*data,data->getClientName()));
-      }
-    }
+    return data->getDescriptor(isLocal);
   } catch (Error & e) {
     error(e);
   }
@@ -5837,8 +5880,7 @@ void MidiOutJack :: openPort( const PortDescriptor & p,
     if (!data->local)
       data->openPort (JackPortIsOutput,
 		      portName);
-    data->setRemote(*port);
-    data->connectPorts(data->local,*port);
+    data->connectTo(*port);
   } catch (Error & e) {
     error(e);
   }
@@ -5847,18 +5889,13 @@ void MidiOutJack :: openPort( const PortDescriptor & p,
 Pointer<PortDescriptor> MidiOutJack :: getDescriptor(bool isLocal)
 {
   JackMidiData *data = static_cast<JackMidiData *> (apiData_);
+  if ( !data ) {
+    error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
+		       Error::SYSTEM_ERROR) );
+    return NULL;
+  }
   try {
-    if (isLocal) {
-      if (data && data->local) {
-	return Pointer<PortDescriptor>(
-				       new JackPortDescriptor(data->local,data->getClientName()));
-      }
-    } else {
-      if (data && *data) {
-	return Pointer<PortDescriptor>(
-				       new JackPortDescriptor(*data,data->getClientName()));
-      }
-    }
+    return data->getDescriptor(isLocal);
   } catch (Error & e) {
     error(e);
   }
