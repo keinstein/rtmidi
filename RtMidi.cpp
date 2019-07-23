@@ -5137,6 +5137,19 @@ protected:
   jack_port_t * port;
 
   friend struct JackMidiData;
+
+  static long int jackCapabilities(int capabilities) {
+    unsigned long flags = 0;
+
+    if (capabilities & INPUT) {
+      flags |= JackPortIsOutput;
+    }
+    if (capabilities & OUTPUT) {
+      flags |= JackPortIsInput;
+    }
+    return flags;
+  }
+
   JackPortDescriptor(jack_port_t * other,
 		     const std::string &name):api(0),
 					       clientName(name)
@@ -5161,15 +5174,7 @@ LockingJackSequencer JackPortDescriptor::seq;
 PortList JackPortDescriptor :: getPortList(int capabilities, const std::string &clientName)
 {
   PortList list;
-  unsigned long flags = 0;
-
-  if (capabilities & INPUT) {
-    flags |= JackPortIsOutput;
-  }
-  if (capabilities & OUTPUT) {
-    flags |= JackPortIsInput;
-  }
-  const char ** ports = seq.getPortList(flags);
+  const char ** ports = seq.getPortList(jackCapabilities(capabilities));
   if (!ports) return list;
   for (const char ** port = ports; *port; port++) {
     list.push_back(Pointer<PortDescriptor>(
