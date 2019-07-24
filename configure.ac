@@ -36,6 +36,8 @@ m4_include(configure.library)
 
 AC_LANG_PUSH(C++)
 AX_CODE_COVERAGE
+CODE_COVERAGE_LIBS=""
+CODE_COVERAGE_LDFLAGS=""
 AC_LANG_POP(C++)
 
 

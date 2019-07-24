@@ -14,6 +14,8 @@ TESTS =
 CLEANFILES =
 DISTCLEANFILES =
 
+@CODE_COVERAGE_RULES@
+
 include %D%/Makefile.library
 
 gcov:
