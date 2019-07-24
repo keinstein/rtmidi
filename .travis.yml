@@ -94,7 +94,7 @@ before_install:
                 echo "nothing to be done"
         fi
         rm -rf /usr/local/include/c++ # fix broken gcc installation
-        brew install $EXTRA_BREW  gettext flex bison libtool autoconf jack   doxygen
+        brew install $EXTRA_BREW  gettext flex bison libtool autoconf jack lcov  doxygen
         brew link --force $EXTRA_BREW gettext flex bison libtool autoconf jack
       fi
       if test "$TRAVIS_OS_NAME" = linux
