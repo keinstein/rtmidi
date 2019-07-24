@@ -94,7 +94,7 @@ before_install:
                 echo "nothing to be done"
         fi
         rm -rf /usr/local/include/c++ # fix broken gcc installation
-        brew install $EXTRA_BREW  gettext flex bison libtool autoconf jack lcov  doxygen
+        brew install $EXTRA_BREW  gettext flex bison libtool autoconf jack lcov  doxygen gdb
         brew link --force $EXTRA_BREW gettext flex bison libtool autoconf jack
       fi
       if test "$TRAVIS_OS_NAME" = linux
@@ -117,16 +117,19 @@ script:
       jackd -r -d dummy &
       JACKPID=$!
       sudo su $USER -c "make check" || true
-      ./libtool --mode=execute gdb tests/lostportdescriptor << EOF
-      r
-      bt full
-      q
-      EOF 
-      ./libtool --mode=execute gdb tests/testequalityoperator << EOF
-      r
-      bt full
-      q
-      EOF 
+      if false
+      then
+        ./libtool --mode=execute gdb tests/lostportdescriptor << EOF
+        r
+        bt full
+        q
+      EOF
+        ./libtool --mode=execute gdb tests/testequalityoperator << EOF
+        r
+        bt full
+        q
+      EOF
+      fi
       kill $JACKPID
       cat tests/*.log
       make gcov
