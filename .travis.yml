@@ -19,6 +19,12 @@ matrix:
     env: HOST="" API="jack"
     compiler: clang
   - os: linux
+    env: HOST="" API="jack2"
+    compiler: gcc
+  - os: linux
+    env: HOST="" API="jack2"
+    compiler: clang
+  - os: linux
     env: HOST="--with-jack" API="alsa"
     compiler: gcc
   - os: linux
@@ -101,6 +107,10 @@ before_install:
       then
         sudo usermod -a -G audio $USER
         sudo modprobe snd_seq_dummy
+        if test "$API" = jack2
+          sudo apt-get remove libjack-dev
+          sudo apt-get install libjack-jackd2-dev
+        fi
       fi
       mkdir -p config
       touch config/config.rpath
@@ -109,6 +119,9 @@ script:
     - |
       mkdir -p config
       touch config/config.rpath
+      if test "$API" = jack2
+        API=jack
+      fi
       ./autogen.sh --disable-apisearch --with-$API $HOST --enable-code-coverage && \
                    make && \
                    make -j4 && \
