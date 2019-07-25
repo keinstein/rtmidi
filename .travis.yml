@@ -7,25 +7,25 @@ sudo: true  # docker VM
 matrix:
   include:
   - os: linux
-    env: HOST="" API="alsa"
+    env: HOST="" API="alsa" COVERAGE="--enable-code-coverage"
     compiler: gcc
   - os: linux
-    env: HOST="" API="alsa"
+    env: HOST="" API="alsa" COVERAGE=""
     compiler: clang
   - os: linux
-    env: HOST="" API="jack"
+    env: HOST="" API="jack" COVERAGE="--enable-code-coverage"
     compiler: gcc
   - os: linux
-    env: HOST="" API="jack"
+    env: HOST="" API="jack" COVERAGE=""
     compiler: clang
   - os: linux
-    env: HOST="" API="jack2"
+    env: HOST="" API="jack2" COVERAGE="--enable-code-coverage"
     compiler: gcc
   - os: linux
-    env: HOST="" API="jack2"
+    env: HOST="" API="jack2" COVERAGE=""
     compiler: clang
   - os: linux
-    env: HOST="--with-jack" API="alsa"
+    env: HOST="--with-jack" API="alsa" COVERAGE="--enable-code-coverage"
     compiler: gcc
   - os: linux
     env: HOST="--with-jack" API="alsa"
@@ -44,22 +44,22 @@ matrix:
   #   env: HOST="--host=arm-linux-gnueabihf" API="jack"
   #   compiler: gcc
   - os: osx
-    env: HOST="" API="coremidi"
+    env: HOST="" API="coremidi" COVERAGE="--enable-code-coverage"
     compiler: gcc
   - os: osx
-    env: HOST="" API="coremidi"
+    env: HOST="" API="coremidi" COVERAGE=""
     compiler: clang
   - os: osx
-    env: HOST="" API="jack"
+    env: HOST="" API="jack" COVERAGE="--enable-code-coverage"
     compiler: gcc
   - os: osx
-    env: HOST="" API="jack"
+    env: HOST="" API="jack" COVERAGE=""
     compiler: clang
   - os: osx
-    env: HOST="--with-jack" API="coremidi"
+    env: HOST="--with-jack" API="coremidi" COVERAGE="--enable-code-coverage"
     compiler: gcc
   - os: osx
-    env: HOST="--with-jack" API="coremidi"
+    env: HOST="--with-jack" API="coremidi" COVERAGE=""
     compiler: clang
 language: c++
 group: travis_latest
@@ -108,6 +108,7 @@ before_install:
         sudo usermod -a -G audio $USER
         sudo modprobe snd_seq_dummy
         if test "$API" = jack2
+        then
           sudo apt-get remove libjack-dev
           sudo apt-get install libjack-jackd2-dev
         fi
@@ -120,16 +121,24 @@ script:
       mkdir -p config
       touch config/config.rpath
       if test "$API" = jack2
+      then
         API=jack
       fi
-      ./autogen.sh --disable-apisearch --with-$API $HOST --enable-code-coverage && \
-                   make && \
-                   make -j4 && \
-                   $TEST_RUNNER make check || (cat test-suite.log ; false)
-      make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
+      ./autogen.sh --disable-apisearch "${COVERAGE}" --with-$API $HOST 
+    - make -j4
+    - $TEST_RUNNER make check || (cat test-suite.log ; false)
+    - make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
+    - |
       jackd -r -d dummy &
       JACKPID=$!
-      sudo su $USER -c "make check" || true
+      echo $PWD
+      env | sed -e "s,',\\',g;s,^,',g;s,\$,',g" "> current_environment.sh"
+      if test "x${COVERAGE}" = "x"
+      then
+        sudo sudo -u $USER  make check || true
+      else
+        sudo sudo -u $USER  make check-code-coverage || true
+      fi
       if false
       then
         ./libtool --mode=execute gdb tests/lostportdescriptor << EOF

@@ -41,6 +41,13 @@ AC_CHECK_LIB(gcov,[__gcov_init], [], [
   CODE_COVERAGE_LIBS=""
   CODE_COVERAGE_LDFLAGS=""
 ])
+if test "x${CODE_COVERAGE_CFLAGS}" = "x"
+then
+  :
+else 
+  CODE_COVERAGE_CFLAGS="${CODE_COVERAGE_CFLAGS} --coverage"
+  CODE_COVERAGE_CXXFLAGS="${CODE_COVERAGE_CXXFLAGS} --coverage"
+fi
 AC_LANG_POP(C++)
 
 
