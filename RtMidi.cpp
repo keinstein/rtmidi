@@ -197,63 +197,6 @@ class MidiOutCore: public MidiOutApi
 
 #endif
 
-#if defined(__UNIX_JACK__)
-
-class MidiInJack: public MidiInApi
-{
- public:
-  MidiInJack( const std::string &clientName, unsigned int queueSizeLimit );
-  ~MidiInJack( void );
-  ApiType getCurrentApi( void ) throw() { return rtmidi::UNIX_JACK; };
-  bool hasVirtualPorts() const { return true; }
-  void openPort( unsigned int portNumber, const std::string &portName );
-  void openVirtualPort( const std::string &portName );
-  void openPort( const PortDescriptor & port, const std::string &portName);
-  Pointer<PortDescriptor> getDescriptor(bool isLocal=false);
-  PortList getPortList(int capabilities);
-  void closePort( void );
-  void setClientName( const std::string &clientName );
-  void setPortName( const std::string &portName);
-  unsigned int getPortCount( void );
-  std::string getPortName( unsigned int portNumber );
-
- protected:
-  void *apiData_;
-  std::string clientName;
-
-  void connect( void );
-  void initialize( const std::string& clientName );
-};
-
-class MidiOutJack: public MidiOutApi
-{
- public:
-  MidiOutJack( const std::string &clientName );
-  ~MidiOutJack( void );
-  ApiType getCurrentApi( void ) throw() { return rtmidi::UNIX_JACK; };
-  bool hasVirtualPorts() const { return true; }
-  void openPort( unsigned int portNumber, const std::string &portName );
-  void openVirtualPort( const std::string &portName );
-  void openPort( const PortDescriptor & port, const std::string &portName);
-  Pointer<PortDescriptor> getDescriptor(bool isLocal=false);
-  PortList getPortList(int capabilities);
-  void closePort( void );
-  void setClientName( const std::string &clientName );
-  void setPortName( const std::string &portName);
-  unsigned int getPortCount( void );
-  std::string getPortName( unsigned int portNumber );
-  void sendMessage( const unsigned char *message, size_t size );
-
- protected:
-  void *apiData_;
-  std::string clientName;
-
-  void connect( void );
-  void initialize( const std::string& clientName );
-};
-
-#endif
-
 #if defined(__LINUX_ALSA__)
 
 // class MidiInAlsa comes after AlsaMidiData
@@ -4820,10 +4763,11 @@ RTMIDI_NAMESPACE_START
 #define JACK_RINGBUFFER_SIZE 16384 // Default size for ringbuffer
 
 
-struct JackMidiData;
+struct JackMidi;
+class MidiInJack;
 struct JackBackendCallbacks {
-  static int jackProcessIn( jack_nframes_t nframes, void *arg );
-  static int jackProcessOut( jack_nframes_t nframes, void *arg );
+  static int ProcessIn( jack_nframes_t nframes, void *arg );
+  static int ProcessOut( jack_nframes_t nframes, void *arg );
 };
 
 
@@ -4831,23 +4775,29 @@ struct JackBackendCallbacks {
 template <int locking=1>
 class JackSequencer {
 public:
-  JackSequencer():client(0),name(),data(0)
+  JackSequencer():client(0),name(),data(nullptr)
   {
     if (locking) {
       pthread_mutexattr_t attr;
       pthread_mutexattr_init(&attr);
       pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL);
-      pthread_mutex_init(&mutex, &attr);
+      if (pthread_mutex_init(&mutex, &attr)) {
+	throw RTMIDI_ERROR(gettext_noopt("Could not initialise the JACK client mutex"),
+			   Error::MEMORY_ERROR);
+      }
     }
   }
 
-  JackSequencer(const std::string &n, JackMidiData * d):client(0),name(n),data(d)
+  JackSequencer(const std::string &n, JackMidi & d):client(0),name(n),data(&d)
   {
     if (locking) {
       pthread_mutexattr_t attr;
       pthread_mutexattr_init(&attr);
       pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL);
-      pthread_mutex_init(&mutex, &attr);
+      if (pthread_mutex_init(&mutex, &attr)) {
+	throw RTMIDI_ERROR(gettext_noopt("Could not initialise the JACK client mutex"),
+			   Error::MEMORY_ERROR);
+      }
     }
   }
 
@@ -4868,7 +4818,10 @@ public:
   }
 
   void init(bool startqueue) {
-    init(client,startqueue);
+    if (!client) {
+      init(client,startqueue);
+      jack_activate( client );
+    }
   }
 
   bool setName(const std::string &n) {
@@ -4892,9 +4845,12 @@ public:
   }
 
 #if !__UNIX_JACK_HAS_UUID__
-  static int jack_port_uuid(jack_port_t *) {
+  typedef uint64_t jack_uuid_t;
+  jack_uuid_t int jack_port_uuid(jack_port_t *) {
     return 0;
   }
+#else
+  typedef ::jack_uuid_t jack_uuid_t;
 #endif
 
   std::string getPortName(jack_port_t * port, int flags) {
@@ -4984,6 +4940,15 @@ public:
 		  jack_port_name( to ) );
   }
 
+  void connectPorts(const std::string & from,
+		    jack_port_t * to)
+  {
+    init();
+    jack_connect( client,
+		  from.c_str(),
+		  jack_port_name( to ) );
+  }
+
   void closePort(jack_port_t * port)
   {
     init();
@@ -5006,12 +4971,15 @@ protected:
   pthread_mutex_t mutex;
   jack_client_t * client;
   std::string name;
-  JackMidiData * data;
+  JackMidi * data;
 
 
   void init()
   {
-    init (client,false);
+    if (!client) {
+      init (client,false);
+      jack_activate( client );
+    }
   }
 
   void init(jack_client_t * &c, bool isoutput)
@@ -5029,10 +4997,10 @@ protected:
       }
 
       if (isoutput && data) {
-	jack_set_process_callback( c, JackBackendCallbacks::jackProcessOut, data );
+	jack_set_process_callback( c, JackBackendCallbacks::ProcessOut, data );
       } else if (data)
-	jack_set_process_callback( c, JackBackendCallbacks::jackProcessIn, data );
-      jack_activate( c );
+	jack_set_process_callback( c, JackBackendCallbacks::ProcessIn, data );
+      // don't activate the client as we might want to set further callbacks
     }
   }
 };
@@ -5043,20 +5011,18 @@ typedef JackSequencer<0> NonLockingJackSequencer;
 #define RTMIDI_CLASSNAME "JackPortDescriptor"
 struct JackPortDescriptor:public PortDescriptor
 {
-  MidiApi * api;
   static LockingJackSequencer seq;
-  JackPortDescriptor(const std::string &name):api(0),clientName(name)
+  JackPortDescriptor(const std::string &name):/*api(0),*/clientName(name),port(nullptr)
   {
-    port = 0;
   }
-  JackPortDescriptor(const char * portname, const std::string &name):api(0),clientName(name)
+  JackPortDescriptor(const char * portname, const std::string &name):/* api(0),*/clientName(name)
   {
     seq.setName(clientName);
     port = seq.getPort(portname);
   }
 
   JackPortDescriptor(JackPortDescriptor & other,
-		     const std::string &name):api(0),
+		     const std::string &name):/*api(0),*/
 					       clientName(name)
   {
 #if 0
@@ -5071,19 +5037,9 @@ struct JackPortDescriptor:public PortDescriptor
   ~JackPortDescriptor()
   {
   }
-  MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) const {
-    if (getCapabilities() & INPUT)
-      return new MidiInJack(clientName,queueSizeLimit);
-    else
-      return 0;
-  }
-  MidiOutApi * getOutputApi() const {
-    if (getCapabilities() & OUTPUT)
-      return new MidiOutJack(clientName);
-    else
-      return 0;
-  }
 
+  MidiInApi * getInputApi(unsigned int queueSizeLimit = 100) const;
+  MidiOutApi * getOutputApi() const;
 
   std::string getName(int flags = SHORT_NAME | UNIQUE_PORT_NAME) {
     return seq.getPortName(port,flags);
@@ -5136,7 +5092,7 @@ protected:
   std::string clientName;
   jack_port_t * port;
 
-  friend struct JackMidiData;
+  friend struct JackMidi;
 
   static long int jackCapabilities(int capabilities) {
     unsigned long flags = 0;
@@ -5151,11 +5107,11 @@ protected:
   }
 
   JackPortDescriptor(jack_port_t * other,
-		     const std::string &name):api(0),
+		     const std::string &name):/*api(0),*/
 					       clientName(name)
   {
-    if (!port) {
-      throw RTMIDI_ERROR(gettext_noopt("Inavlid port submitted to JackPortDescriptor()."),
+    if (!other) {
+      throw RTMIDI_ERROR(gettext_noopt("Invalid port submitted to JackPortDescriptor()."),
 			 Error::DRIVER_ERROR);
     }
     // copy the port structure in 2 steps to avoid crashes.
@@ -5193,15 +5149,15 @@ PortList JackPortDescriptor :: getPortList(int capabilities, const std::string &
   to allow a common client implementation.
 */
 
-#define RTMIDI_CLASSNAME "JackMidiData"
-struct JackMidiData:public JackPortDescriptor {
+#define RTMIDI_CLASSNAME "JackMidi"
+struct JackMidi:public JackPortDescriptor {
   /* signal the JACK process what to do next */
   volatile enum {
     RUNNING, /*!< keep the client open, flag is owned by the controlling process */
     CLOSING, /*!< close the current port */
     DELETING /*!< Delete the client after delivering the contents of the ring buffer */
   } stateflags;
-  /*! response/state from the JACK thread. See \ref jackProcessOut for details */
+  /*! response/state from the JACK thread. See \ref ProcessOut for details */
   volatile enum {
     OPEN,
     CLOSING2,
@@ -5225,12 +5181,12 @@ struct JackMidiData:public JackPortDescriptor {
   NonLockingJackSequencer * seq;
 
   /*
-    JackMidiData():seq()
+    JackMidi():seq()
     {
     init();
     }
   */
-  JackMidiData(const std::string &clientName,
+  JackMidi(const std::string &clientName,
 	       MidiInJack * inputData_):JackPortDescriptor(clientName),
 					stateflags(RUNNING),
 					state_response(OPEN),
@@ -5239,7 +5195,7 @@ struct JackMidiData:public JackPortDescriptor {
 					buffMessage(0),
 					lastTime(0),
 					rtMidiIn(inputData_),
-					seq(new NonLockingJackSequencer(clientName,this))
+					seq(new NonLockingJackSequencer(clientName,*this))
   {
 #ifdef HAVE_SEMAPHORE
     sem_init(&sem_cleanup, 0, 0);
@@ -5254,7 +5210,7 @@ struct JackMidiData:public JackPortDescriptor {
    *
    * \return
    */
-  JackMidiData(const std::string &clientName):JackPortDescriptor(clientName),
+  JackMidi(const std::string &clientName):JackPortDescriptor(clientName),
 					      stateflags(RUNNING),
 					      state_response(OPEN),
 					      local(0),
@@ -5262,7 +5218,7 @@ struct JackMidiData:public JackPortDescriptor {
 					      buffMessage(jack_ringbuffer_create( JACK_RINGBUFFER_SIZE )),
 					      lastTime(0),
 					      rtMidiIn(),
-					      seq(new NonLockingJackSequencer(clientName,this))
+					      seq(new NonLockingJackSequencer(clientName,*this))
   {
 #ifdef HAVE_SEMAPHORE
     sem_init(&sem_cleanup, 0, 0);
@@ -5271,7 +5227,7 @@ struct JackMidiData:public JackPortDescriptor {
   }
 
 
-  ~JackMidiData()
+  ~JackMidi()
   {
     if (local)
       try {
@@ -5314,15 +5270,70 @@ struct JackMidiData:public JackPortDescriptor {
     seq->connectPorts(local, port);
   }
 
+  int getPortCount(unsigned long jackCapabilities) {
+    int count = 0;
+    // connect();
+    if ( !(*(seq)) )
+      return 0;
+
+    // List of available ports
+    const char **ports = jack_get_ports( *(seq), NULL, JACK_DEFAULT_MIDI_TYPE, jackCapabilities );
+
+    if ( ports == NULL ) return 0;
+    while ( ports[count] != NULL )
+      count++;
+
+    free( ports );
+
+    return count;
+  }
+
+  std::string getPortName( unsigned int portNumber,
+			   unsigned long jackCapabilities)
+  {
+    std::string retStr("");
+
+    //		connect();
+
+    // List of available ports
+    const char **ports = jack_get_ports(* (seq), NULL,
+					JACK_DEFAULT_MIDI_TYPE, jackCapabilities );
+
+    // Check port validity
+    if ( ports == NULL ) {
+      throw RTMIDI_ERROR(gettext_noopt("No ports available."),
+			 Error::WARNING);
+      return retStr;
+    }
+
+    unsigned int i;
+    for (i=0; i<portNumber && ports[i]; i++) {}
+    if (i < portNumber || !ports[portNumber]) {
+      // std::ostringstream ost;
+      throw RTMIDI_ERROR1(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
+			  Error::WARNING, portNumber);
+    }
+    else retStr.assign( ports[portNumber] );
+
+    jack_free( ports );
+    return retStr;
+  }
+
   int openPort(unsigned long jackCapabilities,
 	       const std::string &portName) {
     local = seq->createPort(portName, jackCapabilities);
     if (!local) {
-      api->error(RTMIDI_ERROR(gettext_noopt("Error opening JACK port subscription."),
-			      Error::DRIVER_ERROR) );
-      return -99;
+      throw RTMIDI_ERROR(gettext_noopt("Error opening JACK port subscription."),
+			 Error::DRIVER_ERROR);
     }
     return 0;
+  }
+
+  int ensureOpen(unsigned long jackCapabilities,
+		 const std::string &portName) {
+    if (!local)
+      return openPort (jackCapabilities, portName);
+    else return 0;
   }
 
   int rename(const std::string &portName) {
@@ -5345,7 +5356,7 @@ struct JackMidiData:public JackPortDescriptor {
   void delayedDeletePort() {
     /* Closing the port can be twofold to ensure all data is sent:
        - Use a semaphore to wait for this state
-       - Close the port from within jackProcessOut
+       - Close the port from within ProcessOut
     */
     if (local == NULL) return;
 
@@ -5360,8 +5371,8 @@ struct JackMidiData:public JackPortDescriptor {
 
     deletePort();
 #else
-    if ( local == NULL || state_response == JackMidiData::CLOSED ) return;
-    stateflags = JackMidiData::CLOSING;
+    if ( local == NULL || state_response == JackMidi::CLOSED ) return;
+    stateflags = JackMidi::CLOSING;
 #endif
 #if defined(__RTMIDI_DEBUG__)
     std::cerr << "Closed Port" << std::endl;
@@ -5372,7 +5383,7 @@ struct JackMidiData:public JackPortDescriptor {
     // signal the output callback to delete the data
     // after finishing its job.
     // this can be done twofold:
-    //   - via signal in jackProcessOut
+    //   - via signal in ProcessOut
     //   - using a semaphore
 #ifdef HAVE_SEMAPHORE
     if (local)
@@ -5382,7 +5393,7 @@ struct JackMidiData:public JackPortDescriptor {
     delete this;
     return;
 #else
-    stateflags = JackMidiData::DELETING;
+    stateflags = JackMidi::DELETING;
 #endif
   }
 
@@ -5392,23 +5403,23 @@ struct JackMidiData:public JackPortDescriptor {
       sem_post(&sem_cleanup);
 #else
     switch (stateflags) {
-    case JackMidiData::RUNNING: break;
-    case JackMidiData::CLOSING:
-      if (state_response != JackMidiData::CLOSING2) {
+    case JackMidi::RUNNING: break;
+    case JackMidi::CLOSING:
+      if (state_response != JackMidi::CLOSING2) {
 	/* output the transferred data */
-	state_response = JackMidiData::CLOSING2;
+	state_response = JackMidi::CLOSING2;
 	return;
       }
       deletePort();
-      state_response = JackMidiData::CLOSED;
+      state_response = JackMidi::CLOSED;
       break;
 
-    case JackMidiData::DELETING:
+    case JackMidi::DELETING:
 #if defined(__RTMIDI_DEBUG__)
       std::cerr << "deleting port" << std::endl;
 #endif
-      if (state_response != JackMidiData::DELETING2) {
-	state_response = JackMidiData::DELETING2;
+      if (state_response != JackMidi::DELETING2) {
+	state_response = JackMidi::DELETING2;
 	/* output the transferred data */
 	return;
       }
@@ -5449,6 +5460,56 @@ struct JackMidiData:public JackPortDescriptor {
 };
 #undef RTMIDI_CLASSNAME
 
+class MidiInJack: public MidiInApi
+{
+ public:
+  MidiInJack( const std::string &clientName, unsigned int queueSizeLimit );
+  ~MidiInJack( void );
+  ApiType getCurrentApi( void ) throw() { return rtmidi::UNIX_JACK; };
+  bool hasVirtualPorts() const { return true; }
+  void openPort( unsigned int portNumber, const std::string &portName );
+  void openVirtualPort( const std::string &portName );
+  void openPort( const PortDescriptor & port, const std::string &portName);
+  Pointer<PortDescriptor> getDescriptor(bool isLocal=false);
+  PortList getPortList(int capabilities);
+  void closePort( void );
+  void setClientName( const std::string &clientName );
+  void setPortName( const std::string &portName);
+  unsigned int getPortCount( void );
+  std::string getPortName( unsigned int portNumber );
+
+ protected:
+  JackMidi midi;
+
+  //void connect( void );
+  //void initialize( const std::string& clientName );
+};
+
+class MidiOutJack: public MidiOutApi
+{
+ public:
+  MidiOutJack( const std::string &clientName );
+  ~MidiOutJack( void );
+  ApiType getCurrentApi( void ) throw() { return rtmidi::UNIX_JACK; };
+  bool hasVirtualPorts() const { return true; }
+  void openPort( unsigned int portNumber, const std::string &portName );
+  void openVirtualPort( const std::string &portName );
+  void openPort( const PortDescriptor & port, const std::string &portName);
+  Pointer<PortDescriptor> getDescriptor(bool isLocal=false);
+  PortList getPortList(int capabilities);
+  void closePort( void );
+  void setClientName( const std::string &clientName );
+  void setPortName( const std::string &portName);
+  unsigned int getPortCount( void );
+  std::string getPortName( unsigned int portNumber );
+  void sendMessage( const unsigned char *message, size_t size );
+
+ protected:
+  JackMidi *midi;
+
+  //void connect( void );
+  void initialize( const std::string& clientName );
+};
 
 
 //*********************************************************************//
@@ -5457,9 +5518,9 @@ struct JackMidiData:public JackPortDescriptor {
 //*********************************************************************//
 
 #define RTMIDI_CLASSNAME "JackBackendCallbacks"
-int JackBackendCallbacks::jackProcessIn( jack_nframes_t nframes, void *arg )
+int JackBackendCallbacks::ProcessIn( jack_nframes_t nframes, void *arg )
 {
-  JackMidiData *jData = (JackMidiData *) arg;
+  JackMidi *jData = (JackMidi *) arg;
   MidiInJack *rtData = jData->rtMidiIn;
   jack_midi_event_t event;
   jack_time_t time;
@@ -5510,9 +5571,9 @@ int JackBackendCallbacks::jackProcessIn( jack_nframes_t nframes, void *arg )
 }
 
 // Jack process callback
-int JackBackendCallbacks::jackProcessOut( jack_nframes_t nframes, void *arg )
+int JackBackendCallbacks::ProcessOut( jack_nframes_t nframes, void *arg )
 {
-  JackMidiData *data = (JackMidiData *) arg;
+  JackMidi *data = (JackMidi *) arg;
   jack_midi_data_t *midiData;
   int space;
 
@@ -5536,32 +5597,37 @@ int JackBackendCallbacks::jackProcessOut( jack_nframes_t nframes, void *arg )
 }
 #undef RTMIDI_CLASSNAME
 
-#define RTMIDI_CLASSNAME "MidiInJack"
-MidiInJack :: MidiInJack( const std::string &clientName, unsigned int queueSizeLimit ) : MidiInApi( queueSizeLimit )
-{
-  MidiInJack::initialize( clientName );
+#define RTMIDI_CLASSNAME "JackPortDescriptor"
+MidiInApi * JackPortDescriptor::getInputApi(unsigned int queueSizeLimit) const {
+  if (getCapabilities() & INPUT)
+    return new MidiInJack(clientName,queueSizeLimit);
+  else
+    return 0;
 }
 
-void MidiInJack :: initialize( const std::string &clientName )
-{
-  JackMidiData *data = new JackMidiData(clientName,this);
-  apiData_ = (void *) data;
-  this->clientName = clientName;
-  try {
-    data->init(true);
-  } catch (const Error & e) {
-    delete data;
-    apiData_ = 0;
-    throw;
-  }
+MidiOutApi * JackPortDescriptor::getOutputApi() const {
+  if (getCapabilities() & OUTPUT)
+    return new MidiOutJack(clientName);
+  else
+    return 0;
 }
+#undef RTMIDI_CLASSNAME
+
+#define RTMIDI_CLASSNAME "MidiInJack"
+MidiInJack :: MidiInJack( const std::string &clientName, unsigned int queueSizeLimit ) :
+  MidiInApi( queueSizeLimit ),
+  midi(clientName,this)
+{
+  midi.init(true);
+}
+
 
 #if 0
 void MidiInJack :: connect()
 {
   abort();
   // this should be unnecessary
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
+  JackMidi *data = static_cast<JackMidi *> (apiData_);
   if ( data->local )
     return;
 
@@ -5572,90 +5638,56 @@ void MidiInJack :: connect()
     return;
   }
 
-  jack_set_process_callback( data->client, jackProcessIn, data );
+  jack_set_process_callback( data->client, ProcessIn, data );
   jack_activate( data->client );
 }
 #endif
 
 MidiInJack :: ~MidiInJack()
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
   try {
     MidiInJack::closePort();
   } catch (Error & e) {
     e.printMessage(std::cerr);
   }
-
-  /* immediately shut down the JACK client */
-  delete data;
 }
 
 void MidiInJack :: openPort( unsigned int portNumber, const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-
-  //		connect();
-
-  // Creating new port
-  if ( data->local == NULL)
-    data->local = jack_port_register( *(data->seq), portName.c_str(),
-				      JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0 );
-
-  if ( data->local == NULL) {
-    error(RTMIDI_ERROR(gettext_noopt("Error creating JACK port."),
-		       Error::DRIVER_ERROR) );
-    return;
-  }
+  openVirtualPort(portName);
 
   // Connecting to the output
-  std::string name = getPortName( portNumber );
-  jack_connect( *(data->seq), name.c_str(), jack_port_name( data->local ) );
+  try {
+    midi.setRemote(getPortName( portNumber ));
+  } catch (Error & e) {
+    error (e);
+  }
 }
 
 void MidiInJack :: openVirtualPort( const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-
-  //		connect();
-  if ( data->local == NULL )
-    data->local = jack_port_register( *(data->seq), portName.c_str(),
-				      JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0 );
-
-  if ( data->local == NULL ) {
-    error(RTMIDI_ERROR(gettext_noopt("Error creating JACK virtual port."),
-		       Error::DRIVER_ERROR) );
+  try {
+    midi.ensureOpen(JackPortIsInput,
+		    portName);
+  } catch (Error & e) {
+    error (e);
   }
 }
 
 void MidiInJack :: openPort( const PortDescriptor & p,
 			     const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
   const JackPortDescriptor * port = dynamic_cast<const JackPortDescriptor *>(&p);
 
-  if ( !data ) {
-    error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
-		       Error::SYSTEM_ERROR) );
-    return;
-  }
-#if 0
-  if ( connected_ ) {
-    error(RTMIDI_ERROR(gettext_noopt("A valid connection already exists."),
-		       Error::WARNING) );
-    return;
-  }
-#endif
   if (!port) {
     error(RTMIDI_ERROR(gettext_noopt("JACK has been instructed to open a non-JACK MIDI port. This doesn't work."),
 		       Error::INVALID_DEVICE) );
     return;
   }
 
+  openVirtualPort(portName);
   try {
-    if (!data->local)
-      data->openPort (JackPortIsInput,
-		      portName);
-    data->connectFrom(*port);
+    midi.connectFrom(*port);
   } catch (Error & e) {
     error (e);
   }
@@ -5663,14 +5695,8 @@ void MidiInJack :: openPort( const PortDescriptor & p,
 
 Pointer<PortDescriptor> MidiInJack :: getDescriptor(bool isLocal)
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  if ( !data ) {
-    error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
-		       Error::SYSTEM_ERROR) );
-    return NULL;
-  }
   try {
-    return data->getDescriptor(isLocal);
+    return midi.getDescriptor(isLocal);
   } catch (Error & e) {
     error(e);
   }
@@ -5679,10 +5705,9 @@ Pointer<PortDescriptor> MidiInJack :: getDescriptor(bool isLocal)
 
 PortList MidiInJack :: getPortList(int capabilities)
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
   try {
     return JackPortDescriptor::getPortList(capabilities | PortDescriptor::INPUT,
-					   data->getClientName());
+					   midi.getClientName());
   } catch (Error &  e) {
     error(e);
   }
@@ -5691,61 +5716,17 @@ PortList MidiInJack :: getPortList(int capabilities)
 
 unsigned int MidiInJack :: getPortCount()
 {
-  int count = 0;
-  // connect();
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  if ( !(*(data->seq)) )
-    return 0;
-
-  // List of available ports
-  const char **ports = jack_get_ports( *(data->seq), NULL, JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput );
-
-  if ( ports == NULL ) return 0;
-  while ( ports[count] != NULL )
-    count++;
-
-  free( ports );
-
-  return count;
+  return midi.getPortCount(JackPortIsOutput);
 }
 
 std::string MidiInJack :: getPortName( unsigned int portNumber )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  std::string retStr("");
-
-  //		connect();
-
-  // List of available ports
-  const char **ports = jack_get_ports(* (data->seq), NULL,
-				      JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput );
-
-  // Check port validity
-  if ( ports == NULL ) {
-    error(RTMIDI_ERROR(gettext_noopt("No ports available."),
-		       Error::WARNING) );
-    return retStr;
-  }
-
-  unsigned int i;
-  for (i=0; i<portNumber && ports[i]; i++) {}
-  if (i < portNumber || !ports[portNumber]) {
-    std::ostringstream ost;
-    error(RTMIDI_ERROR1(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
-			Error::WARNING, portNumber) );
-  }
-  else retStr.assign( ports[portNumber] );
-
-  jack_free( ports );
-  return retStr;
+  return midi.getPortName(portNumber,JackPortIsOutput);
 }
 
 void MidiInJack :: closePort()
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  if (!data) return;
-
-  data->deletePort();
+  midi.deletePort();
 }
 
 void MidiInJack :: setClientName( const std::string& )
@@ -5756,8 +5737,7 @@ void MidiInJack :: setClientName( const std::string& )
 
 void MidiInJack :: setPortName( const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  data->rename(portName);
+  midi.rename(portName);
 }
 #undef RTMIDI_CLASSNAME
 
@@ -5775,23 +5755,26 @@ MidiOutJack :: MidiOutJack( const std::string &clientName ) : MidiOutApi()
 
 void MidiOutJack :: initialize( const std::string &clientName )
 {
-  JackMidiData *data = new JackMidiData(clientName);
-  apiData_ = (void *) data;
-  this->clientName = clientName;
+  midi = new JackMidi(clientName);
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Cannot allocate JACK MIDI data object."),
+			Error::MEMORY_ERROR));
+    return;
+  }
   // init is the last as it may throw an exception
   try {
-    data->init(false);
+    midi->init(false);
   } catch (const Error & e) {
-    delete data;
-    apiData_ = 0;
-    throw;
+    delete midi;
+    midi = nullptr;
+    error(e);
   }
 }
 
+#if 0
 void MidiOutJack :: connect()
 {
-#if 0
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
+  JackMidi *data = static_cast<JackMidi *> (apiData_);
   if ( *(data->seq) )
     return;
 
@@ -5802,19 +5785,19 @@ void MidiOutJack :: connect()
     return;
   }
 
-  jack_set_process_callback( data->client, jackProcessOut, data );
+  jack_set_process_callback( data->client, ProcessOut, data );
   data->buffSize = jack_ringbuffer_create( JACK_RINGBUFFER_SIZE );
   data->buffMessage = jack_ringbuffer_create( JACK_RINGBUFFER_SIZE );
   jack_activate( data->client );
-#endif
 }
+#endif
 
 MidiOutJack :: ~MidiOutJack()
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
   //		closePort();
   try {
-    data -> request_delete();
+    if (midi)
+      midi -> request_delete();
   } catch (const Error & e) {
     e.printMessage(std::cerr);
   }
@@ -5822,52 +5805,47 @@ MidiOutJack :: ~MidiOutJack()
 
 void MidiOutJack :: openPort( unsigned int portNumber, const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-
-  // connect();
-
-  // Creating new port
-  if ( data->local == NULL )
-    data->local = jack_port_register( *(data->seq), portName.c_str(),
-				      JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0 );
-
-  if ( data->local == NULL ) {
-    error(RTMIDI_ERROR(gettext_noopt("Error creating JACK port."),
-		       Error::DRIVER_ERROR) );
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Missing JACK MIDI data object."),
+			Error::MEMORY_ERROR));
     return;
   }
+  openVirtualPort(portName);
 
   // Connecting to the output
-  std::string name = getPortName( portNumber );
-  jack_connect( *(data->seq), jack_port_name( data->local ), name.c_str() );
+  try {
+    midi->setRemote(getPortName( portNumber ));
+      //jack_connect( *(data->seq), jack_port_name( data->local ), name.c_str() );
+  } catch (Error & e) {
+    error(e);
+  }
 }
 
 void MidiOutJack :: openVirtualPort( const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-
-  // connect();
-  if ( data->local == NULL )
-    data->local = jack_port_register( *(data->seq), portName.c_str(),
-				      JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0 );
-
-  if ( data->local == NULL ) {
-    error(RTMIDI_ERROR(gettext_noopt("Error creating JACK virtual port."),
-		       Error::DRIVER_ERROR) );
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Missing JACK MIDI data object."),
+			Error::MEMORY_ERROR));
+    return;
+  }
+  try {
+    midi->ensureOpen(JackPortIsOutput,
+		     portName);
+  } catch (Error & e) {
+    error (e);
   }
 }
 
 void MidiOutJack :: openPort( const PortDescriptor & p,
 			      const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  const JackPortDescriptor * port = dynamic_cast<const JackPortDescriptor *>(&p);
-
-  if ( !data ) {
-    error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
-		       Error::SYSTEM_ERROR) );
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Missing JACK MIDI data object."),
+			Error::MEMORY_ERROR));
     return;
   }
+  const JackPortDescriptor * port = dynamic_cast<const JackPortDescriptor *>(&p);
+
 #if 0
   if ( connected_ ) {
     error(RTMIDI_ERROR(gettext_noopt("A valid connection already exists."),
@@ -5881,26 +5859,23 @@ void MidiOutJack :: openPort( const PortDescriptor & p,
     return;
   }
 
+  openVirtualPort(portName);
   try {
-    if (!data->local)
-      data->openPort (JackPortIsOutput,
-		      portName);
-    data->connectTo(*port);
+    midi->connectTo(*port);
   } catch (Error & e) {
-    error(e);
+    error (e);
   }
 }
 
 Pointer<PortDescriptor> MidiOutJack :: getDescriptor(bool isLocal)
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  if ( !data ) {
-    error(RTMIDI_ERROR(gettext_noopt("Data has not been allocated."),
-		       Error::SYSTEM_ERROR) );
-    return NULL;
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Missing JACK MIDI data object."),
+			Error::MEMORY_ERROR));
+    return nullptr;
   }
   try {
-    return data->getDescriptor(isLocal);
+    return midi->getDescriptor(isLocal);
   } catch (Error & e) {
     error(e);
   }
@@ -5909,59 +5884,34 @@ Pointer<PortDescriptor> MidiOutJack :: getDescriptor(bool isLocal)
 
 PortList MidiOutJack :: getPortList(int capabilities)
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Missing JACK MIDI data object."),
+			Error::MEMORY_ERROR));
+    return PortList();
+  }
   return JackPortDescriptor::getPortList(capabilities | PortDescriptor::OUTPUT,
-					 data->getClientName());
+					 midi->getClientName());
 }
 
 unsigned int MidiOutJack :: getPortCount()
 {
-  int count = 0;
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  // connect();
-  if ( !*(data->seq) )
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Missing JACK MIDI data object."),
+			Error::MEMORY_ERROR));
     return 0;
-
-  // List of available ports
-  const char **ports = jack_get_ports(* (data->seq), NULL,
-				      JACK_DEFAULT_MIDI_TYPE, JackPortIsInput );
-
-  if ( ports == NULL ) return 0;
-  while ( ports[count] != NULL )
-    count++;
-
-  free( ports );
-
-  return count;
+  }
+  return midi->getPortCount(JackPortIsInput);
 }
 
 std::string MidiOutJack :: getPortName( unsigned int portNumber )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  std::string retStr("");
-
-  // connect();
-
-  // List of available ports
-  const char **ports = jack_get_ports(*(data->seq), NULL,
-				      JACK_DEFAULT_MIDI_TYPE, JackPortIsInput );
-
-  // Check port validity
-  if ( ports == NULL) {
-    error(RTMIDI_ERROR(gettext_noopt("No ports available."),
-		       Error::WARNING) );
-    return retStr;
+  if (!midi) {
+    error (RTMIDI_ERROR(gettext_noopt("Missing JACK MIDI data object."),
+			Error::MEMORY_ERROR));
+    return"";
   }
-
-  if ( ports[portNumber] == NULL) {
-    std::ostringstream ost;
-    error(RTMIDI_ERROR1(gettext_noopt("The 'portNumber' argument (%d) is invalid."),
-			Error::WARNING, portNumber) );
-  }
-  else retStr.assign( ports[portNumber] );
-
-  free( ports );
-  return retStr;
+  return midi->getPortName(portNumber,
+			   JackPortIsInput);
 }
 
 void MidiOutJack :: closePort()
@@ -5969,9 +5919,8 @@ void MidiOutJack :: closePort()
 #if defined(__RTMIDI_DEBUG__)
   std::cerr << "Closing Port" << std::endl;
 #endif
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-
-  data->delayedDeletePort();
+  if (midi)
+    midi->delayedDeletePort();
 }
 
 void MidiOutJack:: setClientName( const std::string& )
@@ -5982,19 +5931,19 @@ void MidiOutJack:: setClientName( const std::string& )
 
 void MidiOutJack :: setPortName( const std::string &portName )
 {
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
-  data->rename(portName);
+  if (midi)
+    midi->rename(portName);
 }
 
 void MidiOutJack :: sendMessage( const unsigned char *message, size_t size )
 {
   int nBytes = size;
-  JackMidiData *data = static_cast<JackMidiData *> (apiData_);
+  if (!midi) return;
 
   // Write full message to buffer
-  jack_ringbuffer_write( data->buffMessage, ( const char * ) message,
+  jack_ringbuffer_write( midi->buffMessage, ( const char * ) message,
                          nBytes );
-  jack_ringbuffer_write( data->buffSize, ( char * ) &nBytes, sizeof( nBytes ) );
+  jack_ringbuffer_write( midi->buffSize, ( char * ) &nBytes, sizeof( nBytes ) );
 }
 #undef RTMIDI_CLASSNAME
 #endif  // __UNIX_JACK__
