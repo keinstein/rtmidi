@@ -132,7 +132,6 @@ script:
       fi
       kill $JACKPID
       cat tests/*.log
-      make gcov
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
