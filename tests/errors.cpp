@@ -14,14 +14,6 @@
 #include <iostream>
 #include <cstdlib>
 
-// Platform-dependent sleep routines.
-#if defined(__WINDOWS_MM__)
-#include <windows.h>
-#define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds ) 
-#else // Unix variants
-#include <unistd.h>
-#define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
-#endif
 
 #define rtmidi_abort								\
 	std::cerr << __FILE__ << ":" << __LINE__ << ": rtmidi_aborting" << std::endl; \

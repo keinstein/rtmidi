@@ -15,7 +15,7 @@
 #include <signal.h>
 
 // Platform-dependent sleep routines.
-#if defined(__WINDOWS_MM__)
+#if defined(WIN32)
 #include <windows.h>
 #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds )
 #undef UNIQUE_PORT_NAME

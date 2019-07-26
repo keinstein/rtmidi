@@ -2924,18 +2924,47 @@ inline void MidiInAlsa :: initialize()
 #endif
 }
 
+// helper functions to avoid compiler warnings
+template<class T>
+bool is_negative(const T & x) {
+  return x < 0;
+}
+
+template<>
+bool is_negative<unsigned int>(const unsigned int &) {
+  return false;
+}
+template<>
+bool is_negative<unsigned long>(const unsigned long &) {
+  return false;
+}
+
 inline __attribute__((always_inline))
 void MidiInAlsa::doCallback(const snd_seq_event_t * event,
 			    MidiMessage & message) {
 
   // Perform the carry for the later subtraction by updating y.
-  const snd_seq_real_time_t &x(event->time.time);
-  snd_seq_real_time_t &y(lastTime);
+  snd_seq_real_time_t x(event->time.time);
+  snd_seq_real_time_t y(lastTime);
+
+  // normalize x
+  x.tv_sec += x.tv_nsec/1000000000;
+  x.tv_nsec = x.tv_nsec%1000000000;
+  while (is_negative(x.tv_nsec)) {
+    x.tv_sec --;
+    x.tv_nsec += 1000000000;
+  }
+  lastTime = x;
+
 
   if ( firstMessage == true ) {
+    // y may not be normalised, but is ignored
     message.timeStamp = 0.0;
     firstMessage = false;
   } else {
+    // y is normalized, both, x.tv_nsec and y.tv_nsec
+    // are between 0 and 1000000000
+
     // Calculate the time stamp:
 
     // Method 1: Use the system time.
@@ -2944,30 +2973,22 @@ void MidiInAlsa::doCallback(const snd_seq_event_t * event,
 
     // Method 2: Use the ALSA sequencer event time data.
     // (thanks to Pedro Lopez-Cabanillas!).
-    // time = ( ev->time.time.tv_sec * 1000000 ) + ( ev->time.time.tv_nsec/1000 );
-    // lastTime = time;
-    // time -= apiData->lastTime;
-    // apiData->lastTime = lastTime;
-    // Using method from:
-    // https://www.gnu.org/software/libc/manual/html_node/Elapsed-Time.html
+
     if (x.tv_nsec < y.tv_nsec) {
-      int nsec = (y.tv_nsec - x.tv_nsec) / 1000000000 + 1;
-      y.tv_nsec -= 1000000000 * nsec;
-      y.tv_sec += nsec;
+      --x.tv_sec;
+      x.tv_nsec += (1000000000 - y.tv_nsec);
+    } else {
+      x.tv_nsec -= y.tv_nsec;
     }
-    if (x.tv_nsec - y.tv_nsec > 1000000000) {
-      int nsec = (x.tv_nsec - y.tv_nsec) / 1000000000;
-      y.tv_nsec += 1000000000 * nsec;
-      y.tv_sec -= nsec;
-    }
+    x.tv_sec -= y.tv_sec;
 
     // Compute the time difference.
-    double time = x.tv_sec - y.tv_sec + (x.tv_nsec - y.tv_nsec)*1e-9;
+    double time = x.tv_sec + x.tv_nsec*1e-9;
 
 
-    message.timeStamp = time * 0.000001;
+    message.timeStamp = time;
   }
-  y = x;
+  lastTime = event->time.time;
   if (userCallback)
     userCallback->rtmidi_midi_in( message.timeStamp, message.bytes);
   else {
