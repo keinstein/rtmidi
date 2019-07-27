@@ -58,6 +58,9 @@
   #define __RTMIDI_DUMMY__
 #endif
 
+#ifndef N_
+#define N_(x) x
+#endif
 
 // **************************************************************** //
 //
@@ -68,6 +71,74 @@
 
 RTMIDI_NAMESPACE_START
 
+
+// Define API names and display names.
+// Must be in same order as API enum.
+extern "C" {
+  struct api_name {
+    ApiType Id;
+    const char * machine;
+    const char * display;
+  };
+  struct api_name rtmidi_api_names[] =
+    {
+     { UNSPECIFIED, "unspecified" , N_("Automatic backend selection") },
+     { MACOSX_CORE, "core"        , N_("Core MIDI") },
+     { LINUX_ALSA,  "alsa"        , N_("ALSA") },
+     { UNIX_JACK,   "jack"        , N_("JACK") },
+     { WINDOWS_MM,  "winmm"       , N_("Windows Multimedia") },
+     { WINDOWS_KS,  "winks"       , N_("DirectX/Kernel Streaming") },
+     { DUMMY,       "dummy"       , N_("Dummy/NULL device") },
+     { ALL_API,     "allapi"      , N_("All available MIDI systems") },
+    };
+  const unsigned int rtmidi_num_api_names =
+    sizeof(rtmidi_api_names)/sizeof(rtmidi_api_names[0]);
+
+
+  // The order here will control the order of RtMidi's API search in
+  // the constructor.
+  extern "C" const ApiType rtmidi_compiled_system_apis[] =
+    {
+#if defined(__MACOSX_CORE__)
+     MACOSX_CORE,
+#endif
+#if defined(__LINUX_ALSA__)
+     LINUX_ALSA,
+#endif
+#if defined(__WINDOWS_MM__)
+     WINDOWS_MM,
+#endif
+    };
+  extern "C" const unsigned int rtmidi_num_compiled_system_apis =
+    sizeof(rtmidi_compiled_system_apis)/sizeof(rtmidi_compiled_system_apis[0])-1;
+
+  // The order here will control the order of RtMidi's API search in
+  // the constructor.
+  extern "C" const ApiType rtmidi_compiled_software_apis[] =
+    {
+#if defined(__UNIX_JACK__)
+     UNIX_JACK,
+#endif
+    };
+  extern "C" const unsigned int rtmidi_num_compiled_software_apis =
+    sizeof(rtmidi_compiled_software_apis)/sizeof(rtmidi_compiled_software_apis[0])-1;
+
+
+  // The order here will control the order of RtMidi's API search in
+  // the constructor.
+  extern "C" const ApiType rtmidi_compiled_other_apis[] =
+    {
+     UNSPECIFIED,
+     ALL_API,
+#if defined(__RTMIDI_DUMMY__)
+     DUMMY,
+#endif
+    };
+  extern "C" const unsigned int rtmidi_num_compiled_other_apis =
+    sizeof(rtmidi_compiled_other_apis)/sizeof(rtmidi_compiled_other_apis[0])-1;
+}
+
+// Flags for receiving  MIDI
 enum {
       IGNORE_SYSEX   = 0x01,
       IGNORE_TIME    = 0x02,
@@ -5557,15 +5628,17 @@ int JackBackendCallbacks::ProcessIn( jack_nframes_t nframes, void *arg )
     message.bytes.clear();
 
     jack_midi_event_get( &event, buff, j );
+    message.bytes.reserve(event.size);
 
     for ( unsigned int i = 0; i < event.size; i++ )
       message.bytes.push_back( event.buffer[i] );
 
     // Compute the delta time.
     time = jack_get_time();
-    if ( rtData->firstMessage == true )
+    if ( rtData->firstMessage == true ) {
+      message.timeStamp = 0.0;
       rtData->firstMessage = false;
-    else
+    } else
       message.timeStamp = ( time - jData->lastTime ) * 0.000001;
 
     jData->lastTime = time;
@@ -6039,6 +6112,7 @@ Error::Error( const char * message,
 
 }
 
+
 //*********************************************************************//
 //  Midi Definitions
 //*********************************************************************//
@@ -6047,45 +6121,74 @@ std::string Midi :: getVersion( void ) throw()
   return std::string( RTMIDI_VERSION );
 }
 
+
+// This is a compile-time check that rtmidi_num_api_names == RtMidi::NUM_APIS.
+// If the build breaks here, check that they match.
+template<bool b> class StaticAssert { private: StaticAssert() {} };
+template<> class StaticAssert<true>{ public: StaticAssert() {} };
+class StaticAssertions { StaticAssertions() {
+  StaticAssert<rtmidi_num_api_names == NUM_APIS>();
+}};
+
 void Midi :: getCompiledApi( std::vector<ApiType> &apis, bool preferSystem ) throw()
 {
   apis.clear();
+  apis.reserve(rtmidi_num_compiled_system_apis +
+	       rtmidi_num_compiled_software_apis +
+	       rtmidi_num_compiled_other_apis);
 
   // The order here will control the order of RtMidi's API search in
   // the constructor.
 
   if (!preferSystem) {
     // first check software and network backends
-#if defined(__UNIX_JACK__)
-    apis.push_back( rtmidi::UNIX_JACK );
-#endif
+    apis.insert(apis.end(),
+		rtmidi_compiled_software_apis,
+		rtmidi_compiled_software_apis+rtmidi_num_compiled_software_apis);
   }
-
-  // check OS provided backends
-#if defined(__MACOSX_COREMIDI__)
-  apis.push_back( rtmidi::MACOSX_CORE );
-#endif
-#if defined(__LINUX_ALSA__)
-  apis.push_back( rtmidi::LINUX_ALSA );
-#endif
-#if defined(__WINDOWS_MM__)
-  apis.push_back( rtmidi::WINDOWS_MM );
-#endif
+  apis.insert(apis.end(),
+	      rtmidi_compiled_system_apis,
+	      rtmidi_compiled_system_apis+rtmidi_num_compiled_system_apis);
 
   if (preferSystem) {
     // if we prefer OS provided backends,
     // we should add the software backends, here.
-#if defined(__UNIX_JACK__)
-    apis.push_back( rtmidi::UNIX_JACK );
-#endif
+    apis.insert(apis.end(),
+		rtmidi_compiled_software_apis,
+		rtmidi_compiled_software_apis+rtmidi_num_compiled_software_apis);
   }
 
-  // DUMMY is a no-backend class so we add it at
-  // the very end.
-#if defined(__RTMIDI_DUMMY__)
-  apis.push_back( rtmidi::DUMMY );
-#endif
+  // pseudo-backends
+  apis.insert(apis.end(),
+	      rtmidi_compiled_other_apis,
+	      rtmidi_compiled_other_apis+rtmidi_num_compiled_other_apis);
 }
+
+
+std::string Midi :: getApiName( ApiType api )
+{
+  if (api < 0 || api >= NUM_APIS)
+    return "";
+  return rtmidi_api_names[api].machine;
+}
+
+std::string Midi :: getApiDisplayName( ApiType api )
+{
+  if (api < 0 || api >= NUM_APIS)
+    return "Unknown";
+  return rtmidi_gettext(rtmidi_api_names[api].display);
+}
+
+ApiType Midi :: getCompiledApiByName( const std::string &name, bool preferSystem )
+{
+  auto apis = getCompiledApi(preferSystem);
+  for (auto api:apis) {
+    if (name == rtmidi_api_names[api].machine)
+      return api;
+  }
+  return UNSPECIFIED;
+}
+
 
 
 

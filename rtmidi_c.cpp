@@ -44,23 +44,68 @@ class CallbackProxyUserData
 	void *user_data;
 };
 
+extern "C" const enum rtmidi::ApiType rtmidi_compiled_system_apis[]; // casting from RtMidi::Api[]
+extern "C" const unsigned int rtmidi_num_compiled_system_apis;
+extern "C" enum rtmidi::ApiType rtmidi_compiled_software_apis[]; // casting from RtMidi::Api[]
+extern "C" const unsigned int rtmidi_num_compiled_software_apis;
+extern "C" const enum rtmidi::ApiType rtmidi_compiled_other_apis[]; // casting from RtMidi::Api[]
+extern "C" const unsigned int rtmidi_num_compiled_other_apis;
+
 /* RtMidi API */
 int rtmidi_get_compiled_api (enum RtMidiApi *apis, unsigned int apis_size)
 {
-    std::vector<rtmidi::ApiType> v;
-    try {
-        rtmidi::Midi::getCompiledApi(v);
-    } catch (...) {
-        return -1;
+  unsigned int retval = rtmidi_num_compiled_system_apis +
+    rtmidi_num_compiled_software_apis +
+    rtmidi_num_compiled_other_apis;
+  unsigned num = rtmidi_num_compiled_system_apis;
+  if (apis) {
+    retval = retval > apis_size ? apis_size: retval;
+    num = (num < apis_size) ? num : apis_size;
+    memcpy(apis, rtmidi_compiled_system_apis, num * sizeof(enum RtMidiApi));
+    apis_size -= num;
+    if (apis_size) {
+      num = rtmidi_num_compiled_software_apis;
+      num = (num < apis_size) ? num : apis_size;
+      memcpy(apis, rtmidi_compiled_software_apis, num * sizeof(enum RtMidiApi));
+      apis_size -= num;
     }
-    if (apis) {
-        unsigned int i;
-        for (i = 0; i < v.size() && i < apis_size; i++)
-            apis[i] = (RtMidiApi) v[i];
-        return (int)i;
+    if (apis_size) {
+      num = rtmidi_num_compiled_other_apis;
+      num = (num < apis_size) ? num : apis_size;
+      memcpy(apis, rtmidi_compiled_other_apis, num * sizeof(enum RtMidiApi));
+      apis_size -= num;
     }
-    // return length for NULL argument.
-    return v.size();
+  }
+  return (int)retval;
+}
+
+extern "C"
+struct api_name {
+  rtmidi::ApiType Id;
+  const char * machine;
+  const char * display;
+};
+
+extern "C" const api_name rtmidi_api_names[];
+const char *rtmidi_api_name(enum RtMidiApi api) {
+    if (api < 0 || api >= RT_MIDI_API_NUM)
+        return NULL;
+    return rtmidi_api_names[api].machine;
+}
+
+const char *rtmidi_api_display_name(enum RtMidiApi api)
+{
+    if (api < 0 || api >= RT_MIDI_API_NUM)
+        return "Unknown";
+    return rtmidi_api_names[api].display;
+}
+
+enum RtMidiApi rtmidi_compiled_api_by_name(const char *name) {
+    rtmidi::ApiType api = rtmidi::UNSPECIFIED;
+    if (name) {
+      api = rtmidi::Midi::getCompiledApiByName(name);
+    }
+    return (enum RtMidiApi)api;
 }
 
 void rtmidi_error (rtmidi::MidiApi *api, enum RtMidiErrorType type, const char* errorString)

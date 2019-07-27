@@ -72,7 +72,11 @@
 #endif
 
 #if defined _WIN32 || defined __CYGWIN__
-  #define RTMIDI_DLL_PUBLIC
+  #if defined(RTMIDI_EXPORT)
+    #define RTMIDI_DLL_PUBLIC __declspec(dllexport)
+  #else
+    #define RTMIDI_DLL_PUBLIC
+  #endif
 #else
   #if __GNUC__ >= 4
     #define RTMIDI_DLL_PUBLIC __attribute__( (visibility( "default" )) )
@@ -124,23 +128,9 @@ enum ApiType {
   WINDOWS_MM,     /*!< The Microsoft Multimedia MIDI API. */
   WINDOWS_KS,     /*!< The Microsoft Kernel Streaming MIDI API. */
   DUMMY,          /*!< A compilable but non-functional API. */
-  ALL_API         /*!< Use all available APIs for port selection. */
+  ALL_API,        /*!< Use all available APIs for port selection. */
+  NUM_APIS        /*!< Number of values in this enum. */
 };
-
-//! Return the name on a MIDI API
-inline std::string getApiName(ApiType type) {
-  switch (type) {
-  case UNSPECIFIED: return rtmidi_gettext("Automatic selection");
-  case MACOSX_CORE: return rtmidi_gettext("Core MIDI");
-  case LINUX_ALSA:  return rtmidi_gettext("ALSA");
-  case UNIX_JACK:   return rtmidi_gettext("JACK");
-  case WINDOWS_MM:  return rtmidi_gettext("Windows Multimedia");
-  case WINDOWS_KS:  return rtmidi_gettext("DirectX/Kernel Streaming");
-  case DUMMY:       return rtmidi_gettext("NULL device");
-  case ALL_API:     return rtmidi_gettext("All available MIDI systems");
-  }
-  return "";
-}
 
 //! C++ style user callback interface.
 /*!
@@ -537,8 +527,35 @@ public:
     The values returned in the std::vector can be compared against
     the enumerated list values.  Note that there can be more than one
     API compiled for certain operating systems.
+
+    \param preferSystem An opitonal boolean parameter
+    may be provided that tells wheter system or software
+    APIs shall be prefered. Passing \c true will prefer OS provided APIs
   */
-  static std::vector<ApiType> getCompiledApi(  ) throw();
+  static std::vector<ApiType> getCompiledApi( bool preferSystem = true  ) throw();
+
+//! Return the name of a specified compiled MIDI API.
+  /*!
+    This obtains a short lower-case name used for identification purposes.
+    This value is guaranteed to remain identical across library versions.
+    If the API is unknown, this function will return the empty string.
+  */
+  static std::string getApiName( ApiType api );
+
+  //! Return the display name of a specified compiled MIDI API.
+  /*!
+    This obtains a long name used for display purposes.
+    If the API is unknown, this function will return the empty string.
+  */
+  static std::string getApiDisplayName( ApiType api );
+
+  //! Return the compiled MIDI API having the given name.
+  /*!
+    A case insensitive comparison will check the specified name
+    against the list of compiled APIs, and return the one which
+    matches. On failure, the function returns UNSPECIFIED.
+  */
+  static ApiType getCompiledApiByName( const std::string &name, bool preferSystem = true );
 
   //! Returns the MIDI API specifier for the current instance of rtmidi::MidiIn.
   ApiType getCurrentApi( void ) throw();
@@ -594,22 +611,24 @@ public:
   //! A basic error reporting function for RtMidi classes.
   void error( Error e );
 
-  enum Api_t {
-    UNSPECIFIED  = rtmidi::UNSPECIFIED,
-    MACOSX_CORE  = rtmidi::MACOSX_CORE,
-    LINUX_ALSA   = rtmidi::LINUX_ALSA,
-    UNIX_JACK    = rtmidi::UNIX_JACK,
-    WINDOWS_MM   = rtmidi::WINDOWS_MM,
-    RTMIDI_DUMMY = rtmidi::DUMMY
-  };
+  static constexpr const auto UNSPECIFIED  = rtmidi::UNSPECIFIED;
+  static constexpr const auto MACOSX_CORE  = rtmidi::MACOSX_CORE;
+  static constexpr const auto LINUX_ALSA   = rtmidi::LINUX_ALSA;
+  static constexpr const auto UNIX_JACK    = rtmidi::UNIX_JACK;
+  static constexpr const auto WINDOWS_MM   = rtmidi::WINDOWS_MM;
+  static constexpr const auto RTMIDI_DUMMY = rtmidi::DUMMY;
+
+  typedef ApiType Api_t;
 
   /* old functions */
   RTMIDI_DEPRECATED(typedef Api_t Api,
 		    "enum RtMidi::Api has been replaced by enum rtmidi::ApiType");
+#if 0
 #define Api Api_t
   RTMIDI_DEPRECATED(static void getCompiledApi( std::vector<Api> &apis, bool
 						preferSystem
 						= true ) throw(), "enum RtMidi::Api has been replaced by enum rtmidi::ApiType" );
+#endif
   //! Compatibilty function for older code
   virtual
   RTMIDI_DEPRECATED(void openVirtualPort( const std::string &portName
@@ -684,7 +703,7 @@ protected:
 inline RTMIDI_DEPRECATED(std::string getApiName(Midi::Api type),"Use rtmidi::ApiType instead of RtMidi::Api");
 inline std::string getApiName(Midi::Api type)
 {
-  return getApiName((ApiType)type);
+  return Midi::getApiName((ApiType)type);
 }
 
 #undef RTMIDI_CLASSNAME
@@ -1343,9 +1362,9 @@ public:
 // **************************************************************** //
 // rtmidi::Midi
 #define RTMIDI_CLASSNAME "Midi"
-inline std::vector<ApiType> Midi :: getCompiledApi(  ) throw() {
+inline std::vector<ApiType> Midi :: getCompiledApi( bool preferSystem ) throw() {
   std::vector<ApiType> apis;
-  getCompiledApi(apis);
+  getCompiledApi(apis,preferSystem);
   return apis;
 }
 inline ApiType Midi :: getCurrentApi( void ) throw() {
@@ -1388,6 +1407,7 @@ inline bool Midi :: isPortOpen( void ) const {
 inline void Midi :: setErrorCallback( ErrorInterface * callback) {
   if (rtapi_) rtapi_->setErrorCallback(callback);
 }
+#if 0
 inline void Midi :: getCompiledApi( std::vector<Api> &apis, bool
 				    preferSystem ) throw() {
   std::vector<rtmidi::ApiType> api2;
@@ -1398,6 +1418,7 @@ inline void Midi :: getCompiledApi( std::vector<Api> &apis, bool
     apis.push_back((Api)api2[i]);
   }
 }
+#endif
 
 inline void Midi :: openPort( unsigned int portNumber,
 	       const std::string &portName) {

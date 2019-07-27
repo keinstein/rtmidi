@@ -18,7 +18,8 @@ check_PROGRAMS += \
 	%D%/midiclock_in \
 	%D%/midiclock_out \
 	%D%/lostportdescriptor \
-	%D%/testequalityoperator
+	%D%/testequalityoperator \
+	%D%/apinames
 
 TESTS += \
 	%D%/midiprobe \
@@ -26,7 +27,8 @@ TESTS += \
 	%D%/midiprobe-all \
 	%D%/errors \
 	%D%/lostportdescriptor \
-	%D%/testequalityoperator
+	%D%/testequalityoperator \
+	%D%/apinames
 
 CLEANFILES += \
 	%D%/*.class
@@ -61,6 +63,7 @@ endif
 %C%_midiclock_out_SOURCES  = %D%/midiclock.cpp
 %C%_lostportdescriptor_SOURCES       = %D%/lostportdescriptor.cpp
 %C%_testequalityoperator_SOURCES       = %D%/testequalityoperator.cpp
+%C%_apinames_SOURCES       = %D%/apinames.cpp
 
 # When a nonstandard gettext library or wrapper is used,
 # we need extra flags.
@@ -80,6 +83,7 @@ endif
 %C%_midiclock_out_CXXFLAGS = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 %C%_lostportdescriptor_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 %C%_testequalityoperator_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
+%C%_apinames_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 
 
 %C%_midiprobe_LDFLAGS      = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
@@ -98,6 +102,7 @@ endif
 %C%_midiclock_out_LDFLAGS  = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 %C%_lostportdescriptor_LDFLAGS       = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 %C%_testequalityoperator_LDFLAGS       = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
+%C%_apinames_LDFLAGS       = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 
 
 %C%_midiprobe_LDADD      = $(RTMIDILIBRARYNAME)
@@ -116,6 +121,7 @@ endif
 %C%_midiclock_out_LDADD  = $(RTMIDILIBRARYNAME)
 %C%_lostportdescriptor_LDADD       = $(RTMIDILIBRARYNAME)
 %C%_testequalityoperator_LDADD       = $(RTMIDILIBRARYNAME)
+%C%_apinames_LDADD       = $(RTMIDILIBRARYNAME)
 
 
 if RTMIDICOPYDLLS
