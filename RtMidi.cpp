@@ -5754,6 +5754,7 @@ void MidiInJack :: openPort( unsigned int portNumber, const std::string &portNam
   try {
     midi.setRemote(getPortName( portNumber ));
   } catch (Error & e) {
+    closePort();
     error (e);
   }
 }
@@ -5763,6 +5764,7 @@ void MidiInJack :: openVirtualPort( const std::string &portName )
   try {
     midi.ensureOpen(JackPortIsInput,
 		    portName);
+    connected_ = true;
   } catch (Error & e) {
     error (e);
   }
@@ -5783,6 +5785,7 @@ void MidiInJack :: openPort( const PortDescriptor & p,
   try {
     midi.connectFrom(*port);
   } catch (Error & e) {
+    closePort();
     error (e);
   }
 }
@@ -5821,6 +5824,7 @@ std::string MidiInJack :: getPortName( unsigned int portNumber )
 void MidiInJack :: closePort()
 {
   midi.deletePort();
+  connected_ = false;
 }
 
 void MidiInJack :: setClientName( const std::string& )
@@ -5911,6 +5915,7 @@ void MidiOutJack :: openPort( unsigned int portNumber, const std::string &portNa
     midi->setRemote(getPortName( portNumber ));
       //jack_connect( *(data->seq), jack_port_name( data->local ), name.c_str() );
   } catch (Error & e) {
+    closePort();
     error(e);
   }
 }
@@ -5925,6 +5930,7 @@ void MidiOutJack :: openVirtualPort( const std::string &portName )
   try {
     midi->ensureOpen(JackPortIsOutput,
 		     portName);
+    connected_ = true;
   } catch (Error & e) {
     error (e);
   }
@@ -5957,6 +5963,7 @@ void MidiOutJack :: openPort( const PortDescriptor & p,
   try {
     midi->connectTo(*port);
   } catch (Error & e) {
+    closePort();
     error (e);
   }
 }
@@ -6015,6 +6022,7 @@ void MidiOutJack :: closePort()
 #endif
   if (midi)
     midi->delayedDeletePort();
+  connected_ = false;
 }
 
 void MidiOutJack:: setClientName( const std::string& )
