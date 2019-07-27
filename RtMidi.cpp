@@ -568,7 +568,7 @@ static CFStringRef ConnectedEndpointName( MIDIEndpointRef endpoint )
     // Concatenate the names of all connected devices
     nConnected = CFDataGetLength( connections ) / sizeof( MIDIUniqueID );
     if ( nConnected ) {
-      const SInt32 * pid = static_cast<const SInt32*>( CFDataGetBytePtr( connections ) );
+      const SInt32 * pid = reinterpret_cast<const SInt32*>( CFDataGetBytePtr( connections ) );
       for ( i=0; i<nConnected; ++i, ++pid ) {
         MIDIUniqueID id = EndianS32_BtoN( *pid );
         MIDIObjectRef connObject;
