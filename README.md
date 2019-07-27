@@ -3,7 +3,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/39ea41a871be4403b687e2707714d4aa)](https://www.codacy.com/app/keinstein/rtmidi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=keinstein/rtmidi&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/keinstein/rtmidi/branch/master-ts/graph/badge.svg)](https://codecov.io/gh/keinstein/rtmidi)
 
-
 Extended RtMidi fork for Mutabor, GUI based Software, and saving MIDI connections
 =================================================================================
 
@@ -27,46 +26,46 @@ C++-ish than the original RtMidi.
 Incompatible changes against upstream
 -------------------------------------
 
-- The old API has been deprecated as there is no way to rely on
-  consecutive port numbers. It is always the responsibility of the 
-  end user not to change the MIDI configuration between certain points
-  in the execution path of the library. Obviously they usually lack the
-  necessary information for that Currently, it is still available, but a 
-  compiler warning is generated if applicable
-  
-- `__MACOSX_CORE__` has been renamed to `__MACOSX_COREMIDI__`
+-   The old API has been deprecated as there is no way to rely on
+	consecutive port numbers. It is always the responsibility of the
+	end user not to change the MIDI configuration between certain points
+	in the execution path of the library. Obviously they usually lack the
+	necessary information for that Currently, it is still available, but a
+	compiler warning is generated if applicable
 
-- The classes of RtMidi now reside in the namespace rtmidi.
+-   __MACOSX_CORE__` has been renamed to `__MACOSX_COREMIDI__`
 
-- The beginning letters “Rt” are dropped from the names
+-   The classes of RtMidi now reside in the namespace rtmidi.
 
-- For easy adoption of the new interface wrappers for the old API are provided.
+-   The beginning letters “Rt” are dropped from the names
 
-- The library uses backend provided port descriptors, now. This
-  provides a more reliable port handling for changing environments
-  (See below).
+-   For easy adoption of the new interface wrappers for the old API are provided.
 
-- The way MIDI devices are enumerated has changed. The old way, using
-  the ordinal number of MIDI devices works only in cases where MIDI
-  devices are not added or removed during the program session. When a
-  virtual MIDI port or USB MIDI device is added or removed the ordinal
-  number of each of the other devices may change.
+-   The library uses backend provided port descriptors, now. This
+	provides a more reliable port handling for changing environments
+	(See below).
 
-   Suppose your computer has the following list of MIDI devices.
-      1. MIDI loopback device
-      2. Removable USB MIDI device
-      3. Another MIDI device
-      4. Software MIDI Synth
-      5. A virtual MIDI port
+-   The way MIDI devices are enumerated has changed. The old way, using
+	the ordinal number of MIDI devices works only in cases where MIDI
+	devices are not added or removed during the program session. When a
+	virtual MIDI port or USB MIDI device is added or removed the ordinal
+	number of each of the other devices may change.
+
+    Suppose your computer has the following list of MIDI devices.
+        1. MIDI loopback device
+		2. Removable USB MIDI device
+		3. Another MIDI device
+		4. Software MIDI Synth
+		5. A virtual MIDI port
 
 	After the software obtained this list, your friend remembers that he
 	must catch the next bus and unplugs his removable USB MIDI device.
 	The software does not recognize this removal and keeps the above list,
 	while the system has a new one:
-      1. MIDI loopback device
-	  2. Another MIDI device
-	  3. Software MIDI Synth
-	  4. A virtual MIDI port
+        1. MIDI loopback device
+	    2. Another MIDI device
+	    3. Software MIDI Synth
+	    4. A virtual MIDI port
 
 	Somehow you told the software to use the Software MIDI Synth. The
 	program stores the number 4 as it obtained during enumeration of the
@@ -87,14 +86,13 @@ Incompatible changes against upstream
 	This new feature also allows to retreive the port descriptor of an open device using
 	\ref rtmidi::Midi::getDescriptor. The latter can be used to obtain
 
-
 Compilation
 -----------
 
 This distribution of RtMidi contains the following:
 
-- doc:      RtMidi documentation (also online at http://music.mcgill.ca/~gary/rtmidi/)
-- tests:    example RtMidi programs
+-   doc:      RtMidi documentation (also online at <http://music.mcgill.ca/~gary/rtmidi/>)
+-   tests:    example RtMidi programs
 
 On Unix systems, type `./configure` in the top level directory, then `make` in the tests/ directory to compile the test programs.  In Windows, open the Visual C++ workspace file located in the tests/ directory.
 
@@ -105,10 +103,10 @@ Overview
 
 RtMidi is a set of C++ classes (rtmidi::MidiIn, rtmidi::MidiOut, and API specific classes) that provide a common API (Application Programming Interface) for realtime MIDI input/output across Linux (ALSA, JACK), Macintosh OS X (CoreMIDI, JACK), and Windows (Multimedia Library) operating systems.  RtMidi significantly simplifies the process of interacting with computer MIDI hardware and software.  It was designed with the following goals:
 
-  - object oriented C++ design
-  - simple, common API across all supported platforms
-  - only one header and one source file for easy inclusion in programming projects
-  - MIDI device enumeration
+-   object oriented C++ design
+-   simple, common API across all supported platforms
+-   only one header and one source file for easy inclusion in programming projects
+-   MIDI device enumeration
 
 MIDI input and output functionality are separated into two classes, RtMidiIn and RtMidiOut.  Each class instance supports only a single MIDI connection.  RtMidi does not provide timing functionality (i.e., output messages are sent immediately).  Input messages are timestamped with delta times in seconds (via a double floating point type).  MIDI data is passed to the user as raw bytes using an std::vector<unsigned char>.
 
@@ -120,8 +118,7 @@ In some cases, for example to use RtMidi with GS Synth, it may be necessary for 
 Further reading
 ---------------
 
-For complete documentation on the original RtMidi, see the doc directory of the distribution or surf to http://music.mcgill.ca/~gary/rtmidi/.
-
+For complete documentation on the original RtMidi, see the doc directory of the distribution or surf to <http://music.mcgill.ca/~gary/rtmidi/>.
 
 Legal and ethical
 -----------------
