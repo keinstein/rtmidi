@@ -132,14 +132,14 @@ script:
       jackd -r -d dummy &
       JACKPID=$!
       echo $PWD
-      env | sed -e "s,',\\',g;s,^,',g;s,\$,',g" "> current_environment.sh"
+      env | sed -e "s,',\\',g;s,^,',g;s,\$,',g" > current_environment.sh
       if test "x${COVERAGE}" = "x"
       then
         sudo sudo -u $USER  make check || true
       else
         sudo sudo -u $USER  make check-code-coverage || true
       fi
-      if false
+      if true
       then
         ./libtool --mode=execute gdb tests/lostportdescriptor << EOF
         r
@@ -152,8 +152,8 @@ script:
         q
       EOF
       fi
-      kill $JACKPID
       cat tests/*.log
+      kill $JACKPID
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
