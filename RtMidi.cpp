@@ -109,8 +109,8 @@ extern "C" {
      WINDOWS_MM,
 #endif
     };
-  extern "C" const unsigned int rtmidi_num_compiled_system_apis =
-    sizeof( rtmidi_compiled_system_apis )/sizeof( rtmidi_compiled_system_apis[0] )-1;
+  extern "C" const size_t rtmidi_num_compiled_system_apis =
+    sizeof( rtmidi_compiled_system_apis )/sizeof( rtmidi_compiled_system_apis[0] );
 
   // The order here will control the order of RtMidi's API search in
   // the constructor.
@@ -120,8 +120,8 @@ extern "C" {
      UNIX_JACK,
 #endif
     };
-  extern "C" const unsigned int rtmidi_num_compiled_software_apis =
-    sizeof( rtmidi_compiled_software_apis )/sizeof( rtmidi_compiled_software_apis[0] )-1;
+  extern "C" const size_t rtmidi_num_compiled_software_apis =
+    sizeof( rtmidi_compiled_software_apis )/sizeof( rtmidi_compiled_software_apis[0] );
 
 
   // The order here will control the order of RtMidi's API search in
@@ -134,8 +134,8 @@ extern "C" {
      DUMMY,
 #endif
     };
-  extern "C" const unsigned int rtmidi_num_compiled_other_apis =
-    sizeof( rtmidi_compiled_other_apis )/sizeof( rtmidi_compiled_other_apis[0] )-1;
+  extern "C" const size_t rtmidi_num_compiled_other_apis =
+    sizeof( rtmidi_compiled_other_apis )/sizeof( rtmidi_compiled_other_apis[0] );
 }
 
 // Flags for receiving MIDI
