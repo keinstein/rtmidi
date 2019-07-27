@@ -20,8 +20,18 @@
 #include <windows.h>
 #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds ) 
 #else // Unix variants
-#include <unistd.h>
-#define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
+#include <time.h>
+inline void SLEEP(unsigned long long int  milliseconds ) {
+  struct timespec time,time2;
+  time.tv_sec = milliseconds / 1000;
+  time.tv_nsec = (milliseconds % 1000) * 1000000;
+  int status;
+  if ((status = nanosleep(&time,&time2))) {
+    int error = errno;
+    std::perror("Sleep has been interrupted");
+    exit(error);
+  }
+}
 #endif
 
 
@@ -105,7 +115,7 @@ int main( int /* argc */, char * /*argv*/[] )
       assert(inputdescriptor);
       assert(outputdescriptor);
 
-      sleep(2);
+      SLEEP(2000);
 
       rtmidi::Pointer<rtmidi::MidiInApi> ininapi(inputdescriptor->getInputApi());
       rtmidi::Pointer<rtmidi::MidiOutApi> inoutapi(inputdescriptor->getOutputApi());
