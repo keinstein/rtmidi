@@ -13,6 +13,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
+#include <cassert>
 
 int test_cpp() {
     std::vector<RtMidi::Api> apis;
@@ -82,25 +83,40 @@ int test_cpp() {
 
 #include "rtmidi_c.h"
 
+inline bool operator == ( enum RtMidiApi a, enum rtmidi::ApiType b )
+{
+  return (int) a == (int) b;
+}
+inline bool operator == ( enum rtmidi::ApiType a, enum RtMidiApi b )
+{
+  return b == a;
+}
+
+
 int test_c() {
     unsigned api_count = rtmidi_get_compiled_api(NULL, 0);
+    std::vector<rtmidi::ApiType> cppapis = rtmidi::Midi::getCompiledApi(true);
     std::vector<RtMidiApi> apis(api_count);
-    rtmidi_get_compiled_api(apis.data(), api_count);
+    rtmidi_get_compiled_api(apis.data(),
+                            api_count);
+    assert(cppapis.size() == apis.size());
+    for (size_t i = 0 ; i < apis.size(); ++i)
+      assert(cppapis[i] == apis[i]);
 
     // ensure the known APIs return valid names
     std::cout << "API names by identifier (C):\n";
     for ( size_t i = 0; i < api_count; ++i) {
-        const std::string name = rtmidi_api_name(apis[i]);
-        if (name.empty()) {
-            std::cout << "Invalid name for API " << (int)apis[i] << "\n";
-            exit(1);
-        }
-        const std::string displayName = rtmidi_api_display_name(apis[i]);
-        if (displayName.empty()) {
-            std::cout << "Invalid display name for API " << (int)apis[i] << "\n";
-            exit(1);
-        }
-        std::cout << "* " << (int)apis[i] << " '" << name << "': '" << displayName << "'\n";
+      const std::string name = rtmidi_api_name(apis[i]);
+      if (name.empty()) {
+        std::cout << "Invalid name for API " << (int)apis[i] << "\n";
+        exit(1);
+      }
+      const std::string displayName = rtmidi_api_display_name(apis[i]);
+      if (displayName.empty()) {
+        std::cout << "Invalid display name for API " << (int)apis[i] << "\n";
+        exit(1);
+      }
+      std::cout << "* " << (int)apis[i] << " '" << name << "': '" << displayName << "'\n";
     }
 
     // ensure unknown APIs return the empty string

@@ -106,8 +106,12 @@ int main( int /* argc */, char * /*argv*/[] )
 
 
 
-			midiin->openPort(outdescriptor);
-			midiout->openPort(indescriptor);
+			midiin->openPort(outdescriptor,
+                                         "RtMidi Test Real In",
+                                         rtmidi::PortDescriptor::INPUT);
+			midiout->openPort(indescriptor,
+                                          "RtMidi Test Real Out",
+                                          rtmidi::PortDescriptor::OUTPUT);
     
 
 			// Set our callback function.  This should be done immediately after

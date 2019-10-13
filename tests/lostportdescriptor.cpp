@@ -119,6 +119,8 @@ int main( int /* argc */, char * /*argv*/[] )
 
       rtmidi::Pointer<rtmidi::MidiInApi> ininapi(inputdescriptor->getInputApi());
       rtmidi::Pointer<rtmidi::MidiOutApi> inoutapi(inputdescriptor->getOutputApi());
+      rtmidi::Pointer<rtmidi::MidiInApi> outinapi(outputdescriptor->getInputApi());
+      rtmidi::Pointer<rtmidi::MidiOutApi> outoutapi(outputdescriptor->getOutputApi());
 
       std::string inname = inputdescriptor->getName();
       int incapabilities = inputdescriptor->getCapabilities();
@@ -126,14 +128,16 @@ int main( int /* argc */, char * /*argv*/[] )
       std::cout << "Input: `" << inname << "` cap " << std::hex << incapabilities << std::endl;
 
       if (ininapi) {
-	ininapi->openPort(outputdescriptor);
+	ininapi->openPort(outputdescriptor,
+                          "RtMidi new Input Port",
+                          rtmidi::PortDescriptor::INPUT);
       }
       if (inoutapi) {
-	inoutapi->openPort(inputdescriptor);
+	inoutapi->openPort(inputdescriptor,
+                           "RtMidi new Output Port",
+                           rtmidi::PortDescriptor::OUTPUT);
       }
 
-      rtmidi::Pointer<rtmidi::MidiInApi> outinapi(outputdescriptor->getInputApi());
-      rtmidi::Pointer<rtmidi::MidiOutApi> outoutapi(outputdescriptor->getOutputApi());
 
       std::string outname = outputdescriptor->getName();
       int outcapabilities = outputdescriptor->getCapabilities();
@@ -141,10 +145,14 @@ int main( int /* argc */, char * /*argv*/[] )
       std::cout << "Output: `" << outname << "` cap " << std::hex << outcapabilities << std::endl;
 
       if (outinapi) {
-	outinapi->openPort(outputdescriptor);
+	outinapi->openPort(outputdescriptor,
+                          "RtMidi new Input Port",
+                          rtmidi::PortDescriptor::INPUT);
       }
       if (outoutapi) {
-	outoutapi->openPort(inputdescriptor);
+	outoutapi->openPort(inputdescriptor,
+                           "RtMidi new Output Port",
+                           rtmidi::PortDescriptor::OUTPUT);
       }
 
     }

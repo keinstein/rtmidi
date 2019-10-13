@@ -75,7 +75,7 @@ int main( int argc, char *argv[] )
   midiin->ignoreTypes( false, true, true );
 
   try {
-    if ( chooseMidiPort( midiin ) == false ) goto cleanup;
+    if ( chooseMidiPort( midiin  ) == false ) goto cleanup;
     if ( chooseMidiPort( midiout ) == false ) goto cleanup;
   }
   catch ( RtMidiError &error ) {

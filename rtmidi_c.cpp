@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "rtmidi_c.h"
+#define RTMIDI_NO_WARN_DEPRECATED 1
 #include "RtMidi.h"
 
 #define RTMIDI_CLASSNAME "C interface"
@@ -13,24 +14,28 @@ template<bool b> class StaticAssert { private: StaticAssert() {} };
 template<> class StaticAssert<true>{ public: StaticAssert() {} };
 #define ENUM_EQUAL(x,y) StaticAssert<(int)x==(int)y>()
 class StaticAssertions { StaticAssertions() {
-    ENUM_EQUAL( RT_MIDI_API_UNSPECIFIED,     RtMidi::UNSPECIFIED );
-    ENUM_EQUAL( RT_MIDI_API_MACOSX_CORE,     RtMidi::MACOSX_CORE );
-    ENUM_EQUAL( RT_MIDI_API_LINUX_ALSA,      RtMidi::LINUX_ALSA );
-    ENUM_EQUAL( RT_MIDI_API_UNIX_JACK,       RtMidi::UNIX_JACK );
-    ENUM_EQUAL( RT_MIDI_API_WINDOWS_MM,      RtMidi::WINDOWS_MM );
-    ENUM_EQUAL( RT_MIDI_API_RTMIDI_DUMMY,    RtMidi::RTMIDI_DUMMY );
+  StaticAssert<sizeof(enum RtMidiApi) == sizeof(rtmidi::ApiType)>();
+  ENUM_EQUAL( RT_MIDI_API_UNSPECIFIED,     rtmidi::UNSPECIFIED );
+  ENUM_EQUAL( RT_MIDI_API_MACOSX_CORE,     rtmidi::MACOSX_CORE );
+  ENUM_EQUAL( RT_MIDI_API_LINUX_ALSA,      rtmidi::LINUX_ALSA );
+  ENUM_EQUAL( RT_MIDI_API_UNIX_JACK,       rtmidi::UNIX_JACK );
+  ENUM_EQUAL( RT_MIDI_API_WINDOWS_MM,      rtmidi::WINDOWS_MM );
+  ENUM_EQUAL( RT_MIDI_API_RTMIDI_DUMMY,    rtmidi::DUMMY );
+  ENUM_EQUAL( RT_MIDI_API_WINDOWS_KS,      rtmidi::WINDOWS_KS );
+  ENUM_EQUAL( RT_MIDI_API_ALL_API,         rtmidi::ALL_API );
+  ENUM_EQUAL( RT_MIDI_API_NUM,             rtmidi::NUM_APIS);
 
-    ENUM_EQUAL( RT_ERROR_WARNING,            RtMidiError::WARNING );
-    ENUM_EQUAL( RT_ERROR_DEBUG_WARNING,      RtMidiError::DEBUG_WARNING );
-    ENUM_EQUAL( RT_ERROR_UNSPECIFIED,        RtMidiError::UNSPECIFIED );
-    ENUM_EQUAL( RT_ERROR_NO_DEVICES_FOUND,   RtMidiError::NO_DEVICES_FOUND );
-    ENUM_EQUAL( RT_ERROR_INVALID_DEVICE,     RtMidiError::INVALID_DEVICE );
-    ENUM_EQUAL( RT_ERROR_MEMORY_ERROR,       RtMidiError::MEMORY_ERROR );
-    ENUM_EQUAL( RT_ERROR_INVALID_PARAMETER,  RtMidiError::INVALID_PARAMETER );
-    ENUM_EQUAL( RT_ERROR_INVALID_USE,        RtMidiError::INVALID_USE );
-    ENUM_EQUAL( RT_ERROR_DRIVER_ERROR,       RtMidiError::DRIVER_ERROR );
-    ENUM_EQUAL( RT_ERROR_SYSTEM_ERROR,       RtMidiError::SYSTEM_ERROR );
-    ENUM_EQUAL( RT_ERROR_THREAD_ERROR,       RtMidiError::THREAD_ERROR );
+  ENUM_EQUAL( RT_ERROR_WARNING,            rtmidi::Error::WARNING );
+  ENUM_EQUAL( RT_ERROR_DEBUG_WARNING,      rtmidi::Error::DEBUG_WARNING );
+  ENUM_EQUAL( RT_ERROR_UNSPECIFIED,        rtmidi::Error::UNSPECIFIED );
+  ENUM_EQUAL( RT_ERROR_NO_DEVICES_FOUND,   rtmidi::Error::NO_DEVICES_FOUND );
+  ENUM_EQUAL( RT_ERROR_INVALID_DEVICE,     rtmidi::Error::INVALID_DEVICE );
+  ENUM_EQUAL( RT_ERROR_MEMORY_ERROR,       rtmidi::Error::MEMORY_ERROR );
+  ENUM_EQUAL( RT_ERROR_INVALID_PARAMETER,  rtmidi::Error::INVALID_PARAMETER );
+  ENUM_EQUAL( RT_ERROR_INVALID_USE,        rtmidi::Error::INVALID_USE );
+  ENUM_EQUAL( RT_ERROR_DRIVER_ERROR,       rtmidi::Error::DRIVER_ERROR );
+  ENUM_EQUAL( RT_ERROR_SYSTEM_ERROR,       rtmidi::Error::SYSTEM_ERROR );
+  ENUM_EQUAL( RT_ERROR_THREAD_ERROR,       rtmidi::Error::THREAD_ERROR );
 }};
 
 class CallbackProxyUserData
@@ -63,11 +68,13 @@ int rtmidi_get_compiled_api (enum RtMidiApi *apis, unsigned int apis_size)
     num = (num < apis_size) ? num : apis_size;
     memcpy(apis, rtmidi_compiled_system_apis, num * sizeof(enum RtMidiApi));
     apis_size -= num;
+    apis += num;
     if (apis_size) {
       num = rtmidi_num_compiled_software_apis;
       num = (num < apis_size) ? num : apis_size;
       memcpy(apis, rtmidi_compiled_software_apis, num * sizeof(enum RtMidiApi));
       apis_size -= num;
+      apis += num;
     }
     if (apis_size) {
       num = rtmidi_num_compiled_other_apis;
@@ -118,8 +125,8 @@ void rtmidi_open_port (RtMidiPtr device, unsigned int portNumber, const char *po
 {
     std::string name = portName;
     try {
-	((rtmidi::Midi*)device->ptr)->openPort (portNumber, name);
-    
+      (device->ptr)->openPort (portNumber, name, device->flags);
+
     } catch (const RtMidiError & err) {
         device->ok  = false;
         device->msg = err.what ();
@@ -130,8 +137,8 @@ void rtmidi_open_virtual_port (RtMidiPtr device, const char *portName)
 {
     std::string name = portName;
     try {
-	((rtmidi::Midi*)device->ptr)->openVirtualPort (name);
-    
+	((rtmidi::RtMidiCompatibility*)device->ptr)->openVirtualPort (name);
+
     } catch (const RtMidiError & err) {
         device->ok  = false;
         device->msg = err.what ();
@@ -141,7 +148,7 @@ void rtmidi_open_virtual_port (RtMidiPtr device, const char *portName)
 
 void rtmidi_close_port (RtMidiPtr device)
 {
-    try { 
+    try {
 	((rtmidi::Midi*)device->ptr)->closePort ();
 
     } catch (const RtMidiError & err) {
@@ -153,7 +160,7 @@ void rtmidi_close_port (RtMidiPtr device)
 unsigned int rtmidi_get_port_count (RtMidiPtr device)
 {
     try {
-	return ((rtmidi::Midi *)device->ptr)->getPortCount ();
+	return ((rtmidi::RtMidiCompatibility *)device->ptr)->getPortCount ();
 
     } catch (const RtMidiError & err) {
         device->ok  = false;
@@ -165,9 +172,9 @@ unsigned int rtmidi_get_port_count (RtMidiPtr device)
 const char* rtmidi_get_port_name (RtMidiPtr device, unsigned int portNumber)
 {
     try {
-	std::string name = ((rtmidi::Midi*)device->ptr)->getPortName (portNumber);
+	std::string name = ((rtmidi::RtMidiCompatibility*)device->ptr)->getPortName (portNumber);
         return strdup (name.c_str ());
-    
+
     } catch (const RtMidiError & err) {
         device->ok  = false;
         device->msg = err.what ();
@@ -176,18 +183,18 @@ const char* rtmidi_get_port_name (RtMidiPtr device, unsigned int portNumber)
 }
 
 /* MidiIn API */
-RtMidiInPtr rtmidi_in_create_default ()
+RtMidiPtr rtmidi_in_create_default ()
 {
-    RtMidiInWrapper* wrp = new RtMidiInWrapper;
-    
+    RtMidiPtr wrp = new RtMidiWrapper;
+
+    if (!wrp) return wrp;
     try {
-	rtmidi::MidiIn* rIn = new rtmidi::MidiIn ();
-        
-        wrp->ptr = (void*) rIn;
+        wrp->ptr = new RtMidiIn ();
+        wrp->flags = rtmidi::PortDescriptor::INPUT;
         wrp->data = 0;
         wrp->ok  = true;
         wrp->msg = "";
-    
+
     } catch (const RtMidiError & err) {
         wrp->ptr = 0;
         wrp->data = 0;
@@ -198,15 +205,16 @@ RtMidiInPtr rtmidi_in_create_default ()
     return wrp;
 }
 
-RtMidiInPtr rtmidi_in_create (enum RtMidiApi api, const char *clientName, unsigned int queueSizeLimit)
+RtMidiPtr rtmidi_in_create (enum RtMidiApi api, const char *clientName, unsigned int queueSizeLimit)
 {
     std::string name = clientName;
-    RtMidiInWrapper* wrp = new RtMidiInWrapper;
-    
+    RtMidiWrapper* wrp = new RtMidiWrapper;
+
     try {
-        rtmidi::MidiIn* rIn = new rtmidi::MidiIn ((rtmidi::ApiType) api, name, queueSizeLimit);
-        
-        wrp->ptr = (void*) rIn;
+        RtMidiIn* rIn = new RtMidiIn ((rtmidi::ApiType) api, name, queueSizeLimit);
+
+        wrp->ptr = rIn;
+        wrp->flags = rtmidi::PortDescriptor::INPUT;
         wrp->data = 0;
         wrp->ok  = true;
         wrp->msg = "";
@@ -221,7 +229,7 @@ RtMidiInPtr rtmidi_in_create (enum RtMidiApi api, const char *clientName, unsign
     return wrp;
 }
 
-void rtmidi_in_free (RtMidiInPtr device)
+void rtmidi_in_free (RtMidiPtr device)
 {
     if (device->data)
       delete (CallbackProxyUserData*) device->data;
@@ -229,11 +237,11 @@ void rtmidi_in_free (RtMidiInPtr device)
     delete device;
 }
 
-enum RtMidiApi rtmidi_in_get_current_api (RtMidiInPtr device)
+enum RtMidiApi rtmidi_in_get_current_api (RtMidiPtr device)
 {
     try {
-	return (RtMidiApi) ((rtmidi::MidiIn*)device->ptr)->getCurrentApi ();
-    
+	return (RtMidiApi) (device->ptr)->getCurrentApi ();
+
     } catch (const RtMidiError & err) {
         device->ok  = false;
         device->msg = err.what ();
@@ -249,7 +257,7 @@ void callback_proxy (double timeStamp, std::vector<unsigned char> *message, void
 	data->c_callback (timeStamp, message->data (), message->size (), data->user_data);
 }
 
-void rtmidi_in_set_callback (RtMidiInPtr device, RtMidiCCallback callback, void *userData)
+void rtmidi_in_set_callback (RtMidiPtr device, RtMidiCCallback callback, void *userData)
 {
     device->data = (void*) new CallbackProxyUserData (callback, userData);
     try {
@@ -262,7 +270,7 @@ void rtmidi_in_set_callback (RtMidiInPtr device, RtMidiCCallback callback, void 
     }
 }
 
-void rtmidi_in_cancel_callback (RtMidiInPtr device)
+void rtmidi_in_cancel_callback (RtMidiPtr device)
 {
     try {
 	((rtmidi::MidiIn*)device->ptr)->cancelCallback ();
@@ -274,27 +282,33 @@ void rtmidi_in_cancel_callback (RtMidiInPtr device)
     }
 }
 
-void rtmidi_in_ignore_types (RtMidiInPtr device, bool midiSysex, bool midiTime, bool midiSense)
+void rtmidi_in_ignore_types (RtMidiPtr device, bool midiSysex, bool midiTime, bool midiSense)
 {
 	((rtmidi::MidiIn*)device->ptr)->ignoreTypes (midiSysex, midiTime, midiSense);
 }
 
-double rtmidi_in_get_message (RtMidiInPtr device, 
+double rtmidi_in_get_message (RtMidiPtr device,
                               unsigned char *message,
                               size_t *size)
 {
     try {
         // FIXME: use allocator to achieve efficient buffering
         std::vector<unsigned char> v;
-	double ret = ((rtmidi::MidiIn*)device->ptr)->getMessage (v);
+        if (device->flags == rtmidi::PortDescriptor::INPUT) {
+          RtMidiIn * dev = static_cast<RtMidiIn*>(device->ptr);
+          double ret = dev->getMessage (v);
 
-        if (v.size () > 0 && v.size() <= *size) {
+          if (v.size () > 0 && v.size() <= *size) {
             memcpy (message, v.data (), (int) v.size ());
-        }
+          }
 
-        *size = v.size();
-        return ret;
-    } 
+          *size = v.size();
+          return ret;
+        } else {
+          *size = 0;
+          return 0.0;
+        }
+    }
     catch (const RtMidiError & err) {
         device->ok  = false;
         device->msg = err.what ();
@@ -308,20 +322,22 @@ double rtmidi_in_get_message (RtMidiInPtr device,
 }
 
 /* RtMidiOut API */
-RtMidiOutPtr rtmidi_out_create_default ()
+RtMidiPtr rtmidi_out_create_default ()
 {
-    RtMidiOutWrapper* wrp = new RtMidiOutWrapper;
+    RtMidiWrapper* wrp = new RtMidiWrapper;
 
     try {
 	rtmidi::MidiOut* rOut = new rtmidi::MidiOut ();
-        
-        wrp->ptr = (void*) rOut;
+
+        wrp->ptr = rOut;
+        wrp->flags = rtmidi::PortDescriptor::OUTPUT;
         wrp->data = 0;
         wrp->ok  = true;
         wrp->msg = "";
-    
+
     } catch (const RtMidiError & err) {
         wrp->ptr = 0;
+        wrp->flags = rtmidi::PortDescriptor::OUTPUT;
         wrp->data = 0;
         wrp->ok  = false;
         wrp->msg = err.what ();
@@ -330,21 +346,23 @@ RtMidiOutPtr rtmidi_out_create_default ()
     return wrp;
 }
 
-RtMidiOutPtr rtmidi_out_create (enum RtMidiApi api, const char *clientName)
+RtMidiPtr rtmidi_out_create (enum RtMidiApi api, const char *clientName)
 {
-    RtMidiOutWrapper* wrp = new RtMidiOutWrapper;
+    RtMidiWrapper* wrp = new RtMidiWrapper;
     std::string name = clientName;
 
     try {
         rtmidi::MidiOut* rOut = new rtmidi::MidiOut ((rtmidi::ApiType) api, name);
-        
-        wrp->ptr = (void*) rOut;
+
+        wrp->ptr = rOut;
+        wrp->flags = rtmidi::PortDescriptor::OUTPUT;
         wrp->data = 0;
         wrp->ok  = true;
         wrp->msg = "";
-    
+
     } catch (const RtMidiError & err) {
         wrp->ptr = 0;
+        wrp->flags = rtmidi::PortDescriptor::OUTPUT;
         wrp->data = 0;
         wrp->ok  = false;
         wrp->msg = err.what ();
@@ -354,7 +372,7 @@ RtMidiOutPtr rtmidi_out_create (enum RtMidiApi api, const char *clientName)
     return wrp;
 }
 
-void rtmidi_out_free (RtMidiOutPtr device)
+void rtmidi_out_free (RtMidiPtr device)
 {
     delete ((rtmidi::MidiOut*)device->ptr);
     delete device;
@@ -373,7 +391,7 @@ enum RtMidiApi rtmidi_out_get_current_api (RtMidiPtr device)
     }
 }
 
-int rtmidi_out_send_message (RtMidiOutPtr device, const unsigned char *message, int length)
+int rtmidi_out_send_message (RtMidiPtr device, const unsigned char *message, int length)
 {
     try {
         ((RtMidiOut*) device->ptr)->sendMessage (message, length);

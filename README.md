@@ -37,6 +37,12 @@ Incompatible changes against upstream
 
 -   The classes of RtMidi now reside in the namespace rtmidi.
 
+-   RtMidiIn and RtMidiOut are now united in one class rtmidi::Midi.
+	The same is true for rtmidi::MidiInApi and rtmidi::MidiOutApi.
+	For convenience small wrapper classes rtmidi::MidiIn, rtmidi::MidiOut,
+	rtmidi::MidiInApi and rtmidi::MidiOutApi are preserved in order to simplify
+	port management for the users.
+
 -   The beginning letters “Rt” are dropped from the names
 
 -   For easy adoption of the new interface wrappers for the old API are provided.
@@ -45,11 +51,19 @@ Incompatible changes against upstream
 	provides a more reliable port handling for changing environments
 	(See below).
 
--   The way MIDI devices are enumerated has changed. The old way, using
-	the ordinal number of MIDI devices works only in cases where MIDI
-	devices are not added or removed during the program session. When a
-	virtual MIDI port or USB MIDI device is added or removed the ordinal
-	number of each of the other devices may change.
+-   Callbacks are C++ interfaces, now. Subclassing them allows to
+	provide type-safe user data and avoids the casts inside the callbacks.
+
+-   Queue based MIDI input has been defined as a callback class. It is
+	provided as a helper class for library users and is usde in RtMidiIn to
+	simulate the old behaviour.
+
+-   The way MIDI devices are enumerated has changed. The old way,
+	using the ordinal number of MIDI devices works only in cases where
+	MIDI devices are not added or removed during the program
+	session. When a virtual MIDI port or USB MIDI device is added or
+	removed the ordinal number of each of the other devices may
+	change.
 
     Suppose your computer has the following list of MIDI devices.
         1. MIDI loopback device

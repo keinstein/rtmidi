@@ -69,7 +69,9 @@ int main( int argc, char *argv[] )
 
   // rtmidi::MidiIn constructor
   try {
+    rtmidi::MidiQueueInterface queue(256);
     rtmidi::MidiIn midiin(rtmidi::ALL_API);
+    midiin.setCallback(&queue);
 
 
     rtmidi::PortList list = midiin.getPortList();
@@ -90,7 +92,7 @@ int main( int argc, char *argv[] )
 	  break;
 	}
       }
-    } else {
+    } else if (!list.empty()) {
       port = list.front();
     }
     if ( !port ) {
@@ -116,7 +118,7 @@ int main( int argc, char *argv[] )
     // Periodically check input queue.
     std::cout << "Reading MIDI from port ... quit with Ctrl-C.\n";
     while ( !done ) {
-      stamp = midiin.getMessage( &message );
+      stamp = queue.getMessage( message );
       nBytes = message.size();
       for ( i=0; i<nBytes; i++ )
 	std::cout << "Byte " << i << " = " << (int)message[i] << ", ";
