@@ -101,6 +101,7 @@
 #include <atomic>
 // the following are used in the error constructor
 #include <cstdarg>
+#include <cstddef>
 #include <cstring>
 #include <cstdio>
 

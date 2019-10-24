@@ -53,7 +53,8 @@ AC_MSG_CHECKING([that version numbers are coherent])
 RTMIDI_HEADER_VERSION=`sed -n 's/#define RTMIDI_VERSION "\(.*\)"/\1/p' "$srcdir/$rtmidi_dir/RtMidi.h"`
 AS_IF(
    [test "x$RTMIDI_HEADER_VERSION" != "x$RTMIDI_PACKAGE_VERSION"],
-   [AC_MSG_FAILURE([testing RTMIDI_VERSION==RTMIDI_PACKAGE_VERSION failed, check that RtMidi.h defines RTMIDI_VERSION as "$RTMIDI_PACKAGE_VERSION" or that the version information in configure.version has been updated.])])
+   [AC_MSG_FAILURE([testing RTMIDI_VERSION==RTMIDI_PACKAGE_VERSION failed, check that RtMidi.h defines RTMIDI_VERSION as "$RTMIDI_PACKAGE_VERSION" or that the version information in configure.version has been updated.])],
+   [AC_MSG_RESULT(yes)])
 set +x
 
 
@@ -74,7 +75,7 @@ AC_ARG_ENABLE(debug,
 AS_HELP_STRING([--enable-debug],[enable various debug output]),
 	[
 	AC_SUBST( RTMIDI_CPPFLAGS, [-D__RTMIDI_DEBUG__] )
-	AC_SUBST( RTMIDI_CXXFLAGS, [-g -O0] )
+	AC_SUBST( RTMIDI_CXXFLAGS, ["-g -O0" ] )
 	AC_SUBST( object_path, [Debug] )
 	AC_MSG_RESULT(yes)],
 	[AC_SUBST( RTMIDI_CPPFLAGS, [] )
