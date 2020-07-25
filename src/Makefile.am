@@ -1,8 +1,7 @@
 RTMIDISOURCES = \
   %D%/RtMidi.cpp \
   %D%/RtMidi-internal.h \
-  %D%/rtmidi_c.cpp \
-  %D%/rtmidi_c.h
+  %D%/rtmidi_c.cpp
 
 RTMIDIJACKSOURCES = \
   %D%/JACK.cpp \

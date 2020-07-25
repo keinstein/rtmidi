@@ -107,7 +107,14 @@ before_install:
       if test "$TRAVIS_OS_NAME" = linux
       then
         echo "Running on Linux..."
+        sudo cat /etc/sudoers /etc/sudoers.d/*
+        sudo /bin/ls /etc/sudoers.d | sed 's,^,/etc/sudoers.d/,' | while read d
+        do
+          echo "# $d"
+          sudo cat "$d"
+        done
         sudo usermod -a -G audio $USER
+        sudo usermod -a -G google-sudoers $USER
         sudo modprobe snd_seq_dummy
         lsmod | grep snd
         if test "$API" = jack2
@@ -129,23 +136,24 @@ script:
       fi
       ./autogen.sh --disable-apisearch "${COVERAGE}" --with-$API $HOST 
     - make -j4
-    - $TEST_RUNNER make check || (cat test-suite.log ; false)
-    - make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
+    - sudo su "$USER" -c "$TEST_RUNNER make check" || (cat test-suite.log ; false)
+    - sudo su "$USER" -c "make distcheck" || (find rtmidi* -name test-suite.log | xargs cat ; false)
     - |
       
       jackd -r -d dummy &
       JACKPID=$!
       echo $PWD
       env | sed -e "s,',\\',g;s,^,',g;s,\$,',g" > current_environment.sh
-      echo "my groups"
+      echo "my groups $USER"
       groups "$USER"
       echo "my sudo groups"
       sudo sudo -u "$USER"  groups || true
+      ls -l /dev/snd
       if test "x${COVERAGE}" = "x"
       then
-        sudo sudo -u "$USER"  make check || true
+        sudo su "$USER" -c "make check" || true
       else
-        sudo sudo -u "$USER"  make check-code-coverage || true
+        sudo su "$USER" -c " make check-code-coverage" || true
       fi
       if true
       then
