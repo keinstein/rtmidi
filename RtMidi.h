@@ -148,41 +148,6 @@ struct RTMIDI_DLL_PUBLIC MidiMessage {
     : bytes ( size ), timeStamp ( 0.0 ) {}
 };
 
-//! C++ style user callback interface.
-/*!
-  This interface class can be used to implement type safe MIDI callbacks.
-  Every time a MIDI message is received the function \ref MidiInterface::rtmidi_midi_in of the
-  currently set callback object is called.
-*/
-struct RTMIDI_DLL_PUBLIC MidiInterface {
-  //! Virtual destructor to avoid unexpected behaviour.
-  virtual ~MidiInterface ( ) {}
-
-  //! The MIDI callback function.
-  /*! This function is called whenever a MIDI packet is received by a
-    MIDI backend that uses the corresponding callback object.
-    \param timestamp the timestamp when the MIDI message has been received
-    \param message the message itself.
-  */
-  virtual void midiIn ( double timestamp, std::vector<unsigned char>& message ) = 0;
-
-  virtual void midiIn ( double timestamp, unsigned char * begin, ptrdiff_t size) {
-    std::vector<unsigned char> message(begin,begin+size);
-    midiIn(timestamp,message);
-  }
-
-  //! Delete the object if necessary.
-  /*! This function allows the user to delete the Midi callback object,
-    when MIDI backend drops its reference to it. By default it does nothing.
-    But, callback objects are owned by the MIDI backend. These must be deleted
-    after the reference to them has been dropped.
-
-    \sa CompatibilityMidiInterface
-  */
-  virtual void deleteMe ( ) {}
-};
-
-
 struct RTMIDI_DLL_PUBLIC MidiQueue {
 
   // Default constructor.
@@ -217,61 +182,6 @@ protected:
 
 };
 
-//! A callback class for implementing MIDI Queues.
-/**
- * This class implements queue based MIDI Input. It can be set as
- * callback object via Midi::setCallback (MidiInterface *). It
- * replaces the MIDI queue form RtMidiIn which has been removed in
- * order to simplify API management.
- */
-struct RTMIDI_DLL_PUBLIC MidiQueueInterface: public MidiInterface {
-  //! Virtual constructor to avoid unexpected behaviour.
-  MidiQueueInterface ( size_t size ):queue(size) {}
-
-  //! Virtual destructor to avoid unexpected behaviour.
-  virtual ~MidiQueueInterface (  ) {}
-
-  //! The MIDI callback function.
-  /*! This function is called whenever a MIDI packet is received by a
-    MIDI backend that uses the corresponding callback object.
-    \param timestamp the timestamp when the MIDI message has been received
-    \param message the message itself.
-  */
-  virtual void midiIn ( double timestamp, std::vector<unsigned char>& message ) {
-    MidiMessage msg (message.size());
-    std::swap(message, msg.bytes);
-    msg.timeStamp = timestamp;
-    queue.push(msg);
-  }
-
-  //! Fill the user-provided vector with the data bytes for the next available MIDI message in the input queue and return the event delta-time in seconds.
-  /*!
-    This function returns immediately whether a new message is
-    available or not. A valid message is indicated by a non-zero
-    vector size. An exception is thrown if an error occurs during
-    message retrieval or an input connection was not previously
-    established.
-
-    \param message a vector that will be filled with the message.
-  */
-  double getMessage ( std::vector<unsigned char>& message ) {
-    double retval;
-    queue.pop(message,retval);
-    return retval;
-  }
-
-  //! Delete the object if necessary.
-  /*! This function allows the user to delete the Midi callback object,
-    when MIDI backend drops its reference to it. By default it does nothing.
-    But, callback objects are owned by the MIDI backend. These must be deleted
-    after the reference to them has been dropped.
-
-    \sa CompatibilityMidiInterface
-  */
-  virtual void deleteMe ( ) {  }
-protected:
-  MidiQueue queue;
-};
 
 
 /************************************************************************/
@@ -292,6 +202,10 @@ protected:
   rtmidi::Error ( message, type,                                      \
                   RTMIDI_CLASSNAME, __FUNCTION__,                     \
                   __FILE__, __LINE__, arg1 )
+#define RTMIDI_ERROR2( message, type, arg1, arg2 )                     \
+  rtmidi::Error ( message, type,                                      \
+                  RTMIDI_CLASSNAME, __FUNCTION__,                     \
+                  __FILE__, __LINE__, arg1, arg2 )
 
 class RTMIDI_DLL_PUBLIC Error : public std::exception
 {
@@ -348,10 +262,9 @@ protected:
   Type type_;
 };
 
-
 struct ErrorInterface {
   virtual ~ErrorInterface ( ) {}
-  virtual void rtmidi_error ( Error e ) = 0;
+  virtual void rtmidi_error ( const Error & e ) = 0;
   virtual void deleteMe ( ) {};
 };
 
@@ -578,8 +491,157 @@ public:
   unnecessary duplication of the data structure and handles automatic
   deletion if all references have been removed. */
 typedef Pointer<PortDescriptor> PortPointer;
-typedef std::list<Pointer<PortDescriptor> > PortList;
+typedef std::list<PortPointer> PortList;
 
+
+//! C++ style user callback interface.
+/*!
+  This interface class can be used to implement type safe MIDI callbacks.
+
+  In this version every time a chunk of a SysEx messages is received
+  the facntion #sysexChunk is called. in order to process it. It is
+  recommended to use this interface whenever possible.
+
+  Every time a MIDI message is received the function \ref
+  MidiInterface::rtmidi_midi_in of the currently set callback object
+  is called.
+*/
+struct RTMIDI_DLL_PUBLIC SplitSysexMidiInterface {
+  //! Virtual destructor to avoid unexpected behaviour.
+  virtual ~SplitSysexMidiInterface ( ) {}
+
+  //! The MIDI callback function.
+  /*! This function is called whenever a MIDI packet is received by a
+    MIDI backend that uses the corresponding callback object.
+    \param timestamp the timestamp when the MIDI message has been received
+    \param message the message itself.
+  */
+  virtual void midiIn ( double timestamp, std::vector<unsigned char>& message ) throw () = 0;
+
+  virtual void midiIn ( double timestamp, unsigned char * begin, ptrdiff_t size) throw() {
+    std::vector<unsigned char> message(begin,begin+size);
+    midiIn(timestamp,message);
+  }
+
+  //! Receive a chunk of a system exclusive message.
+  /**
+   * System exclusive messages are delviered in chunks in some
+   * setups. The first chunk always start with 0xf0, while the last
+   * one ends with 0xf7. All other chunks are considered to be
+   * intermediate chunks.
+   *
+   * \param timestamp Time when the chunk was received.
+   * \param begin Pointer to the first character of the chunk.
+   * \param size Length of the chunk in characters.
+   * \param connectionId Id of the sending interface. As some
+   * interfaces allow several connections to a certain port, this variable can help to
+   * deal with interleaving packets.
+   */
+  virtual void sysexChunk ( double timestamp,
+                            unsigned char * begin,
+                            ptrdiff_t size,
+                            int connectionId ) throw() = 0;
+
+  //! Delete the object if necessary.
+  /*! This function allows the user to delete the Midi callback object,
+    when MIDI backend drops its reference to it. By default it does nothing.
+    But, callback objects are owned by the MIDI backend. These must be deleted
+    after the reference to them has been dropped.
+
+    \sa CompatibilityMidiInterface
+  */
+  virtual void deleteMe ( ) {}
+};
+
+
+//! C++ style user callback interface.
+/*!
+  The standard collects all SysEx data
+
+
+  This interface class can be used to implement type safe MIDI callbacks.
+  Every time a MIDI message is received the function \ref MidiInterface::rtmidi_midi_in of the
+  currently set callback object is called.
+*/
+struct RTMIDI_DLL_PUBLIC MidiInterface : public SplitSysexMidiInterface {
+  //! Virtual destructor to avoid unexpected behaviour.
+  virtual ~MidiInterface ( ) {}
+
+  //! Reconstruct a system exclusive message.
+  /**
+   * This function collects all chunks of a system exclusive message
+   * and as soon as the message is completed, #midiIn gets called.
+   *
+   * \param timestamp Time when the chunk was received.
+   * \param begin Pointer to the first character of the chunk.
+   * \param size Length of the chunk in characters.
+   * \param connectionId Id of the sending interface. As some
+   * interfaces allow several connections to a certain port, this variable can help to
+   * deal with interleaving packets.
+   */
+  virtual void sysexChunk ( double timestamp,
+                            unsigned char * begin,
+                            ptrdiff_t size,
+                            int connectionId ) throw();
+
+};
+
+
+//! A callback class for implementing MIDI Queues.
+/**
+ * This class implements queue based MIDI Input. It can be set as
+ * callback object via Midi::setCallback (MidiInterface *). It
+ * replaces the MIDI queue form RtMidiIn which has been removed in
+ * order to simplify API management.
+ */
+struct RTMIDI_DLL_PUBLIC MidiQueueInterface: public MidiInterface {
+  //! Virtual constructor to avoid unexpected behaviour.
+  MidiQueueInterface ( size_t size ):queue(size) {}
+
+  //! Virtual destructor to avoid unexpected behaviour.
+  virtual ~MidiQueueInterface (  ) {}
+
+  //! The MIDI callback function.
+  /*! This function is called whenever a MIDI packet is received by a
+    MIDI backend that uses the corresponding callback object.
+    \param timestamp the timestamp when the MIDI message has been received
+    \param message the message itself.
+  */
+  virtual void midiIn ( double timestamp, std::vector<unsigned char>& message ) throw() {
+    MidiMessage msg (message.size());
+    std::swap(message, msg.bytes);
+    msg.timeStamp = timestamp;
+    queue.push(msg);
+  }
+
+  //! Fill the user-provided vector with the data bytes for the next available MIDI message in the input queue and return the event delta-time in seconds.
+  /*!
+    This function returns immediately whether a new message is
+    available or not. A valid message is indicated by a non-zero
+    vector size. An exception is thrown if an error occurs during
+    message retrieval or an input connection was not previously
+    established.
+
+    \param message a vector that will be filled with the message.
+  */
+  double getMessage ( std::vector<unsigned char>& message ) {
+    double retval;
+    queue.pop(message,retval);
+    return retval;
+  }
+
+  //! Delete the object if necessary.
+  /*! This function allows the user to delete the Midi callback object,
+    when MIDI backend drops its reference to it. By default it does nothing.
+    But, callback objects are owned by the MIDI backend. These must be deleted
+    after the reference to them has been dropped.
+
+    \sa CompatibilityMidiInterface
+  */
+  virtual void deleteMe ( ) {  }
+protected:
+  MidiQueue queue;
+};
 
 /*! \class Midi
   \brief A global class that implements basic backend API handling.
@@ -661,6 +723,10 @@ struct RTMIDI_DLL_PUBLIC Midi {
 
  //! Returns true if we can open virtual ports;
  bool hasVirtualPorts ( );
+
+ //! Returns the largest number of bytes a system exclusive message can have ;
+ size_t maxSysExSize ( ) const;
+
 
  //! Returns true if a port is open and false if not.
  /*!
@@ -831,7 +897,7 @@ struct RTMIDI_DLL_PUBLIC Midi {
     \param userData Opitionally, a pointer to additional data can be
     passed to the callback function whenever it is called.
   */
-  void setCallback ( MidiInterface * callback );
+  void setCallback ( SplitSysexMidiInterface * callback );
 
   //! Cancel use of the current callback function ( if one exists ) .
   /*!
@@ -848,7 +914,7 @@ struct RTMIDI_DLL_PUBLIC Midi {
  void setErrorCallback ( ErrorInterface * callback );
 
  //! A basic error reporting function for RtMidi classes.
- void error ( Error e );
+ void error ( const Error & e );
 
 
  protected:
@@ -866,8 +932,6 @@ struct RTMIDI_DLL_PUBLIC Midi {
 
 
 #undef RTMIDI_CLASSNAME
-
-
 
 /* A deprecated type. See below for the documentation. We
    split the definiton into several pieces to work around some
@@ -890,7 +954,7 @@ RTMIDI_DEPRECATED ( typedef ErrorCallback_t ErrorCallback, "RtMidi now provides 
    intended warnings. */
 #define ErrorCallback ErrorCallback_t
 
-typedef void ( *MidiCallback_t ) ( double timeStamp, std::vector<unsigned char> * message, void * userData );
+typedef void ( *MidiCallback_t ) ( double timeStamp, std::vector<unsigned char> * message, void * userData ) ;
 //! C style user callback function type definition.
 /*!
   This interface type has been replaced by a MidiInterface class.
@@ -1217,6 +1281,7 @@ public:
   RTMIDI_DEPRECATED ( void setCallback ( MidiCallback callback, void * userData = 0 ),
                       "RtMidi now provides a type-safe MidiInterface class." );
 
+  using Midi::setErrorCallback;
   //! Pure virtual function to set an error callback function to be invoked when an error has occured.
   /*!
     The callback function will be called whenever an error has occured. It is best
@@ -1640,6 +1705,16 @@ class RTMIDI_DLL_PUBLIC MidiApi
   */
   virtual bool hasVirtualPorts ( ) const = 0;
 
+  //! Returns the largest number of bytes a system exclusive message can have.
+  /*!  This function returns the maximum number of bytes the message
+    can theoretically have. Practically the maximum size may be
+    smaller if the output buffer is not empty.
+
+    \return The number of bytes a system exclusive message can hae.
+   */
+  virtual size_t maxSysExSize ( ) const = 0;
+
+
   // ! A basic error reporting function for RtMidi classes.
   // static void error ( Error::Type type, std::string& errorString );
 
@@ -1807,7 +1882,7 @@ class RTMIDI_DLL_PUBLIC MidiApi
     \param userData Opitionally, a pointer to additional data can be
     passed to the callback function whenever it is called.
   */
-  virtual void setCallback ( MidiInterface * callback ) = 0;
+  virtual void setCallback ( SplitSysexMidiInterface * callback ) = 0;
 
   //! Cancel use of the current callback function ( if one exists ) .
   /*!
@@ -1844,7 +1919,7 @@ class RTMIDI_DLL_PUBLIC MidiApi
 
     \throw Error
   */
-  void error ( Error e );
+  void error ( const Error & e );
 
   // deprecated functions
 
@@ -1897,8 +1972,10 @@ class RTMIDI_DLL_PUBLIC MidiApi
    \sa rtmidi::PortDescriptor
   */
   virtual
-  RTMIDI_DEPRECATED ( std::string getPortName ( unsigned int portNumber = 0 ),
+  RTMIDI_DEPRECATED ( std::string getPortName ( unsigned int portNumber,
+                                                unsigned int capabilities ),
                       "Port numbers are unreliable. Use port descriptors instead ( see examples for a demonstration ) " ) = 0;
+
 
 #if 0
   //! Compatibilty function for older code
@@ -2009,7 +2086,6 @@ class RTMIDI_DLL_PUBLIC MidiApi
 
 
 
-
   protected:
   bool connected_;
   bool firstErrorOccurred_;
@@ -2099,6 +2175,19 @@ inline bool Midi :: hasVirtualPorts ( ) {
   return false;
 }
 
+inline size_t Midi :: maxSysExSize ( ) const {
+  size_t retval = 0;
+  if ( !apis.empty ( ) ) {
+    for ( auto & api : apis ) {
+      size_t apiSysExSize = api->maxSysExSize ( );
+      retval = retval?(apiSysExSize?std::min(retval,apiSysExSize):retval):apiSysExSize;
+    }
+    return retval;
+  }
+  return 0;
+}
+
+
 inline void Midi :: closePort ( void ) {
   if (!apis.empty())
     apis.front()->closePort ( );
@@ -2183,7 +2272,7 @@ inline void Midi :: openVirtualPort ( const std::string& portName,
   error ( RTMIDI_ERROR ( gettext_noopt ( "No valid MIDI system has been selected." ),
                          Error::INVALID_DEVICE ) );
 }
-inline void Midi :: setCallback ( MidiInterface * callback ) {
+inline void Midi :: setCallback ( SplitSysexMidiInterface * callback ) {
  if (!apis.empty())
     apis.front()->setCallback ( callback );
 }
@@ -2225,7 +2314,7 @@ inline unsigned int RtMidiCompatibility :: getPortCount ( unsigned int capabilit
 }
 inline std::string RtMidiCompatibility :: getPortName ( unsigned int portNumber ) {
   if (!apis.empty())
-    return apis.front()->getPortName ( portNumber );
+    return apis.front()->getPortName ( portNumber, capabilities);
   return "";
 }
 #if 0
@@ -2267,7 +2356,7 @@ struct CompatibilityMidiInterface: MidiInterface {
   CompatibilityMidiInterface ( MidiCallback cb, void * ud )
     : callback ( cb ),
       userData ( ud ) {}
-  void midiIn ( double timestamp, std::vector<unsigned char>& message ) {
+  void midiIn ( double timestamp, std::vector<unsigned char>& message ) throw() {
     callback ( timestamp, &message, userData );
   }
   void deleteMe ( ) { delete this; }
@@ -2280,7 +2369,7 @@ struct CompatibilityErrorInterface: ErrorInterface {
   CompatibilityErrorInterface ( ErrorCallback cb, void * ud )
     : callback ( cb ),
       userdata ( ud ) {}
-  void rtmidi_error ( Error e ) {
+  void rtmidi_error ( const Error & e ) {
     callback ( e.getType ( ), e.getMessage ( ), userdata );
   }
 
@@ -2324,7 +2413,7 @@ public:
     RtMidiCompatibility::cancelCallback();
   }
 
-  void setCallback ( rtmidi::MidiInterface * callback ) {
+  void setCallback ( rtmidi::SplitSysexMidiInterface * callback ) {
     RtMidiCompatibility::setCallback(callback?callback:&queue);
   }
 

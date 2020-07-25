@@ -49,12 +49,14 @@ class CallbackProxyUserData
 	void *user_data;
 };
 
-extern "C" const enum rtmidi::ApiType rtmidi_compiled_system_apis[]; // casting from RtMidi::Api[]
-extern "C" const unsigned int rtmidi_num_compiled_system_apis;
-extern "C" enum rtmidi::ApiType rtmidi_compiled_software_apis[]; // casting from RtMidi::Api[]
-extern "C" const unsigned int rtmidi_num_compiled_software_apis;
-extern "C" const enum rtmidi::ApiType rtmidi_compiled_other_apis[]; // casting from RtMidi::Api[]
-extern "C" const unsigned int rtmidi_num_compiled_other_apis;
+extern "C" {
+extern const enum rtmidi::ApiType rtmidi_compiled_system_apis[]; // casting from RtMidi::Api[]
+extern const unsigned int rtmidi_num_compiled_system_apis;
+extern enum rtmidi::ApiType rtmidi_compiled_software_apis[]; // casting from RtMidi::Api[]
+extern const unsigned int rtmidi_num_compiled_software_apis;
+extern const enum rtmidi::ApiType rtmidi_compiled_other_apis[]; // casting from RtMidi::Api[]
+extern const unsigned int rtmidi_num_compiled_other_apis;
+}
 
 /* RtMidi API */
 int rtmidi_get_compiled_api (enum RtMidiApi *apis, unsigned int apis_size)
