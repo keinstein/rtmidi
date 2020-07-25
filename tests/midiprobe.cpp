@@ -27,46 +27,43 @@ int main()
   for ( unsigned int i=0; i<apis.size(); i++ )
     std::cout << "  " << apiMap[ apis[i] ] << std::endl;
 
-  RtMidiIn  *midiin = 0;
-  RtMidiOut *midiout = 0;
 
   try {
+    for ( auto api  : apis ) {
 
-    // RtMidiIn constructor ... exception possible
-    midiin = new RtMidiIn();
+      // RtMidiIn constructor ... exception possible
+      std::shared_ptr<RtMidiIn> midiin(new RtMidiIn(api));
 
-    std::cout << "\nCurrent input API: " << apiMap[ midiin->getCurrentApi() ] << std::endl;
+      std::cout << "\nCurrent input API: " << apiMap[ midiin->getCurrentApi() ] << std::endl;
 
-    // Check inputs.
-    unsigned int nPorts = midiin->getPortCount();
-    std::cout << "\nThere are " << nPorts << " MIDI input sources available.\n";
+      // Check inputs.
+      unsigned int nPorts = midiin->getPortCount();
+      std::cout << "\nThere are " << nPorts << " MIDI input sources available.\n";
 
-    for ( unsigned i=0; i<nPorts; i++ ) {
-      std::string portName = midiin->getPortName(i);
-      std::cout << "  Input Port #" << i+1 << ": " << portName << '\n';
+      for ( unsigned i=0; i<nPorts; i++ ) {
+        std::string portName = midiin->getPortName(i);
+        std::cout << "  Input Port #" << i+1 << ": " << portName << '\n';
+      }
+
+      // RtMidiOut constructor ... exception possible
+      std::shared_ptr<RtMidiOut> midiout(new RtMidiOut());
+
+      std::cout << "\nCurrent output API: " << apiMap[ midiout->getCurrentApi() ] << std::endl;
+
+      // Check outputs.
+      nPorts = midiout->getPortCount();
+      std::cout << "\nThere are " << nPorts << " MIDI output ports available.\n";
+
+      for ( unsigned i=0; i<nPorts; i++ ) {
+        std::string portName = midiout->getPortName(i);
+        std::cout << "  Output Port #" << i+1 << ": " << portName << std::endl;
+      }
+      std::cout << std::endl;
     }
-
-    // RtMidiOut constructor ... exception possible
-    midiout = new RtMidiOut();
-
-    std::cout << "\nCurrent output API: " << apiMap[ midiout->getCurrentApi() ] << std::endl;
-
-    // Check outputs.
-    nPorts = midiout->getPortCount();
-    std::cout << "\nThere are " << nPorts << " MIDI output ports available.\n";
-
-    for ( unsigned i=0; i<nPorts; i++ ) {
-      std::string portName = midiout->getPortName(i);
-      std::cout << "  Output Port #" << i+1 << ": " << portName << std::endl;
-    }
-    std::cout << std::endl;
 
   } catch ( RtMidiError &error ) {
     error.printMessage();
   }
-
-  delete midiin;
-  delete midiout;
 
   return 0;
 }
