@@ -14,13 +14,12 @@
 void usage( void ) {
   std::cout << "\nuseage: sysextest N\n";
   std::cout << "    where N = length of sysex message to send / receive.\n\n";
-  exit( 0 );
 }
 
 // Platform-dependent sleep routines.
 #if defined(WIN32)
   #include <windows.h>
-  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds ) 
+  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds )
 #else // Unix variants
 #include <time.h>
 inline void SLEEP(unsigned long long int  milliseconds ) {
@@ -57,9 +56,12 @@ int main( int argc, char *argv[] )
   std::vector<unsigned char> message;
   unsigned int i, nBytes;
 
+  usage();
+
   // Minimal command-line check.
-  if ( argc != 2 ) usage();
-  nBytes = (unsigned int) atoi( argv[1] );
+  if ( argc != 2 ) nBytes = 100000;
+  else
+    nBytes = (unsigned int) atoi( argv[1] );
 
   // RtMidiOut and RtMidiIn constructors
   try {

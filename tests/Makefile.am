@@ -1,3 +1,4 @@
+
 ### RtMidi tests Makefile - for various flavors of unix
 #RTMIDITESTCXXFLAGS += -I$(top_srcdir)/%D%
 #RTMIDITESTLDFLAGS  += -L$(top_builddir)/%D% -lrtmidi@rtmidi_suffix@ @LIBS@
@@ -19,7 +20,9 @@ check_PROGRAMS += \
 	%D%/midiclock_out \
 	%D%/lostportdescriptor \
 	%D%/testequalityoperator \
-	%D%/apinames
+	%D%/apinames \
+	%D%/sequencerportlist \
+	%D%/copyonwrite
 
 TESTS += \
 	%D%/midiprobe \
@@ -28,7 +31,9 @@ TESTS += \
 	%D%/errors \
 	%D%/lostportdescriptor \
 	%D%/testequalityoperator \
-	%D%/apinames
+	%D%/apinames \
+	%D%/sequencerportlist \
+	%D%/copyonwrite
 
 CLEANFILES += \
 	%D%/*.class
@@ -64,6 +69,8 @@ endif
 %C%_lostportdescriptor_SOURCES       = %D%/lostportdescriptor.cpp
 %C%_testequalityoperator_SOURCES       = %D%/testequalityoperator.cpp
 %C%_apinames_SOURCES       = %D%/apinames.cpp
+%C%_sequencerportlist_SOURCES       = %D%/sequencerportlist.cpp
+%C%_copyonwrite_SOURCES       = %D%/copyonwrite.cpp
 
 # When a nonstandard gettext library or wrapper is used,
 # we need extra flags.
@@ -84,6 +91,8 @@ endif
 %C%_lostportdescriptor_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 %C%_testequalityoperator_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 %C%_apinames_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
+%C%_sequencerportlist_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
+%C%_copyonwrite_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 
 
 %C%_midiprobe_LDFLAGS      = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
@@ -103,6 +112,8 @@ endif
 %C%_lostportdescriptor_LDFLAGS       = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 %C%_testequalityoperator_LDFLAGS       = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 %C%_apinames_LDFLAGS       = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
+%C%_sequencerportlist_LDFLAGS       = $(AM_LDFLAGS) $(ALSA_LIBS) $(JACK_LIBS) #$(RTMIDITESTLDFLAGS)
+%C%_copyonwrite_LDFLAGS       = $(AM_LDFLAGS) $(ALSA_LIBS) $(JACK_LIBS) #$(RTMIDITESTLDFLAGS)
 
 
 %C%_midiprobe_LDADD      = $(RTMIDILIBRARYNAME)
@@ -122,6 +133,8 @@ endif
 %C%_lostportdescriptor_LDADD       = $(RTMIDILIBRARYNAME)
 %C%_testequalityoperator_LDADD       = $(RTMIDILIBRARYNAME)
 %C%_apinames_LDADD       = $(RTMIDILIBRARYNAME)
+%C%_sequencerportlist_LDADD       = #$(RTMIDILIBRARYNAME)
+%C%_copyonwrite_LDADD       = #$(RTMIDILIBRARYNAME)
 
 
 if RTMIDICOPYDLLS
