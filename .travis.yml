@@ -92,6 +92,7 @@ before_install:
       eval "${MATRIX_EVAL}"
       if test "$TRAVIS_OS_NAME" = osx
       then
+        echo "Running on Mac OS X..."
         brew update
         if brew upgrade boost
         then
@@ -105,8 +106,10 @@ before_install:
       fi
       if test "$TRAVIS_OS_NAME" = linux
       then
+        echo "Running on Linux..."
         sudo usermod -a -G audio $USER
         sudo modprobe snd_seq_dummy
+        lsmod | grep snd
         if test "$API" = jack2
         then
           sudo apt-get remove libjack-dev
@@ -129,15 +132,20 @@ script:
     - $TEST_RUNNER make check || (cat test-suite.log ; false)
     - make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; false)
     - |
+      
       jackd -r -d dummy &
       JACKPID=$!
       echo $PWD
       env | sed -e "s,',\\',g;s,^,',g;s,\$,',g" > current_environment.sh
+      echo "my groups"
+      groups "$USER"
+      echo "my sudo groups"
+      sudo sudo -u "$USER"  groups || true
       if test "x${COVERAGE}" = "x"
       then
-        sudo sudo -u $USER  make check || true
+        sudo sudo -u "$USER"  make check || true
       else
-        sudo sudo -u $USER  make check-code-coverage || true
+        sudo sudo -u "$USER"  make check-code-coverage || true
       fi
       if true
       then
