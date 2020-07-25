@@ -8,7 +8,7 @@ m4_define([ac_rtmidi_package_name],[rtmidi]ac_rtmidi_suffix)
 
 AC_INIT(ac_rtmidi_name, ac_rtmidi_version, [keinstein@users.sf.net], ac_rtmidi_package_name)
 AC_CONFIG_AUX_DIR(config)
-AC_CONFIG_SRCDIR(RtMidi.cpp)
+AC_CONFIG_SRCDIR(RtMidi.h)
 AC_CONFIG_FILES([Makefile doc/Makefile po/Makefile.in rtmidi-config rtmidi.pc  doc/doxygen/Doxyfile],[chmod oug+x rtmidi-config])
 AM_INIT_AUTOMAKE([1.14 -Wall -Werror foreign subdir-objects])
 

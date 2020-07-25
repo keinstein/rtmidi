@@ -1,0 +1,46 @@
+RTMIDISOURCES = \
+  %D%/RtMidi.cpp \
+  %D%/RtMidi-internal.h \
+  %D%/rtmidi_c.cpp \
+  %D%/rtmidi_c.h
+
+RTMIDIJACKSOURCES = \
+  %D%/JACK.cpp \
+  %D%/JACK.h
+
+RTMIDIALSASOURCES = \
+  %D%/ALSA.cpp \
+  %D%/ALSA.h
+
+RTMIDIWINKSSOURCES = \
+  %D%/WinKS.cpp \
+  %D%/WinKS.h
+
+RTMIDIWINMMSOURCES = \
+  %D%/WinMM.cpp \
+  %D%/WinMM.h
+
+RTMIDIOSXSOURCES = \
+  %D%/OSXCoreMidi.cpp \
+  %D%/OSXCoreMidi.h
+
+if HAVE_JACK
+RTMIDISOURCES += $(RTMIDIJACKSOURCES)
+endif
+
+if HAVE_ALSA
+RTMIDISOURCES += $(RTMIDIALSASOURCES)
+endif
+
+if HAVE_WINMM
+RTMIDISOURCES += $(RTMIDIWINMMSOURCES)
+endif
+
+if HAVE_WINKS
+RTMIDISOURCES += $(RTMIDIWINKSSOURCES)
+endif
+
+if HAVE_COREMIDI
+RTMIDISOURCES += $(RTMIDIOSXSOURCES)
+endif
+

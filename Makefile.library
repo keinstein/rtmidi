@@ -10,6 +10,8 @@ DISTCLEANFILES += \
 	%D%/rtmidi@rtmidi_suffix@.pc \
 	%D%/rtmidi@rtmidi_suffix@-config
 
+include src/Makefile.am
+
 %C%_librtmidi@rtmidi_suffix@_la_LDFLAGS = \
 	$(AM_LDFLAGS) \
 	$(RTMIDI_LIBS) \
@@ -29,11 +31,16 @@ DISTCLEANFILES += \
 	$(RTMIDI_LIB_CFLAGS) \
 	-DRTMIDI_NO_WARN_DEPRECATED \
 	-DRTMIDI_EXPORT
+
+EXTRA_%C%_librtmidi@rtmidi_suffix@_la_SOURCES = \
+	$(RTMIDIJACKSOURCES) \
+	$(RTMIDIALSASOURCES) \
+	$(RTMIDIWINMMSOURCES) \
+	$(RTMIDIWINKSSOURCES) \
+	$(RTMIDIOSXSOURCES)
+
 %C%_librtmidi@rtmidi_suffix@_la_SOURCES = \
-  %D%/RtMidi.cpp \
-  %D%/RtMidi.h \
-  %D%/rtmidi_c.cpp \
-  %D%/rtmidi_c.h
+  $(RTMIDISOURCES)
 
 %C%_librtmidi@rtmidi_suffix@_ladir = $(includedir)/rtmidi@rtmidi_suffix@
 %C%_librtmidi@rtmidi_suffix@_la_HEADERS = \

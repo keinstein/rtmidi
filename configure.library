@@ -345,9 +345,8 @@ esac
 
 AC_ARG_WITH(jack,
 	AS_HELP_STRING([--with-jack],[choose JACK server support (needs libjack to be installed)]),[
-		echo running jack:
 		AS_IF([test "x$with_jack" = "xno"],,[RTMIDI_LIB_JACK ])
-	],[ echo runnning jack 2 ; RTMIDI_LIB_JACK(,[true]) ])
+	],[ RTMIDI_LIB_JACK(,[true]) ])
 
 AC_ARG_WITH(alsa, AS_HELP_STRING([--with-alsa],[choose native ALSA sequencer API support]),[
 		AS_IF([test "x$with_alsa" = "xno"],,[ RTMIDI_LIB_ALSA ])
@@ -369,6 +368,12 @@ AS_IF([test "x$RTMIDI_API" = "x"],[
 		AC_MSG_WARN("No suitable MIDI interface found. Using dummy driver")
 		RTMIDI_API="-D__RTMIDI_DUMMY__"
 ])
+
+AM_CONDITIONAL([HAVE_JACK],[test "x$rtmidi_have_jack" = "xyes"])
+AM_CONDITIONAL([HAVE_ALSA],[test "x$rtmidi_have_alsa" = "xyes"])
+AM_CONDITIONAL([HAVE_WINMM],[test "x$ac_cv_lib_winmm" = "xyes"])
+AM_CONDITIONAL([HAVE_WINKS],[test "x${ac_cv_lib_winks}" = "xyes"])
+AM_CONDITIONAL([HAVE_COREMIDI],[test "x$rtmidi_have_coremidi" = "xyes"])
 
 AM_CONDITIONAL(RTMIDI_HAVE_VIRTUAL_DEVICES,test "$RTMIDI_HAVE_VIRTUAL_DEVICES" == yes)
 AM_GNU_GETTEXT([external])
