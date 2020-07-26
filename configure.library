@@ -365,15 +365,18 @@ AC_ARG_WITH(coremidi, AS_HELP_STRING([--with-coremidi],[choose native CoreAudio 
 	],[ RTMIDI_LIB_COREMIDI(,[true]) ])
 
 AS_IF([test "x$RTMIDI_API" = "x"],[
-		AC_MSG_WARN("No suitable MIDI interface found. Using dummy driver")
-		RTMIDI_API="-D__RTMIDI_DUMMY__"
+	AC_MSG_WARN("No suitable MIDI interface found. Using dummy driver")
+	RTMIDI_LIB_COREMIDI(,[true])
 ])
+
+
 
 AM_CONDITIONAL([HAVE_JACK],[test "x$rtmidi_have_jack" = "xyes"])
 AM_CONDITIONAL([HAVE_ALSA],[test "x$rtmidi_have_alsa" = "xyes"])
 AM_CONDITIONAL([HAVE_WINMM],[test "x$ac_cv_lib_winmm" = "xyes"])
 AM_CONDITIONAL([HAVE_WINKS],[test "x${ac_cv_lib_winks}" = "xyes"])
 AM_CONDITIONAL([HAVE_COREMIDI],[test "x$rtmidi_have_coremidi" = "xyes"])
+AM_CONDITIONAL([HAVE_DUMMY],[test "x$rtmidi_have_dummy" = "xyes"])
 
 AM_CONDITIONAL(RTMIDI_HAVE_VIRTUAL_DEVICES,test "$RTMIDI_HAVE_VIRTUAL_DEVICES" == yes)
 AM_GNU_GETTEXT([external])
