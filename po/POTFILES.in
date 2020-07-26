@@ -1,3 +1,18 @@
 # List of source files which contain translatable strings.
 RtMidi.h
-RtMidi.cpp
+rtmidi_c.h
+src/Dummy.cpp
+src/Dummy.h
+src/RtMidi.cpp
+src/RtMidi-internal.h
+src/rtmidi_c.cpp
+src/ALSA.cpp
+src/ALSA.h
+src/OSXCoreMidi.cpp
+src/OSXCoreMidi.h
+src/WinMM.cpp
+src/WinMM.h
+src/JACK.cpp
+src/JACK.h
+src/WinKS.cpp
+src/WinKS.h

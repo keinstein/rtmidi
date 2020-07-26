@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rtmidi 2.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/keinstein/rtmidi\n"
-"POT-Creation-Date: 2018-08-13 18:56+0200\n"
+"POT-Creation-Date: 2020-07-26 17:45+0200\n"
 "PO-Revision-Date: 2018-08-13 19:04+0200\n"
 "Last-Translator: Tobias Schlemmer <keinstein@users.sourceforge.net>\n"
 "Language-Team: German translation team <keinstein@users.sf.net>\n"
@@ -22,67 +22,94 @@ msgstr ""
 "X-Poedit-KeywordsList: gettext_noopt\n"
 "X-Poedit-SearchPath-0: /home/tobias/macbookbackup/Entwicklung/rtmidi-beides\n"
 
-#: RtMidi.h:129
-msgid "Automatic selection"
-msgstr "Automatische Auswahl"
-
-#: RtMidi.h:130
-msgid "Core MIDI"
-msgstr "Core MIDI"
-
-#: RtMidi.h:131
-msgid "ALSA"
-msgstr "ALSA"
-
-#: RtMidi.h:132
-msgid "JACK"
-msgstr "JACK"
-
-#: RtMidi.h:133
-msgid "Windows Multimedia"
-msgstr "Windows Multimedia"
-
-#: RtMidi.h:134
-msgid "DirectX/Kernel Streaming"
-msgstr "DirectX/Kernel Streaming"
-
-#: RtMidi.h:135
-msgid "NULL device"
-msgstr "Keine Funktion."
-
-#: RtMidi.h:136
-msgid "All available MIDI systems"
-msgstr "Alle verfügbaren MIDI-Systeme."
-
-#: RtMidi.h:1106 RtMidi.h:1277 RtMidi.h:1490 RtMidi.h:1511
-msgid "Passed NULL pointer."
-msgstr "Nullzeiger übergeben."
-
-#: RtMidi.h:1308 RtMidi.h:1317 RtMidi.cpp:2596
+#: RtMidi.h:1254 RtMidi.h:1827 RtMidi.h:2041 src/Dummy.cpp:2109
+#: src/Dummy.h:2109 src/OSXCoreMidi.cpp:2109 src/OSXCoreMidi.h:2109
+#: src/WinMM.cpp:2109 src/WinMM.h:2109 src/WinKS.cpp:2109 src/WinKS.h:2109
 msgid "No data in message argument."
 msgstr "Keine Daten in der MIDI-Nachricht."
 
-#: RtMidi.h:1432
+#: RtMidi.h:1762 RtMidi.h:2446
+msgid "Passed NULL pointer."
+msgstr "Nullzeiger übergeben."
+
+#: RtMidi.h:2256
 msgid "A NULL pointer has been passed as port descriptor"
 msgstr "Ein leerer Zeiger wurde als Schnittstellenbeschreibung übergeben."
 
-#: RtMidi.h:1452 RtMidi.h:1531 RtMidi.h:1543
+#: RtMidi.h:2272 RtMidi.h:2298
 msgid "No valid MIDI system has been selected."
 msgstr "Es wurde kein benutzbares MIDI-System ausgewählt."
 
-#: RtMidi.h:1473
-msgid "Could not find any valid MIDI system."
-msgstr "Es konnte kein benutzbares MIDI-System gefunden werden."
-
-#: RtMidi.h:1495
-msgid "No valid MIDI system has been found."
-msgstr "Es konnte kein benutzbares MIDI-System gefunden werden."
-
-#: RtMidi.h:1537
+#: RtMidi.h:2291
 msgid "No data in MIDI message."
 msgstr "Keine Daten in der MIDI-Nachricht."
 
-#: RtMidi.cpp:293
+#: RtMidi.h:2387 src/Dummy.cpp:6516 src/Dummy.h:6516 src/RtMidi.cpp:730
+#: src/OSXCoreMidi.cpp:6516 src/OSXCoreMidi.h:6516 src/WinMM.cpp:6516
+#: src/WinMM.h:6516 src/WinKS.cpp:6516 src/WinKS.h:6516
+msgid "The callback function value is invalid."
+msgstr "Der Funktionswert einer aufgerufenen Rückruffunktion ist ungültig."
+
+#: src/Dummy.cpp:142 src/Dummy.h:142 src/RtMidi.cpp:118 src/OSXCoreMidi.cpp:142
+#: src/OSXCoreMidi.h:142 src/WinMM.cpp:142 src/WinMM.h:142 src/WinKS.cpp:142
+#: src/WinKS.h:142
+#, fuzzy
+msgid "Automatic backend selection"
+msgstr "Automatische Auswahl"
+
+#: src/Dummy.cpp:143 src/Dummy.h:143 src/RtMidi.cpp:120 src/OSXCoreMidi.cpp:143
+#: src/OSXCoreMidi.h:143 src/WinMM.cpp:143 src/WinMM.h:143 src/WinKS.cpp:143
+#: src/WinKS.h:143
+msgid "Core MIDI"
+msgstr "Core MIDI"
+
+#: src/Dummy.cpp:144 src/Dummy.h:144 src/RtMidi.cpp:122 src/OSXCoreMidi.cpp:144
+#: src/OSXCoreMidi.h:144 src/WinMM.cpp:144 src/WinMM.h:144 src/WinKS.cpp:144
+#: src/WinKS.h:144
+msgid "ALSA"
+msgstr "ALSA"
+
+#: src/Dummy.cpp:145 src/Dummy.h:145 src/RtMidi.cpp:124 src/OSXCoreMidi.cpp:145
+#: src/OSXCoreMidi.h:145 src/WinMM.cpp:145 src/WinMM.h:145 src/WinKS.cpp:145
+#: src/WinKS.h:145
+msgid "JACK"
+msgstr "JACK"
+
+#: src/Dummy.cpp:146 src/Dummy.h:146 src/RtMidi.cpp:127 src/OSXCoreMidi.cpp:146
+#: src/OSXCoreMidi.h:146 src/WinMM.cpp:146 src/WinMM.h:146 src/WinKS.cpp:146
+#: src/WinKS.h:146
+msgid "Windows Multimedia"
+msgstr "Windows Multimedia"
+
+#: src/Dummy.cpp:147 src/Dummy.h:147 src/RtMidi.cpp:133 src/OSXCoreMidi.cpp:147
+#: src/OSXCoreMidi.h:147 src/WinMM.cpp:147 src/WinMM.h:147 src/WinKS.cpp:147
+#: src/WinKS.h:147
+msgid "DirectX/Kernel Streaming"
+msgstr "DirectX/Kernel Streaming"
+
+#: src/Dummy.cpp:148 src/Dummy.h:148 src/RtMidi.cpp:130 src/OSXCoreMidi.cpp:148
+#: src/OSXCoreMidi.h:148 src/WinMM.cpp:148 src/WinMM.h:148 src/WinKS.cpp:148
+#: src/WinKS.h:148
+#, fuzzy
+msgid "Dummy/NULL device"
+msgstr "Keine Funktion."
+
+#: src/Dummy.cpp:149 src/Dummy.h:149 src/RtMidi.cpp:136 src/OSXCoreMidi.cpp:149
+#: src/OSXCoreMidi.h:149 src/WinMM.cpp:149 src/WinMM.h:149 src/WinKS.cpp:149
+#: src/WinKS.h:149
+msgid "All available MIDI systems"
+msgstr "Alle verfügbaren MIDI-Systeme."
+
+#: src/Dummy.cpp:223 src/Dummy.h:223 src/RtMidi-internal.h:199
+#: src/OSXCoreMidi.cpp:223 src/OSXCoreMidi.h:223 src/WinMM.cpp:223
+#: src/WinMM.h:223 src/WinKS.cpp:223 src/WinKS.h:223
+#, fuzzy
+msgid "Internal error: Could not lock the mutex."
+msgstr " "
+
+#: src/Dummy.cpp:419 src/Dummy.h:419 src/OSXCoreMidi.cpp:419
+#: src/OSXCoreMidi.h:419 src/WinMM.cpp:419 src/WinMM.h:419 src/WinKS.cpp:419
+#: src/WinKS.h:419
 msgid ""
 "No valid MIDI interfaces. I'm using a dummy input interface that never "
 "receives anything."
@@ -90,7 +117,9 @@ msgstr ""
 "Keine gültige MIDI-Schnittstelle gefunden. Ich imitiere ein Eingabegerät, "
 "das niemals etwas empfängt."
 
-#: RtMidi.cpp:322
+#: src/Dummy.cpp:448 src/Dummy.h:448 src/OSXCoreMidi.cpp:448
+#: src/OSXCoreMidi.h:448 src/WinMM.cpp:448 src/WinMM.h:448 src/WinKS.cpp:448
+#: src/WinKS.h:448
 msgid ""
 "No valid MIDI interfaces. I'm using a dummy output interface that does "
 "nothing."
@@ -98,7 +127,760 @@ msgstr ""
 "Keine gültige MIDI-Schnittstelle gefunden. Ich imitiere ein Ausgabegerät, "
 "das nichts tut."
 
-#: RtMidi.cpp:396
+#: src/Dummy.cpp:1108 src/Dummy.h:1108 src/OSXCoreMidi.cpp:1108
+#: src/OSXCoreMidi.h:1108 src/WinMM.cpp:1108 src/WinMM.h:1108
+#: src/WinKS.cpp:1108 src/WinKS.h:1108
+msgid "Could not get the unique identifier of a midi endpoint."
+msgstr ""
+"Konnte die eindeutige Identifikation (UUID) eines MIDI-Endpunktes nicht "
+"bekommen."
+
+#: src/Dummy.cpp:1118 src/Dummy.h:1118 src/OSXCoreMidi.cpp:1118
+#: src/OSXCoreMidi.h:1118 src/WinMM.cpp:1118 src/WinMM.h:1118
+#: src/WinKS.cpp:1118 src/WinKS.h:1118
+msgid ""
+"Could not get the endpoint back from the unique identifier of a midi "
+"endpoint."
+msgstr ""
+"Konnte den MIDI-Endpunkt einer eindeutige Identifikation (UUID) nicht "
+"bekommen."
+
+#: src/Dummy.cpp:1133 src/Dummy.h:1133 src/OSXCoreMidi.cpp:1133
+#: src/OSXCoreMidi.h:1133 src/WinMM.cpp:1133 src/WinMM.h:1133
+#: src/WinKS.cpp:1133 src/WinKS.h:1133
+msgid "Could not get the entity of a midi endpoint."
+msgstr "Konnte die Geräteeinheit eines MIDI-Endpunktes nicht bekommen."
+
+#: src/Dummy.cpp:1194 src/Dummy.cpp:1230 src/Dummy.h:1194 src/Dummy.h:1230
+#: src/OSXCoreMidi.cpp:1194 src/OSXCoreMidi.cpp:1230 src/OSXCoreMidi.h:1194
+#: src/OSXCoreMidi.h:1230 src/WinMM.cpp:1194 src/WinMM.cpp:1230
+#: src/WinMM.h:1194 src/WinMM.h:1230 src/WinKS.cpp:1194 src/WinKS.cpp:1230
+#: src/WinKS.h:1194 src/WinKS.h:1230
+msgid "Error creating OS X MIDI port because of invalid port flags."
+msgstr ""
+"Konnte die OS X-MIDI-Schnittstelle nicht anlegen, da ungültige Eigenschaften "
+"angegeben wurden."
+
+#: src/Dummy.cpp:1198 src/Dummy.cpp:1234 src/Dummy.cpp:1769 src/Dummy.h:1198
+#: src/Dummy.h:1234 src/Dummy.h:1769 src/OSXCoreMidi.cpp:1198
+#: src/OSXCoreMidi.cpp:1234 src/OSXCoreMidi.cpp:1769 src/OSXCoreMidi.h:1198
+#: src/OSXCoreMidi.h:1234 src/OSXCoreMidi.h:1769 src/WinMM.cpp:1198
+#: src/WinMM.cpp:1234 src/WinMM.cpp:1769 src/WinMM.h:1198 src/WinMM.h:1234
+#: src/WinMM.h:1769 src/WinKS.cpp:1198 src/WinKS.cpp:1234 src/WinKS.cpp:1769
+#: src/WinKS.h:1198 src/WinKS.h:1234 src/WinKS.h:1769
+msgid "Error creating OS-X MIDI port."
+msgstr "Es gab einen Fehler beim Erzeugen der MIDI-Schnittstelle."
+
+#: src/Dummy.cpp:1269 src/Dummy.h:1269 src/OSXCoreMidi.cpp:1269
+#: src/OSXCoreMidi.h:1269 src/WinMM.cpp:1269 src/WinMM.h:1269
+#: src/WinKS.cpp:1269 src/WinKS.h:1269
+#, fuzzy, c-format
+msgid "Error creating OS-X MIDI client object ( Error no: %d )."
+msgstr "Fehler beim erzeugen des OS-X-MIDI-Klienten (Fehlernummer: %d)."
+
+#: src/Dummy.cpp:1531 src/Dummy.cpp:1597 src/Dummy.cpp:3132 src/Dummy.cpp:4317
+#: src/Dummy.h:1531 src/Dummy.h:1597 src/Dummy.h:3132 src/Dummy.h:4317
+#: src/ALSA.h:1203 src/OSXCoreMidi.cpp:1531 src/OSXCoreMidi.cpp:1597
+#: src/OSXCoreMidi.cpp:3132 src/OSXCoreMidi.cpp:4317 src/OSXCoreMidi.h:1531
+#: src/OSXCoreMidi.h:1597 src/OSXCoreMidi.h:3132 src/OSXCoreMidi.h:4317
+#: src/WinMM.cpp:1531 src/WinMM.cpp:1597 src/WinMM.cpp:3132 src/WinMM.cpp:4317
+#: src/WinMM.h:1531 src/WinMM.h:1597 src/WinMM.h:3132 src/WinMM.h:4317
+#: src/WinKS.cpp:1531 src/WinKS.cpp:1597 src/WinKS.cpp:3132 src/WinKS.cpp:4317
+#: src/WinKS.h:1531 src/WinKS.h:1597 src/WinKS.h:3132 src/WinKS.h:4317
+msgid "Error: Message queue limit reached."
+msgstr "Fehler: Die Nachrichten-Warteschlange ist überlang."
+
+#: src/Dummy.cpp:1656 src/Dummy.cpp:1750 src/Dummy.cpp:1927 src/Dummy.cpp:2041
+#: src/Dummy.cpp:3266 src/Dummy.cpp:3376 src/Dummy.cpp:3640 src/Dummy.cpp:3798
+#: src/Dummy.cpp:4374 src/Dummy.cpp:4687 src/Dummy.cpp:4759 src/Dummy.h:1656
+#: src/Dummy.h:1750 src/Dummy.h:1927 src/Dummy.h:2041 src/Dummy.h:3266
+#: src/Dummy.h:3376 src/Dummy.h:3640 src/Dummy.h:3798 src/Dummy.h:4374
+#: src/Dummy.h:4687 src/Dummy.h:4759 src/ALSA.cpp:894 src/ALSA.cpp:1101
+#: src/OSXCoreMidi.cpp:1656 src/OSXCoreMidi.cpp:1750 src/OSXCoreMidi.cpp:1927
+#: src/OSXCoreMidi.cpp:2041 src/OSXCoreMidi.cpp:3266 src/OSXCoreMidi.cpp:3376
+#: src/OSXCoreMidi.cpp:3640 src/OSXCoreMidi.cpp:3798 src/OSXCoreMidi.cpp:4374
+#: src/OSXCoreMidi.cpp:4687 src/OSXCoreMidi.cpp:4759 src/OSXCoreMidi.h:1656
+#: src/OSXCoreMidi.h:1750 src/OSXCoreMidi.h:1927 src/OSXCoreMidi.h:2041
+#: src/OSXCoreMidi.h:3266 src/OSXCoreMidi.h:3376 src/OSXCoreMidi.h:3640
+#: src/OSXCoreMidi.h:3798 src/OSXCoreMidi.h:4374 src/OSXCoreMidi.h:4687
+#: src/OSXCoreMidi.h:4759 src/WinMM.cpp:1656 src/WinMM.cpp:1750
+#: src/WinMM.cpp:1927 src/WinMM.cpp:2041 src/WinMM.cpp:3266 src/WinMM.cpp:3376
+#: src/WinMM.cpp:3640 src/WinMM.cpp:3798 src/WinMM.cpp:4374 src/WinMM.cpp:4687
+#: src/WinMM.cpp:4759 src/WinMM.h:1656 src/WinMM.h:1750 src/WinMM.h:1927
+#: src/WinMM.h:2041 src/WinMM.h:3266 src/WinMM.h:3376 src/WinMM.h:3640
+#: src/WinMM.h:3798 src/WinMM.h:4374 src/WinMM.h:4687 src/WinMM.h:4759
+#: src/WinKS.cpp:1656 src/WinKS.cpp:1750 src/WinKS.cpp:1927 src/WinKS.cpp:2041
+#: src/WinKS.cpp:3266 src/WinKS.cpp:3376 src/WinKS.cpp:3640 src/WinKS.cpp:3798
+#: src/WinKS.cpp:4374 src/WinKS.cpp:4687 src/WinKS.cpp:4759 src/WinKS.h:1656
+#: src/WinKS.h:1750 src/WinKS.h:1927 src/WinKS.h:2041 src/WinKS.h:3266
+#: src/WinKS.h:3376 src/WinKS.h:3640 src/WinKS.h:3798 src/WinKS.h:4374
+#: src/WinKS.h:4687 src/WinKS.h:4759
+msgid "A valid connection already exists."
+msgstr "Es existiert schon eine gültige Verbindung."
+
+#: src/Dummy.cpp:1664 src/Dummy.cpp:3273 src/Dummy.cpp:4381 src/Dummy.h:1664
+#: src/Dummy.h:3273 src/Dummy.h:4381 src/ALSA.cpp:901 src/OSXCoreMidi.cpp:1664
+#: src/OSXCoreMidi.cpp:3273 src/OSXCoreMidi.cpp:4381 src/OSXCoreMidi.h:1664
+#: src/OSXCoreMidi.h:3273 src/OSXCoreMidi.h:4381 src/WinMM.cpp:1664
+#: src/WinMM.cpp:3273 src/WinMM.cpp:4381 src/WinMM.h:1664 src/WinMM.h:3273
+#: src/WinMM.h:4381 src/WinKS.cpp:1664 src/WinKS.cpp:3273 src/WinKS.cpp:4381
+#: src/WinKS.h:1664 src/WinKS.h:3273 src/WinKS.h:4381
+msgid "No MIDI input sources found."
+msgstr "Keine MIDI-Eingabe-Geräte gefunden."
+
+#: src/Dummy.cpp:1673 src/Dummy.cpp:1851 src/Dummy.cpp:1910 src/Dummy.cpp:1941
+#: src/Dummy.cpp:3282 src/Dummy.cpp:3660 src/Dummy.cpp:4586 src/Dummy.cpp:4661
+#: src/Dummy.cpp:4700 src/Dummy.cpp:5475 src/Dummy.h:1673 src/Dummy.h:1851
+#: src/Dummy.h:1910 src/Dummy.h:1941 src/Dummy.h:3282 src/Dummy.h:3660
+#: src/Dummy.h:4586 src/Dummy.h:4661 src/Dummy.h:4700 src/Dummy.h:5475
+#: src/RtMidi-internal.h:146 src/RtMidi-internal.h:154 src/ALSA.cpp:910
+#: src/OSXCoreMidi.cpp:1673 src/OSXCoreMidi.cpp:1851 src/OSXCoreMidi.cpp:1910
+#: src/OSXCoreMidi.cpp:1941 src/OSXCoreMidi.cpp:3282 src/OSXCoreMidi.cpp:3660
+#: src/OSXCoreMidi.cpp:4586 src/OSXCoreMidi.cpp:4661 src/OSXCoreMidi.cpp:4700
+#: src/OSXCoreMidi.cpp:5475 src/OSXCoreMidi.h:1673 src/OSXCoreMidi.h:1851
+#: src/OSXCoreMidi.h:1910 src/OSXCoreMidi.h:1941 src/OSXCoreMidi.h:3282
+#: src/OSXCoreMidi.h:3660 src/OSXCoreMidi.h:4586 src/OSXCoreMidi.h:4661
+#: src/OSXCoreMidi.h:4700 src/OSXCoreMidi.h:5475 src/WinMM.cpp:1673
+#: src/WinMM.cpp:1851 src/WinMM.cpp:1910 src/WinMM.cpp:1941 src/WinMM.cpp:3282
+#: src/WinMM.cpp:3660 src/WinMM.cpp:4586 src/WinMM.cpp:4661 src/WinMM.cpp:4700
+#: src/WinMM.cpp:5475 src/WinMM.h:1673 src/WinMM.h:1851 src/WinMM.h:1910
+#: src/WinMM.h:1941 src/WinMM.h:3282 src/WinMM.h:3660 src/WinMM.h:4586
+#: src/WinMM.h:4661 src/WinMM.h:4700 src/WinMM.h:5475 src/JACK.h:661
+#: src/WinKS.cpp:1673 src/WinKS.cpp:1851 src/WinKS.cpp:1910 src/WinKS.cpp:1941
+#: src/WinKS.cpp:3282 src/WinKS.cpp:3660 src/WinKS.cpp:4586 src/WinKS.cpp:4661
+#: src/WinKS.cpp:4700 src/WinKS.cpp:5475 src/WinKS.h:1673 src/WinKS.h:1851
+#: src/WinKS.h:1910 src/WinKS.h:1941 src/WinKS.h:3282 src/WinKS.h:3660
+#: src/WinKS.h:4586 src/WinKS.h:4661 src/WinKS.h:4700 src/WinKS.h:5475
+#, fuzzy, c-format
+msgid "The 'portNumber' argument ( %d ) is invalid."
+msgstr "Die Portnummer %d ist ungültig."
+
+#: src/Dummy.cpp:1685 src/Dummy.h:1685 src/OSXCoreMidi.cpp:1685
+#: src/OSXCoreMidi.h:1685 src/WinMM.cpp:1685 src/WinMM.h:1685
+#: src/WinKS.cpp:1685 src/WinKS.h:1685
+msgid "Error creating OS-X MIDI input port."
+msgstr "Fehler beim Erzeugen der OS-X-MIDI-Eingabe-Schnittstelle."
+
+#: src/Dummy.cpp:1696 src/Dummy.h:1696 src/OSXCoreMidi.cpp:1696
+#: src/OSXCoreMidi.h:1696 src/WinMM.cpp:1696 src/WinMM.h:1696
+#: src/WinKS.cpp:1696 src/WinKS.h:1696
+msgid "Error getting MIDI input source reference."
+msgstr "Konnte keine Referenz zum MIDI-Eingang bekommen."
+
+#: src/Dummy.cpp:1707 src/Dummy.h:1707 src/OSXCoreMidi.cpp:1707
+#: src/OSXCoreMidi.h:1707 src/WinMM.cpp:1707 src/WinMM.h:1707
+#: src/WinKS.cpp:1707 src/WinKS.h:1707
+msgid "Error connecting OS-X MIDI input port."
+msgstr "Fehler beim verbinden mit dem OS-X-MIDI-Eingang."
+
+#: src/Dummy.cpp:1729 src/Dummy.h:1729 src/OSXCoreMidi.cpp:1729
+#: src/OSXCoreMidi.h:1729 src/WinMM.cpp:1729 src/WinMM.h:1729
+#: src/WinKS.cpp:1729 src/WinKS.h:1729
+msgid "Error creating virtual OS-X MIDI destination."
+msgstr "Konnte den virtuellen OS-X-MIDI-Ausgang nicht erzeugen."
+
+#: src/Dummy.cpp:1745 src/Dummy.cpp:2036 src/Dummy.cpp:3793 src/Dummy.h:1745
+#: src/Dummy.h:2036 src/Dummy.h:3793 src/OSXCoreMidi.cpp:1745
+#: src/OSXCoreMidi.cpp:2036 src/OSXCoreMidi.cpp:3793 src/OSXCoreMidi.h:1745
+#: src/OSXCoreMidi.h:2036 src/OSXCoreMidi.h:3793 src/WinMM.cpp:1745
+#: src/WinMM.cpp:2036 src/WinMM.cpp:3793 src/WinMM.h:1745 src/WinMM.h:2036
+#: src/WinMM.h:3793 src/WinKS.cpp:1745 src/WinKS.cpp:2036 src/WinKS.cpp:3793
+#: src/WinKS.h:1745 src/WinKS.h:2036 src/WinKS.h:3793
+msgid "Data has not been allocated."
+msgstr "Daten konnten nicht angelegt werden."
+
+#: src/Dummy.cpp:1755 src/Dummy.cpp:2046 src/Dummy.h:1755 src/Dummy.h:2046
+#: src/OSXCoreMidi.cpp:1755 src/OSXCoreMidi.cpp:2046 src/OSXCoreMidi.h:1755
+#: src/OSXCoreMidi.h:2046 src/WinMM.cpp:1755 src/WinMM.cpp:2046
+#: src/WinMM.h:1755 src/WinMM.h:2046 src/WinKS.cpp:1755 src/WinKS.cpp:2046
+#: src/WinKS.h:1755 src/WinKS.h:2046
+msgid ""
+"Core MIDI has been instructed to open a non-Core MIDI port. This doesn't "
+"work."
+msgstr ""
+"Core-MIDI wurde angewiesen, eine nicht-Core-MIDI-Schnittstelle zu öffnen. "
+"Das geht nicht."
+
+#: src/Dummy.cpp:1826 src/Dummy.cpp:1994 src/Dummy.h:1826 src/Dummy.h:1994
+#: src/OSXCoreMidi.cpp:1826 src/OSXCoreMidi.cpp:1994 src/OSXCoreMidi.h:1826
+#: src/OSXCoreMidi.h:1994 src/WinMM.cpp:1826 src/WinMM.cpp:1994
+#: src/WinMM.h:1826 src/WinMM.h:1994 src/WinKS.cpp:1826 src/WinKS.cpp:1994
+#: src/WinKS.h:1826 src/WinKS.h:1994
+msgid "Setting client names is not implemented for Mac OS X CoreMIDI."
+msgstr ""
+"Das Ändern des Namens des MIDI-Klienten ist für Mac OS X CoreMIDI nicht "
+"implementiert."
+
+#: src/Dummy.cpp:1832 src/Dummy.cpp:2000 src/Dummy.h:1832 src/Dummy.h:2000
+#: src/OSXCoreMidi.cpp:1832 src/OSXCoreMidi.cpp:2000 src/OSXCoreMidi.h:1832
+#: src/OSXCoreMidi.h:2000 src/WinMM.cpp:1832 src/WinMM.cpp:2000
+#: src/WinMM.h:1832 src/WinMM.h:2000 src/WinKS.cpp:1832 src/WinKS.cpp:2000
+#: src/WinKS.h:1832 src/WinKS.h:2000
+msgid "Setting port names is not implemented for Mac OS X CoreMIDI."
+msgstr ""
+"Das Ändern des Namens einer MIDI-Schnittstelle ist für Mac OS X CoreMIDI "
+"nicht implementiert."
+
+#: src/Dummy.cpp:1935 src/Dummy.h:1935 src/OSXCoreMidi.cpp:1935
+#: src/OSXCoreMidi.h:1935 src/WinMM.cpp:1935 src/WinMM.h:1935
+#: src/WinKS.cpp:1935 src/WinKS.h:1935
+msgid "No MIDI output destinations found."
+msgstr "Es wurden keine MIDI-Ausgabegeräte gefunden."
+
+#: src/Dummy.cpp:1953 src/Dummy.h:1953 src/OSXCoreMidi.cpp:1953
+#: src/OSXCoreMidi.h:1953 src/WinMM.cpp:1953 src/WinMM.h:1953
+#: src/WinKS.cpp:1953 src/WinKS.h:1953
+msgid "Error creating OS-X MIDI output port."
+msgstr "Fehler beim Erzeugen der OS-X-MIDI-Ausgabe-Schnittstelle."
+
+#: src/Dummy.cpp:1964 src/Dummy.h:1964 src/OSXCoreMidi.cpp:1964
+#: src/OSXCoreMidi.h:1964 src/WinMM.cpp:1964 src/WinMM.h:1964
+#: src/WinKS.cpp:1964 src/WinKS.h:1964
+msgid "Error getting MIDI output destination reference."
+msgstr "Konnte keine Referenz zum MIDI-Ausgang bekommen."
+
+#: src/Dummy.cpp:2009 src/Dummy.h:2009 src/OSXCoreMidi.cpp:2009
+#: src/OSXCoreMidi.h:2009 src/WinMM.cpp:2009 src/WinMM.h:2009
+#: src/WinKS.cpp:2009 src/WinKS.h:2009
+msgid "A virtual output port already exists."
+msgstr "Es gibt schon einen virtuellen MIDI-Ausgang."
+
+#: src/Dummy.cpp:2020 src/Dummy.h:2020 src/OSXCoreMidi.cpp:2020
+#: src/OSXCoreMidi.h:2020 src/WinMM.cpp:2020 src/WinMM.h:2020
+#: src/WinKS.cpp:2020 src/WinKS.h:2020
+msgid "Error creating OS-X virtual MIDI source."
+msgstr "Konnte den virtuellen OS-X-MIDI-Eingang nicht erzeugen."
+
+#: src/Dummy.cpp:2121 src/Dummy.h:2121 src/OSXCoreMidi.cpp:2121
+#: src/OSXCoreMidi.h:2121 src/WinMM.cpp:2121 src/WinMM.h:2121
+#: src/WinKS.cpp:2121 src/WinKS.h:2121
+msgid "message format problem ... not sysex but > 3 bytes?"
+msgstr ""
+"Nachrichtenformatproblem: Eine MIDI-Nachricht ist größer als 3 Bytes (und "
+"keine SysEx-Nachricht)."
+
+#: src/Dummy.cpp:2140 src/Dummy.h:2140 src/OSXCoreMidi.cpp:2140
+#: src/OSXCoreMidi.h:2140 src/WinMM.cpp:2140 src/WinMM.h:2140
+#: src/WinKS.cpp:2140 src/WinKS.h:2140
+msgid "Could not allocate packet list."
+msgstr "Konnte die Paketliste nicht anlegen."
+
+#: src/Dummy.cpp:2149 src/Dummy.h:2149 src/OSXCoreMidi.cpp:2149
+#: src/OSXCoreMidi.h:2149 src/WinMM.cpp:2149 src/WinMM.h:2149
+#: src/WinKS.cpp:2149 src/WinKS.h:2149
+msgid "Error sending MIDI to virtual destinations."
+msgstr "Konnte MIDI-Daten nicht zu virtuellen Ausgängen senden."
+
+#: src/Dummy.cpp:2158 src/Dummy.cpp:3771 src/Dummy.h:2158 src/Dummy.h:3771
+#: src/OSXCoreMidi.cpp:2158 src/OSXCoreMidi.cpp:3771 src/OSXCoreMidi.h:2158
+#: src/OSXCoreMidi.h:3771 src/WinMM.cpp:2158 src/WinMM.cpp:3771
+#: src/WinMM.h:2158 src/WinMM.h:3771 src/WinKS.cpp:2158 src/WinKS.cpp:3771
+#: src/WinKS.h:2158 src/WinKS.h:3771
+msgid "Error sending MIDI message to port."
+msgstr "Fehler beim Senden der MIDI-Nachricht zum Ausgang."
+
+#: src/Dummy.cpp:2326 src/Dummy.h:2326 src/ALSA.h:363 src/OSXCoreMidi.cpp:2326
+#: src/OSXCoreMidi.h:2326 src/WinMM.cpp:2326 src/WinMM.h:2326
+#: src/WinKS.cpp:2326 src/WinKS.h:2326
+msgid "Could not allocate ALSA port info structure."
+msgstr ""
+"Konnte keinen Speicher für die ALSA-MIDI-Schnittstelleninformation bekommen."
+
+#: src/Dummy.cpp:2330 src/Dummy.h:2330 src/ALSA.h:373 src/OSXCoreMidi.cpp:2330
+#: src/OSXCoreMidi.h:2330 src/WinMM.cpp:2330 src/WinMM.h:2330
+#: src/WinKS.cpp:2330 src/WinKS.h:2330
+#, c-format
+msgid "Could not get ALSA port information: %s"
+msgstr "Konnte keine ALSA-Schnittstelleninformation bekommen: %s"
+
+#: src/Dummy.cpp:2336 src/Dummy.h:2336 src/ALSA.h:379 src/OSXCoreMidi.cpp:2336
+#: src/OSXCoreMidi.h:2336 src/WinMM.cpp:2336 src/WinMM.h:2336
+#: src/WinKS.cpp:2336 src/WinKS.h:2336
+#, c-format
+msgid "Could not set ALSA port information: %s"
+msgstr "Konnte ALSA-Schnittstelleninformation nicht ändern: %s"
+
+#: src/Dummy.cpp:2389 src/Dummy.cpp:2669 src/Dummy.cpp:3326 src/Dummy.cpp:3381
+#: src/Dummy.cpp:3687 src/Dummy.h:2389 src/Dummy.h:2669 src/Dummy.h:3326
+#: src/Dummy.h:3381 src/Dummy.h:3687 src/ALSA.cpp:954 src/ALSA.h:461
+#: src/OSXCoreMidi.cpp:2389 src/OSXCoreMidi.cpp:2669 src/OSXCoreMidi.cpp:3326
+#: src/OSXCoreMidi.cpp:3381 src/OSXCoreMidi.cpp:3687 src/OSXCoreMidi.h:2389
+#: src/OSXCoreMidi.h:2669 src/OSXCoreMidi.h:3326 src/OSXCoreMidi.h:3381
+#: src/OSXCoreMidi.h:3687 src/WinMM.cpp:2389 src/WinMM.cpp:2669
+#: src/WinMM.cpp:3326 src/WinMM.cpp:3381 src/WinMM.cpp:3687 src/WinMM.h:2389
+#: src/WinMM.h:2669 src/WinMM.h:3326 src/WinMM.h:3381 src/WinMM.h:3687
+#: src/WinKS.cpp:2389 src/WinKS.cpp:2669 src/WinKS.cpp:3326 src/WinKS.cpp:3381
+#: src/WinKS.cpp:3687 src/WinKS.h:2389 src/WinKS.h:2669 src/WinKS.h:3326
+#: src/WinKS.h:3381 src/WinKS.h:3687
+msgid "Could not allocate ALSA port subscription."
+msgstr ""
+"Konnte keinen Speicher für das Abonnoment der ALSA-MIDI-Schnittstelle "
+"bekommen."
+
+#: src/Dummy.cpp:2404 src/Dummy.cpp:3335 src/Dummy.cpp:3698 src/Dummy.h:2404
+#: src/Dummy.h:3335 src/Dummy.h:3698 src/ALSA.cpp:963 src/ALSA.h:480
+#: src/OSXCoreMidi.cpp:2404 src/OSXCoreMidi.cpp:3335 src/OSXCoreMidi.cpp:3698
+#: src/OSXCoreMidi.h:2404 src/OSXCoreMidi.h:3335 src/OSXCoreMidi.h:3698
+#: src/WinMM.cpp:2404 src/WinMM.cpp:3335 src/WinMM.cpp:3698 src/WinMM.h:2404
+#: src/WinMM.h:3335 src/WinMM.h:3698 src/WinKS.cpp:2404 src/WinKS.cpp:3335
+#: src/WinKS.cpp:3698 src/WinKS.h:2404 src/WinKS.h:3335 src/WinKS.h:3698
+msgid "Error making ALSA port connection."
+msgstr "Konnte zwei ALSA-Schnittstellen nicht miteinander verbinden."
+
+#: src/Dummy.cpp:2823 src/Dummy.cpp:3361 src/Dummy.cpp:3499 src/Dummy.h:2823
+#: src/Dummy.h:3361 src/Dummy.h:3499 src/ALSA.cpp:989 src/ALSA.cpp:1086
+#: src/OSXCoreMidi.cpp:2823 src/OSXCoreMidi.cpp:3361 src/OSXCoreMidi.cpp:3499
+#: src/OSXCoreMidi.h:2823 src/OSXCoreMidi.h:3361 src/OSXCoreMidi.h:3499
+#: src/WinMM.cpp:2823 src/WinMM.cpp:3361 src/WinMM.cpp:3499 src/WinMM.h:2823
+#: src/WinMM.h:3361 src/WinMM.h:3499 src/WinKS.cpp:2823 src/WinKS.cpp:3361
+#: src/WinKS.cpp:3499 src/WinKS.h:2823 src/WinKS.h:3361 src/WinKS.h:3499
+msgid "Error starting MIDI input thread!"
+msgstr "Konnte den MIDI-Eingabe-Prozess nicht starten."
+
+#: src/Dummy.cpp:2847 src/Dummy.cpp:3590 src/Dummy.h:2847 src/Dummy.h:3590
+#: src/OSXCoreMidi.cpp:2847 src/OSXCoreMidi.cpp:3590 src/OSXCoreMidi.h:2847
+#: src/OSXCoreMidi.h:3590 src/WinMM.cpp:2847 src/WinMM.cpp:3590
+#: src/WinMM.h:2847 src/WinMM.h:3590 src/WinKS.cpp:2847 src/WinKS.cpp:3590
+#: src/WinKS.h:2847 src/WinKS.h:3590
+msgid "Error initializing MIDI event parser."
+msgstr "Fehler bei der Initialisierung des MIDI-Ereeignisparsers."
+
+#: src/Dummy.cpp:2886 src/Dummy.h:2886 src/OSXCoreMidi.cpp:2886
+#: src/OSXCoreMidi.h:2886 src/WinMM.cpp:2886 src/WinMM.h:2886
+#: src/WinKS.cpp:2886 src/WinKS.h:2886
+msgid "MIDI input buffer overrun."
+msgstr "MIDI-Eingabepuffer übergelaufen."
+
+#: src/Dummy.cpp:2896 src/Dummy.h:2896 src/ALSA.cpp:592
+#: src/OSXCoreMidi.cpp:2896 src/OSXCoreMidi.h:2896 src/WinMM.cpp:2896
+#: src/WinMM.h:2896 src/WinKS.cpp:2896 src/WinKS.h:2896
+msgid "ALSA returned without providing a MIDI event."
+msgstr "ALSA kam zurück ohne ein MIDI-Ereignis mitzubringen."
+
+#: src/Dummy.cpp:2906 src/Dummy.h:2906 src/OSXCoreMidi.cpp:2906
+#: src/OSXCoreMidi.h:2906 src/WinMM.cpp:2906 src/WinMM.h:2906
+#: src/WinKS.cpp:2906 src/WinKS.h:2906
+#, c-format
+msgid ""
+"Unknown MIDI input error.\n"
+"The system reports:\n"
+"%s"
+msgstr ""
+"Unbekannter MIDI-Eingabefehler.\n"
+"Das System meldet:\n"
+"%s"
+
+#: src/Dummy.cpp:2971 src/Dummy.h:2971 src/ALSA.cpp:782
+#: src/OSXCoreMidi.cpp:2971 src/OSXCoreMidi.h:2971 src/WinMM.cpp:2971
+#: src/WinMM.h:2971 src/WinKS.cpp:2971 src/WinKS.h:2971
+msgid "Error resizing buffer memory."
+msgstr "Fehler beim Ändern der Grüße des Pufferspeichers."
+
+#: src/Dummy.cpp:3043 src/Dummy.h:3043 src/OSXCoreMidi.cpp:3043
+#: src/OSXCoreMidi.h:3043 src/WinMM.cpp:3043 src/WinMM.h:3043
+#: src/WinKS.cpp:3043 src/WinKS.h:3043
+msgid "Error creating pipe objects."
+msgstr "Fehler beim anlegen einer Pipe."
+
+#: src/Dummy.cpp:3184 src/Dummy.h:3184 src/OSXCoreMidi.cpp:3184
+#: src/OSXCoreMidi.h:3184 src/WinMM.cpp:3184 src/WinMM.h:3184
+#: src/WinKS.cpp:3184 src/WinKS.h:3184
+msgid "Event parsing error or not a MIDI event."
+msgstr ""
+"Analyse eines Ereignisses fehlgeschlagen oder es war kein MIDI-Ereignis."
+
+#: src/Dummy.cpp:3258 src/Dummy.cpp:3632 src/Dummy.h:3258 src/Dummy.h:3632
+#: src/ALSA.cpp:886 src/ALSA.cpp:1255 src/OSXCoreMidi.cpp:3258
+#: src/OSXCoreMidi.cpp:3632 src/OSXCoreMidi.h:3258 src/OSXCoreMidi.h:3632
+#: src/WinMM.cpp:3258 src/WinMM.cpp:3632 src/WinMM.h:3258 src/WinMM.h:3632
+#: src/WinKS.cpp:3258 src/WinKS.cpp:3632 src/WinKS.h:3258 src/WinKS.h:3632
+msgid "Error looking for port name."
+msgstr "Fehler beim Suchen nach einem Schnittstellennamen."
+
+#: src/Dummy.cpp:3313 src/Dummy.h:3313 src/ALSA.cpp:941
+#: src/OSXCoreMidi.cpp:3313 src/OSXCoreMidi.h:3313 src/WinMM.cpp:3313
+#: src/WinMM.h:3313 src/WinKS.cpp:3313 src/WinKS.h:3313
+msgid "Error creating ALSA input port."
+msgstr "Fehler beim Erzeugen der ALSA-Eingabe-Schnittstelle."
+
+#: src/Dummy.cpp:3386 src/Dummy.cpp:3808 src/Dummy.h:3386 src/Dummy.h:3808
+#: src/ALSA.cpp:1106 src/OSXCoreMidi.cpp:3386 src/OSXCoreMidi.cpp:3808
+#: src/OSXCoreMidi.h:3386 src/OSXCoreMidi.h:3808 src/WinMM.cpp:3386
+#: src/WinMM.cpp:3808 src/WinMM.h:3386 src/WinMM.h:3808 src/WinKS.cpp:3386
+#: src/WinKS.cpp:3808 src/WinKS.h:3386 src/WinKS.h:3808
+msgid ""
+"ALSA has been instructed to open a non-ALSA MIDI port. This doesn't work."
+msgstr ""
+"ALSA wurde angewiesen, eine nicht-ALSA-MIDI-Schnittstelle zu öffnen. Das "
+"geht nicht."
+
+#: src/Dummy.cpp:3465 src/Dummy.cpp:3738 src/Dummy.h:3465 src/Dummy.h:3738
+#: src/OSXCoreMidi.cpp:3465 src/OSXCoreMidi.cpp:3738 src/OSXCoreMidi.h:3465
+#: src/OSXCoreMidi.h:3738 src/WinMM.cpp:3465 src/WinMM.cpp:3738
+#: src/WinMM.h:3465 src/WinMM.h:3738 src/WinKS.cpp:3465 src/WinKS.cpp:3738
+#: src/WinKS.h:3465 src/WinKS.h:3738
+msgid "Error creating ALSA virtual port."
+msgstr "Fehler beim Erzeugen einer virtuellen ALSA-Schnittstelle."
+
+#: src/Dummy.cpp:3572 src/Dummy.h:3572 src/OSXCoreMidi.cpp:3572
+#: src/OSXCoreMidi.h:3572 src/WinMM.cpp:3572 src/WinMM.h:3572
+#: src/WinKS.cpp:3572 src/WinKS.h:3572
+msgid "Error creating ALSA sequencer client object."
+msgstr "Fehler beim erzeugen des ALSA-Klienten."
+
+#: src/Dummy.cpp:3648 src/Dummy.h:3648 src/OSXCoreMidi.cpp:3648
+#: src/OSXCoreMidi.h:3648 src/WinMM.cpp:3648 src/WinMM.h:3648
+#: src/WinKS.cpp:3648 src/WinKS.h:3648
+msgid "No MIDI output sinks found."
+msgstr "Es wurden kiene Midi-Ausgabegeräte gefunden."
+
+#: src/Dummy.cpp:3675 src/Dummy.h:3675 src/OSXCoreMidi.cpp:3675
+#: src/OSXCoreMidi.h:3675 src/WinMM.cpp:3675 src/WinMM.h:3675
+#: src/WinKS.cpp:3675 src/WinKS.h:3675
+msgid "Error creating ALSA output port."
+msgstr "Fehler beim Erzeugen der ALSA-Ausgangs."
+
+#: src/Dummy.cpp:3753 src/Dummy.h:3753 src/ALSA.cpp:1170
+#: src/OSXCoreMidi.cpp:3753 src/OSXCoreMidi.h:3753 src/WinMM.cpp:3753
+#: src/WinMM.h:3753 src/WinKS.cpp:3753 src/WinKS.h:3753
+msgid "ALSA error resizing MIDI event buffer."
+msgstr "ALSA-Fehler beim Verändern der Größe des MIDI-Nachrichten-Puffers."
+
+#: src/Dummy.cpp:3777 src/Dummy.h:3777 src/ALSA.cpp:1194
+#: src/OSXCoreMidi.cpp:3777 src/OSXCoreMidi.h:3777 src/WinMM.cpp:3777
+#: src/WinMM.h:3777 src/WinKS.cpp:3777 src/WinKS.h:3777
+msgid "ALSA consumed more bytes than availlable."
+msgstr ""
+
+#: src/Dummy.cpp:3803 src/Dummy.h:3803 src/OSXCoreMidi.cpp:3803
+#: src/OSXCoreMidi.h:3803 src/WinMM.cpp:3803 src/WinMM.h:3803
+#: src/WinKS.cpp:3803 src/WinKS.h:3803
+msgid "Error allocating ALSA port subscription."
+msgstr ""
+"Konnte keinen Speicher für das Abonnoment der ALSA-MIDI-Schnittstelle "
+"bekommen."
+
+#: src/Dummy.cpp:3982 src/Dummy.h:3982 src/OSXCoreMidi.cpp:3982
+#: src/OSXCoreMidi.h:3982 src/WinMM.cpp:3982 src/WinMM.h:3982
+#: src/WinKS.cpp:3982 src/WinKS.h:3982
+#, c-format
+msgid "The port argument %d is invalid."
+msgstr "Das Schnittstellenargument %d ist ungültig."
+
+#: src/Dummy.cpp:4295 src/Dummy.h:4295 src/OSXCoreMidi.cpp:4295
+#: src/OSXCoreMidi.h:4295 src/WinMM.cpp:4295 src/WinMM.h:4295
+#: src/WinKS.cpp:4295 src/WinKS.h:4295
+msgid "Error sending sysex to Midi device."
+msgstr "Fehler beim Senden der SysEx-Nachricht zum MIDI-Gerät."
+
+#: src/Dummy.cpp:4356 src/Dummy.h:4356 src/OSXCoreMidi.cpp:4356
+#: src/OSXCoreMidi.h:4356 src/WinMM.cpp:4356 src/WinMM.h:4356
+#: src/WinKS.cpp:4356 src/WinKS.h:4356
+msgid "No MIDI input devices currently available."
+msgstr "Es gibt momentan keine MIDI-Eingabegeräte."
+
+#: src/Dummy.cpp:4366 src/Dummy.h:4366 src/OSXCoreMidi.cpp:4366
+#: src/OSXCoreMidi.h:4366 src/WinMM.cpp:4366 src/WinMM.h:4366
+#: src/WinKS.cpp:4366 src/WinKS.h:4366
+msgid "Failed to initialize a critical section."
+msgstr "Konnte kritischen Bereich nicht initialisieren."
+
+#: src/Dummy.cpp:4390 src/Dummy.h:4390 src/OSXCoreMidi.cpp:4390
+#: src/OSXCoreMidi.h:4390 src/WinMM.cpp:4390 src/WinMM.h:4390
+#: src/WinKS.cpp:4390 src/WinKS.h:4390
+#, fuzzy, c-format
+msgid "the 'portNumber' argument ( %d ) is invalid."
+msgstr "Die Portnummer %d ist ungültig."
+
+#: src/Dummy.cpp:4402 src/Dummy.h:4402 src/OSXCoreMidi.cpp:4402
+#: src/OSXCoreMidi.h:4402 src/WinMM.cpp:4402 src/WinMM.h:4402
+#: src/WinKS.cpp:4402 src/WinKS.h:4402
+msgid "Error creating Windows MM MIDI input port."
+msgstr "Konnte den Windows-Multimedia-MIDI-Eingang nicht erzeugen."
+
+#: src/Dummy.cpp:4419 src/Dummy.h:4419 src/OSXCoreMidi.cpp:4419
+#: src/OSXCoreMidi.h:4419 src/WinMM.cpp:4419 src/WinMM.h:4419
+#: src/WinKS.cpp:4419 src/WinKS.h:4419
+msgid "Error initializing data for Windows MM MIDI input port."
+msgstr ""
+"Fehler beim Erzeugen der daten für einen Windows Multimedia MIDI-Eingang."
+
+#: src/Dummy.cpp:4429 src/Dummy.h:4429 src/OSXCoreMidi.cpp:4429
+#: src/OSXCoreMidi.h:4429 src/WinMM.cpp:4429 src/WinMM.h:4429
+#: src/WinKS.cpp:4429 src/WinKS.h:4429
+msgid "Could not register the input buffer for Windows MM MIDI input port."
+msgstr ""
+"Konnte den Eingabe-Puffer eines Windows-Multimedia-MIDI-Eingangs nicht "
+"erzeugen."
+
+#: src/Dummy.cpp:4439 src/Dummy.h:4439 src/OSXCoreMidi.cpp:4439
+#: src/OSXCoreMidi.h:4439 src/WinMM.cpp:4439 src/WinMM.h:4439
+#: src/WinKS.cpp:4439 src/WinKS.h:4439
+msgid "Error starting Windows MM MIDI input port."
+msgstr "Konnte einen Windows-Multimedia-MIDI-Eingang nicht aktivieren."
+
+#: src/Dummy.cpp:4450 src/Dummy.cpp:4746 src/Dummy.h:4450 src/Dummy.h:4746
+#: src/OSXCoreMidi.cpp:4450 src/OSXCoreMidi.cpp:4746 src/OSXCoreMidi.h:4450
+#: src/OSXCoreMidi.h:4746 src/WinMM.cpp:4450 src/WinMM.cpp:4746
+#: src/WinMM.h:4450 src/WinMM.h:4746 src/WinKS.cpp:4450 src/WinKS.cpp:4746
+#: src/WinKS.h:4450 src/WinKS.h:4746
+msgid "Virtual ports are not available Windows Multimedia MIDI API."
+msgstr ""
+"Windows Multimedia unterstützt keine virtuellen MIDI-Ein- und -Ausgänge."
+
+#: src/Dummy.cpp:4457 src/Dummy.cpp:4754 src/Dummy.h:4457 src/Dummy.h:4754
+#: src/OSXCoreMidi.cpp:4457 src/OSXCoreMidi.cpp:4754 src/OSXCoreMidi.h:4457
+#: src/OSXCoreMidi.h:4754 src/WinMM.cpp:4457 src/WinMM.cpp:4754
+#: src/WinMM.h:4457 src/WinMM.h:4754 src/WinKS.cpp:4457 src/WinKS.cpp:4754
+#: src/WinKS.h:4457 src/WinKS.h:4754
+#, fuzzy
+msgid ""
+"Windows Multimedia ( WinMM ) has been instructed to open a non-WinMM MIDI "
+"port. This doesn't work."
+msgstr ""
+"Windows Multimedia (WinMM) wurde angewiesen, eine nicht-WinMM-MIDI-"
+"Schnittstelle zu öffnen. Das geht nicht."
+
+#: src/Dummy.cpp:4462 src/Dummy.h:4462 src/OSXCoreMidi.cpp:4462
+#: src/OSXCoreMidi.h:4462 src/WinMM.cpp:4462 src/WinMM.h:4462
+#: src/WinKS.cpp:4462 src/WinKS.h:4462
+msgid ""
+"We are overwriting an existing connection. This is probably a programming "
+"error."
+msgstr ""
+"Wir überschreiben eine vorhandene MIDI-Verbindung. Das ist vermutlich ein "
+"Programmierfehler."
+
+#: src/Dummy.cpp:4467 src/Dummy.h:4467 src/OSXCoreMidi.cpp:4467
+#: src/OSXCoreMidi.h:4467 src/WinMM.cpp:4467 src/WinMM.h:4467
+#: src/WinKS.cpp:4467 src/WinKS.h:4467
+msgid "Trying to open a non-input port as input MIDI port. This doesn't work."
+msgstr ""
+"Versuche eine Nicht-Eingang als MIDI-Eingang zu öffnen. Das geht nicht."
+
+#: src/Dummy.cpp:4481 src/Dummy.cpp:4778 src/Dummy.h:4481 src/Dummy.h:4778
+#: src/OSXCoreMidi.cpp:4481 src/OSXCoreMidi.cpp:4778 src/OSXCoreMidi.h:4481
+#: src/OSXCoreMidi.h:4778 src/WinMM.cpp:4481 src/WinMM.cpp:4778
+#: src/WinMM.h:4481 src/WinMM.h:4778 src/WinKS.cpp:4481 src/WinKS.cpp:4778
+#: src/WinKS.h:4481 src/WinKS.h:4778
+msgid ""
+"Some change in the arrangement of MIDI input ports invalidated the port "
+"descriptor."
+msgstr ""
+"Eine Veränderung bei den MIDI-Schnittstellen hat die interne "
+"Schnittstellenbeschreibung ungültig gemacht."
+
+#: src/Dummy.cpp:4496 src/Dummy.h:4496 src/OSXCoreMidi.cpp:4496
+#: src/OSXCoreMidi.h:4496 src/WinMM.cpp:4496 src/WinMM.h:4496
+#: src/WinKS.cpp:4496 src/WinKS.h:4496
+msgid "The handle is invalid. Did you disconnect the device?"
+msgstr ""
+"Ein Schnittstellenverweis ist ungültig. Haben Sie das zugehörige Gerät "
+"entfernt?"
+
+#: src/Dummy.cpp:4500 src/Dummy.cpp:4797 src/Dummy.h:4500 src/Dummy.h:4797
+#: src/OSXCoreMidi.cpp:4500 src/OSXCoreMidi.cpp:4797 src/OSXCoreMidi.h:4500
+#: src/OSXCoreMidi.h:4797 src/WinMM.cpp:4500 src/WinMM.cpp:4797
+#: src/WinMM.h:4500 src/WinMM.h:4797 src/WinKS.cpp:4500 src/WinKS.cpp:4797
+#: src/WinKS.h:4500 src/WinKS.h:4797
+#, fuzzy
+msgid ""
+"The system has no driver for our handle :-( . Did you disconnect the device?"
+msgstr ""
+"Das System hat keinen Treiber für unseren Schnittstellenverweis (mehr) :-(. "
+"Haben Sie das zugehörige Gerät entfernt?"
+
+#: src/Dummy.cpp:4504 src/Dummy.cpp:4801 src/Dummy.h:4504 src/Dummy.h:4801
+#: src/OSXCoreMidi.cpp:4504 src/OSXCoreMidi.cpp:4801 src/OSXCoreMidi.h:4504
+#: src/OSXCoreMidi.h:4801 src/WinMM.cpp:4504 src/WinMM.cpp:4801
+#: src/WinMM.h:4504 src/WinMM.h:4801 src/WinKS.cpp:4504 src/WinKS.cpp:4801
+#: src/WinKS.h:4504 src/WinKS.h:4801
+msgid "Out of memory."
+msgstr "Hauptspeicher erschöpft."
+
+#: src/Dummy.cpp:4551 src/Dummy.h:4551 src/OSXCoreMidi.cpp:4551
+#: src/OSXCoreMidi.h:4551 src/WinMM.cpp:4551 src/WinMM.h:4551
+#: src/WinKS.cpp:4551 src/WinKS.h:4551
+msgid "Error closing Windows MM MIDI input port."
+msgstr ""
+"Konnte den Windows Multimedia MIDI-Eingang nicht ordnungsgemäß schließen."
+
+#: src/Dummy.cpp:4566 src/Dummy.cpp:4733 src/Dummy.h:4566 src/Dummy.h:4733
+#: src/OSXCoreMidi.cpp:4566 src/OSXCoreMidi.cpp:4733 src/OSXCoreMidi.h:4566
+#: src/OSXCoreMidi.h:4733 src/WinMM.cpp:4566 src/WinMM.cpp:4733
+#: src/WinMM.h:4566 src/WinMM.h:4733 src/WinKS.cpp:4566 src/WinKS.cpp:4733
+#: src/WinKS.h:4566 src/WinKS.h:4733
+msgid "Setting the client name is not supported by Windows MM."
+msgstr ""
+"Das Ändern des Namens des MIDI-Klienten wird vom Windows MIDI Mapper nicht "
+"unterstützt."
+
+#: src/Dummy.cpp:4572 src/Dummy.cpp:4739 src/Dummy.h:4572 src/Dummy.h:4739
+#: src/OSXCoreMidi.cpp:4572 src/OSXCoreMidi.cpp:4739 src/OSXCoreMidi.h:4572
+#: src/OSXCoreMidi.h:4739 src/WinMM.cpp:4572 src/WinMM.cpp:4739
+#: src/WinMM.h:4572 src/WinMM.h:4739 src/WinKS.cpp:4572 src/WinKS.cpp:4739
+#: src/WinKS.h:4572 src/WinKS.h:4739
+msgid "Setting the port name is not supported by Windows MM."
+msgstr ""
+"Das Ändern des Namens der MIDI-Schnittstelle wird vom Windows MIDI Mapper "
+"nicht unterstützt."
+
+#: src/Dummy.cpp:4639 src/Dummy.h:4639 src/OSXCoreMidi.cpp:4639
+#: src/OSXCoreMidi.h:4639 src/WinMM.cpp:4639 src/WinMM.h:4639
+#: src/WinKS.cpp:4639 src/WinKS.h:4639
+msgid "No MIDI output devices currently available."
+msgstr "Es gibt momentan keine MIDI-Ausgabegeräte."
+
+#: src/Dummy.cpp:4694 src/Dummy.h:4694 src/OSXCoreMidi.cpp:4694
+#: src/OSXCoreMidi.h:4694 src/WinMM.cpp:4694 src/WinMM.h:4694
+#: src/WinKS.cpp:4694 src/WinKS.h:4694
+msgid "No MIDI output destinations found!"
+msgstr "Es wurden keine MIDI-Ausgabegeräte gefunden."
+
+#: src/Dummy.cpp:4712 src/Dummy.h:4712 src/OSXCoreMidi.cpp:4712
+#: src/OSXCoreMidi.h:4712 src/WinMM.cpp:4712 src/WinMM.h:4712
+#: src/WinKS.cpp:4712 src/WinKS.h:4712
+msgid "Error creating Windows MM MIDI output port."
+msgstr "Konnte den Windows Multimedia MIDI-Ausgang nicht erzeugen."
+
+#: src/Dummy.cpp:4764 src/Dummy.h:4764 src/OSXCoreMidi.cpp:4764
+#: src/OSXCoreMidi.h:4764 src/WinMM.cpp:4764 src/WinMM.h:4764
+#: src/WinKS.cpp:4764 src/WinKS.h:4764
+msgid "The port descriptor cannot be used to open an output port."
+msgstr ""
+"Eine Schnittstellenbeschreibung kann nicht benutzt werden, um einen MIDI-"
+"Ausgang zu erzeugen."
+
+#: src/Dummy.cpp:4793 src/Dummy.h:4793 src/OSXCoreMidi.cpp:4793
+#: src/OSXCoreMidi.h:4793 src/WinMM.cpp:4793 src/WinMM.h:4793
+#: src/WinKS.cpp:4793 src/WinKS.h:4793
+msgid "The internal handle is invalid. Did you disconnect the device?"
+msgstr ""
+"Ein interner Schnittstellenverweis ist ungültig. Haben sie das zugehörige "
+"Gerät entfernt?"
+
+#: src/Dummy.cpp:4828 src/Dummy.h:4828 src/OSXCoreMidi.cpp:4828
+#: src/OSXCoreMidi.h:4828 src/WinMM.cpp:4828 src/WinMM.h:4828
+#: src/WinKS.cpp:4828 src/WinKS.h:4828
+msgid "Message argument is empty."
+msgstr "Das Nachrichtenargument ist leer."
+
+#: src/Dummy.cpp:4840 src/Dummy.h:4840 src/OSXCoreMidi.cpp:4840
+#: src/OSXCoreMidi.h:4840 src/WinMM.cpp:4840 src/WinMM.h:4840
+#: src/WinKS.cpp:4840 src/WinKS.h:4840
+msgid "Error while allocating sysex message memory."
+msgstr "Fehler beim Anlegen des Speichers für SysEx-Nachrichten."
+
+#: src/Dummy.cpp:4856 src/Dummy.h:4856 src/OSXCoreMidi.cpp:4856
+#: src/OSXCoreMidi.h:4856 src/WinMM.cpp:4856 src/WinMM.h:4856
+#: src/WinKS.cpp:4856 src/WinKS.h:4856
+msgid "Error preparing sysex header."
+msgstr "Fehler beim Erstellen des SysEx-Kopfes."
+
+#: src/Dummy.cpp:4865 src/Dummy.h:4865 src/OSXCoreMidi.cpp:4865
+#: src/OSXCoreMidi.h:4865 src/WinMM.cpp:4865 src/WinMM.h:4865
+#: src/WinKS.cpp:4865 src/WinKS.h:4865
+msgid "Error sending sysex message."
+msgstr "Fehler beim Senden der SysEx-Nachricht."
+
+#: src/Dummy.cpp:4878 src/Dummy.h:4878 src/OSXCoreMidi.cpp:4878
+#: src/OSXCoreMidi.h:4878 src/WinMM.cpp:4878 src/WinMM.h:4878
+#: src/WinKS.cpp:4878 src/WinKS.h:4878
+#, fuzzy
+msgid "Message size is greater than 3 bytes ( and not sysex )."
+msgstr ""
+"Eine MIDI-Nachricht ist größer als 3 Bytes (und keine SysEx-Nachricht)."
+
+#: src/Dummy.cpp:4894 src/Dummy.h:4894 src/OSXCoreMidi.cpp:4894
+#: src/OSXCoreMidi.h:4894 src/WinMM.cpp:4894 src/WinMM.h:4894
+#: src/WinKS.cpp:4894 src/WinKS.h:4894
+msgid "Error sending MIDI message."
+msgstr "Fehler beim Senden der MIDI-Nachricht."
+
+#: src/Dummy.cpp:4941 src/Dummy.cpp:4955 src/Dummy.h:4941 src/Dummy.h:4955
+#: src/OSXCoreMidi.cpp:4941 src/OSXCoreMidi.cpp:4955 src/OSXCoreMidi.h:4941
+#: src/OSXCoreMidi.h:4955 src/WinMM.cpp:4941 src/WinMM.cpp:4955
+#: src/WinMM.h:4941 src/WinMM.h:4955 src/JACK.h:95 src/WinKS.cpp:4941
+#: src/WinKS.cpp:4955 src/WinKS.h:4941 src/WinKS.h:4955
+msgid "Could not initialise the JACK client mutex"
+msgstr ""
+
+#: src/Dummy.cpp:5151 src/Dummy.h:5151 src/OSXCoreMidi.cpp:5151
+#: src/OSXCoreMidi.h:5151 src/WinMM.cpp:5151 src/WinMM.h:5151 src/JACK.h:308
+#: src/WinKS.cpp:5151 src/WinKS.h:5151
+msgid "Could not connect to JACK server. Is it runnig?"
+msgstr "Ich konnte mich nicht mit dem JACK-Server verbinden. Läuft er?"
+
+#: src/Dummy.cpp:5273 src/Dummy.h:5273 src/OSXCoreMidi.cpp:5273
+#: src/OSXCoreMidi.h:5273 src/WinMM.cpp:5273 src/WinMM.h:5273 src/JACK.h:435
+#: src/WinKS.cpp:5273 src/WinKS.h:5273
+msgid "Invalid port submitted to JackPortDescriptor( )."
+msgstr ""
+
+#: src/Dummy.cpp:5466 src/Dummy.h:5466 src/OSXCoreMidi.cpp:5466
+#: src/OSXCoreMidi.h:5466 src/WinMM.cpp:5466 src/WinMM.h:5466 src/JACK.h:652
+#: src/WinKS.cpp:5466 src/WinKS.h:5466
+msgid "No ports available."
+msgstr "Keine Schnittstellen verfügbar."
+
+#: src/Dummy.cpp:5488 src/Dummy.h:5488 src/OSXCoreMidi.cpp:5488
+#: src/OSXCoreMidi.h:5488 src/WinMM.cpp:5488 src/WinMM.h:5488 src/JACK.h:680
+#: src/WinKS.cpp:5488 src/WinKS.h:5488
+msgid "Error opening JACK port subscription."
+msgstr "Fehler beim abonnieren einer JACK-Schnittstelle."
+
+#: src/Dummy.cpp:5765 src/Dummy.h:5765 src/OSXCoreMidi.cpp:5765
+#: src/OSXCoreMidi.h:5765 src/WinMM.cpp:5765 src/WinMM.h:5765 src/JACK.cpp:223
+#: src/WinKS.cpp:5765 src/WinKS.h:5765
+msgid "JACK server not running?"
+msgstr "Läuft der JACK-Server?"
+
+#: src/Dummy.cpp:5790 src/Dummy.cpp:5811 src/Dummy.cpp:5838 src/Dummy.cpp:5853
+#: src/Dummy.cpp:5885 src/Dummy.cpp:5929 src/Dummy.cpp:5939 src/Dummy.h:5790
+#: src/Dummy.h:5811 src/Dummy.h:5838 src/Dummy.h:5853 src/Dummy.h:5885
+#: src/Dummy.h:5929 src/Dummy.h:5939 src/OSXCoreMidi.cpp:5790
+#: src/OSXCoreMidi.cpp:5811 src/OSXCoreMidi.cpp:5838 src/OSXCoreMidi.cpp:5853
+#: src/OSXCoreMidi.cpp:5885 src/OSXCoreMidi.cpp:5929 src/OSXCoreMidi.cpp:5939
+#: src/OSXCoreMidi.h:5790 src/OSXCoreMidi.h:5811 src/OSXCoreMidi.h:5838
+#: src/OSXCoreMidi.h:5853 src/OSXCoreMidi.h:5885 src/OSXCoreMidi.h:5929
+#: src/OSXCoreMidi.h:5939 src/WinMM.cpp:5790 src/WinMM.cpp:5811
+#: src/WinMM.cpp:5838 src/WinMM.cpp:5853 src/WinMM.cpp:5885 src/WinMM.cpp:5929
+#: src/WinMM.cpp:5939 src/WinMM.h:5790 src/WinMM.h:5811 src/WinMM.h:5838
+#: src/WinMM.h:5853 src/WinMM.h:5885 src/WinMM.h:5929 src/WinMM.h:5939
+#: src/JACK.cpp:248 src/JACK.cpp:266 src/JACK.cpp:279 src/JACK.cpp:306
+#: src/JACK.cpp:321 src/JACK.cpp:346 src/JACK.cpp:356 src/JACK.cpp:396
+#: src/JACK.cpp:405 src/WinKS.cpp:5790 src/WinKS.cpp:5811 src/WinKS.cpp:5838
+#: src/WinKS.cpp:5853 src/WinKS.cpp:5885 src/WinKS.cpp:5929 src/WinKS.cpp:5939
+#: src/WinKS.h:5790 src/WinKS.h:5811 src/WinKS.h:5838 src/WinKS.h:5853
+#: src/WinKS.h:5885 src/WinKS.h:5929 src/WinKS.h:5939
+msgid "Missing JACK MIDI data object."
+msgstr ""
+
+#: src/Dummy.cpp:5818 src/Dummy.h:5818 src/OSXCoreMidi.cpp:5818
+#: src/OSXCoreMidi.h:5818 src/WinMM.cpp:5818 src/WinMM.h:5818 src/JACK.cpp:286
+#: src/WinKS.cpp:5818 src/WinKS.h:5818
+msgid ""
+"JACK has been instructed to open a non-JACK MIDI port. This doesn't work."
+msgstr ""
+"JACK wurde angewiesen, eine nicht-JACK-Schnittstelle zu öffnen. Das geht "
+"nicht."
+
+#: src/Dummy.cpp:5878 src/Dummy.h:5878 src/OSXCoreMidi.cpp:5878
+#: src/OSXCoreMidi.h:5878 src/WinMM.cpp:5878 src/WinMM.h:5878
+#: src/WinKS.cpp:5878 src/WinKS.h:5878
+msgid "Setting the client name is not supported by JACK."
+msgstr ""
+"Das Ändern des Namens des MIDI-Klienten wird von JACK nicht unterstützt."
+
+#: src/Dummy.cpp:5897 src/Dummy.h:5897 src/OSXCoreMidi.cpp:5897
+#: src/OSXCoreMidi.h:5897 src/WinMM.cpp:5897 src/WinMM.h:5897 src/JACK.cpp:368
+#: src/WinKS.cpp:5897 src/WinKS.h:5897
+msgid "Cannot allocate JACK MIDI data object."
+msgstr ""
+
+#: src/Dummy.cpp:6013 src/Dummy.h:6013 src/RtMidi.cpp:208
+#: src/OSXCoreMidi.cpp:6013 src/OSXCoreMidi.h:6013 src/WinMM.cpp:6013
+#: src/WinMM.h:6013 src/WinKS.cpp:6013 src/WinKS.h:6013
 #, c-format
 msgid ""
 "Error formatting the error string:\n"
@@ -111,11 +893,25 @@ msgstr ""
 "gefunden in %s::%s bei \n"
 "%s:%d"
 
-#: RtMidi.cpp:408
+#: src/Dummy.cpp:6025 src/Dummy.h:6025 src/RtMidi.cpp:220
+#: src/OSXCoreMidi.cpp:6025 src/OSXCoreMidi.h:6025 src/WinMM.cpp:6025
+#: src/WinMM.h:6025 src/WinKS.cpp:6025 src/WinKS.h:6025
 msgid "Error: could not format the error message"
 msgstr "Fehler: Ich konnte eine Fehlermeldung nicht formatieren."
 
-#: RtMidi.cpp:579 RtMidi.cpp:692
+#: src/Dummy.cpp:6195 src/Dummy.cpp:6367 src/Dummy.h:6195 src/Dummy.h:6367
+#: src/RtMidi.cpp:393 src/RtMidi.cpp:569 src/OSXCoreMidi.cpp:6195
+#: src/OSXCoreMidi.cpp:6367 src/OSXCoreMidi.h:6195 src/OSXCoreMidi.h:6367
+#: src/WinMM.cpp:6195 src/WinMM.cpp:6367 src/WinMM.h:6195 src/WinMM.h:6367
+#: src/WinKS.cpp:6195 src/WinKS.cpp:6367 src/WinKS.h:6195 src/WinKS.h:6367
+msgid "No supported MIDI system has been found."
+msgstr "Es konnte kein benutzbares MIDI-System gefunden werden."
+
+#: src/Dummy.cpp:6224 src/Dummy.cpp:6344 src/Dummy.h:6224 src/Dummy.h:6344
+#: src/RtMidi.cpp:423 src/RtMidi.cpp:546 src/OSXCoreMidi.cpp:6224
+#: src/OSXCoreMidi.cpp:6344 src/OSXCoreMidi.h:6224 src/OSXCoreMidi.h:6344
+#: src/WinMM.cpp:6224 src/WinMM.cpp:6344 src/WinMM.h:6224 src/WinMM.h:6344
+#: src/WinKS.cpp:6224 src/WinKS.cpp:6344 src/WinKS.h:6224 src/WinKS.h:6344
 #, c-format
 msgid ""
 "Support for the selected MIDI system %d has not been compiled into the "
@@ -124,23 +920,21 @@ msgstr ""
 "Die Unterstützung für das gewählte MIDI-System %d wurde  nicht in die RtMidi-"
 "Bibliothek eingebaut."
 
-#: RtMidi.cpp:597 RtMidi.cpp:709
-msgid "No supported MIDI system has been found."
-msgstr "Es konnte kein benutzbares MIDI-System gefunden werden."
-
-#: RtMidi.cpp:798 RtMidi.cpp:815
+#: src/Dummy.cpp:6510 src/Dummy.h:6510 src/RtMidi.cpp:724
+#: src/OSXCoreMidi.cpp:6510 src/OSXCoreMidi.h:6510 src/WinMM.cpp:6510
+#: src/WinMM.h:6510 src/WinKS.cpp:6510 src/WinKS.h:6510
 msgid "A callback function is already set."
 msgstr "Es wurde schon eine Rückruffunktion gesetzt."
 
-#: RtMidi.cpp:804 RtMidi.cpp:821
-msgid "The callback function value is invalid."
-msgstr "Der Funktionswert einer aufgerufenen Rückruffunktion ist ungültig."
-
-#: RtMidi.cpp:832
+#: src/Dummy.cpp:6527 src/Dummy.h:6527 src/RtMidi.cpp:741
+#: src/OSXCoreMidi.cpp:6527 src/OSXCoreMidi.h:6527 src/WinMM.cpp:6527
+#: src/WinMM.h:6527 src/WinKS.cpp:6527 src/WinKS.h:6527
 msgid "No callback function was set."
 msgstr "Es wurde keine Rückruffunktion gesetzt."
 
-#: RtMidi.cpp:854
+#: src/Dummy.cpp:6544 src/Dummy.h:6544 src/RtMidi.cpp:758
+#: src/OSXCoreMidi.cpp:6544 src/OSXCoreMidi.h:6544 src/WinMM.cpp:6544
+#: src/WinMM.h:6544 src/WinKS.cpp:6544 src/WinKS.h:6544
 msgid ""
 "Returning an empty MIDI message as all input is handled by a callback "
 "function."
@@ -148,191 +942,15 @@ msgstr ""
 "Es wird eine leere MIDI-Nachricht generiert, weil alle Eingaben durch eine "
 "Rückruf-Funktion (engl. callback) abgefangen werden."
 
-#: RtMidi.cpp:1585
-msgid "Could not get the unique identifier of a midi endpoint."
-msgstr ""
-"Konnte die eindeutige Identifikation (UUID) eines MIDI-Endpunktes nicht "
-"bekommen."
-
-#: RtMidi.cpp:1595
-msgid ""
-"Could not get the endpoint back from the unique identifier of a midi "
-"endpoint."
-msgstr ""
-"Konnte den MIDI-Endpunkt einer eindeutige Identifikation (UUID) nicht "
-"bekommen."
-
-#: RtMidi.cpp:1610
-msgid "Could not get the entity of a midi endpoint."
-msgstr "Konnte die Geräteeinheit eines MIDI-Endpunktes nicht bekommen."
-
-#: RtMidi.cpp:1671 RtMidi.cpp:1707
-msgid "Error creating OS X MIDI port because of invalid port flags."
-msgstr ""
-"Konnte die OS X-MIDI-Schnittstelle nicht anlegen, da ungültige Eigenschaften "
-"angegeben wurden."
-
-#: RtMidi.cpp:1675 RtMidi.cpp:1711 RtMidi.cpp:2254
-msgid "Error creating OS-X MIDI port."
-msgstr "Es gab einen Fehler beim Erzeugen der MIDI-Schnittstelle."
-
-#: RtMidi.cpp:1760
-#, c-format
-msgid "Error creating OS-X MIDI client object (Error no: %d)."
-msgstr "Fehler beim erzeugen des OS-X-MIDI-Klienten (Fehlernummer: %d)."
-
-#: RtMidi.cpp:2014 RtMidi.cpp:2080 RtMidi.cpp:3476 RtMidi.cpp:4720
-#: RtMidi.cpp:5931
-msgid "Error: Message queue limit reached."
-msgstr "Fehler: Die Nachrichten-Warteschlange ist überlang."
-
-#: RtMidi.cpp:2141 RtMidi.cpp:2235 RtMidi.cpp:2412 RtMidi.cpp:2526
-#: RtMidi.cpp:3623 RtMidi.cpp:3740 RtMidi.cpp:4032 RtMidi.cpp:4194
-#: RtMidi.cpp:4777 RtMidi.cpp:5089 RtMidi.cpp:5161 RtMidi.cpp:6084
-#: RtMidi.cpp:6317
-msgid "A valid connection already exists."
-msgstr "Es existiert schon eine gültige Verbindung."
-
-#: RtMidi.cpp:2149 RtMidi.cpp:3630 RtMidi.cpp:4784
-msgid "No MIDI input sources found."
-msgstr "Keine MIDI-Eingabe-Geräte gefunden."
-
-#: RtMidi.cpp:2158 RtMidi.cpp:2337 RtMidi.cpp:2395 RtMidi.cpp:2426
-#: RtMidi.cpp:3640 RtMidi.cpp:4052 RtMidi.cpp:4989 RtMidi.cpp:5063
-#: RtMidi.cpp:5102 RtMidi.cpp:6182 RtMidi.cpp:6408
-#, c-format
-msgid "The 'portNumber' argument (%d) is invalid."
-msgstr "Die Portnummer %d ist ungültig."
-
-#: RtMidi.cpp:2170
-msgid "Error creating OS-X MIDI input port."
-msgstr "Fehler beim Erzeugen der OS-X-MIDI-Eingabe-Schnittstelle."
-
-#: RtMidi.cpp:2181
-msgid "Error getting MIDI input source reference."
-msgstr "Konnte keine Referenz zum MIDI-Eingang bekommen."
-
-#: RtMidi.cpp:2192
-msgid "Error connecting OS-X MIDI input port."
-msgstr "Fehler beim verbinden mit dem OS-X-MIDI-Eingang."
-
-#: RtMidi.cpp:2214
-msgid "Error creating virtual OS-X MIDI destination."
-msgstr "Konnte den virtuellen OS-X-MIDI-Ausgang nicht erzeugen."
-
-#: RtMidi.cpp:2230 RtMidi.cpp:2521 RtMidi.cpp:3735 RtMidi.cpp:4189
-#: RtMidi.cpp:6078 RtMidi.cpp:6311
-msgid "Data has not been allocated."
-msgstr "Daten konnten nicht angelegt werden."
-
-#: RtMidi.cpp:2240 RtMidi.cpp:2531
-msgid ""
-"Core MIDI has been instructed to open a non-Core MIDI port. This doesn't "
-"work."
-msgstr ""
-"Core-MIDI wurde angewiesen, eine nicht-Core-MIDI-Schnittstelle zu öffnen. "
-"Das geht nicht."
-
-#: RtMidi.cpp:2312 RtMidi.cpp:2479
-msgid "Setting client names is not implemented for Mac OS X CoreMIDI."
-msgstr ""
-"Das Ändern des Namens des MIDI-Klienten ist für Mac OS X CoreMIDI nicht "
-"implementiert."
-
-#: RtMidi.cpp:2318 RtMidi.cpp:2485
-msgid "Setting port names is not implemented for Mac OS X CoreMIDI."
-msgstr ""
-"Das Ändern des Namens einer MIDI-Schnittstelle ist für Mac OS X CoreMIDI "
-"nicht implementiert."
-
-#: RtMidi.cpp:2420
-msgid "No MIDI output destinations found."
-msgstr "Es wurden keine MIDI-Ausgabegeräte gefunden."
-
-#: RtMidi.cpp:2438
-msgid "Error creating OS-X MIDI output port."
-msgstr "Fehler beim Erzeugen der OS-X-MIDI-Ausgabe-Schnittstelle."
-
-#: RtMidi.cpp:2449
-msgid "Error getting MIDI output destination reference."
-msgstr "Konnte keine Referenz zum MIDI-Ausgang bekommen."
-
-#: RtMidi.cpp:2494
-msgid "A virtual output port already exists."
-msgstr "Es gibt schon einen virtuellen MIDI-Ausgang."
-
-#: RtMidi.cpp:2505
-msgid "Error creating OS-X virtual MIDI source."
-msgstr "Konnte den virtuellen OS-X-MIDI-Eingang nicht erzeugen."
-
-#: RtMidi.cpp:2608
-msgid "message format problem ... not sysex but > 3 bytes?"
-msgstr ""
-"Nachrichtenformatproblem: Eine MIDI-Nachricht ist größer als 3 Bytes (und "
-"keine SysEx-Nachricht)."
-
-#: RtMidi.cpp:2627
-msgid "Could not allocate packet list."
-msgstr "Konnte die Paketliste nicht anlegen."
-
-#: RtMidi.cpp:2636
-msgid "Error sending MIDI to virtual destinations."
-msgstr "Konnte MIDI-Daten nicht zu virtuellen Ausgängen senden."
-
-#: RtMidi.cpp:2645 RtMidi.cpp:4175
-msgid "Error sending MIDI message to port."
-msgstr "Fehler beim Senden der MIDI-Nachricht zum Ausgang."
-
-#: RtMidi.cpp:2810
-msgid "Could not allocate ALSA port info structure."
-msgstr ""
-"Konnte keinen Speicher für die ALSA-MIDI-Schnittstelleninformation bekommen."
-
-#: RtMidi.cpp:2814
-#, c-format
-msgid "Could not get ALSA port information: %s"
-msgstr "Konnte keine ALSA-Schnittstelleninformation bekommen: %s"
-
-#: RtMidi.cpp:2820
-#, c-format
-msgid "Could not set ALSA port information: %s"
-msgstr "Konnte ALSA-Schnittstelleninformation nicht ändern: %s"
-
-#: RtMidi.cpp:2873 RtMidi.cpp:3149 RtMidi.cpp:3684 RtMidi.cpp:3745
-#: RtMidi.cpp:4079
-msgid "Could not allocate ALSA port subscription."
-msgstr ""
-"Konnte keinen Speicher für das Abonnoment der ALSA-MIDI-Schnittstelle "
-"bekommen."
-
-#: RtMidi.cpp:2888 RtMidi.cpp:3693 RtMidi.cpp:4090
-msgid "Error making ALSA port connection."
-msgstr "Konnte zwei ALSA-Schnittstellen nicht miteinander verbinden."
-
-#: RtMidi.cpp:3219 RtMidi.cpp:3719 RtMidi.cpp:3868
-msgid "Error starting MIDI input thread!"
-msgstr "Konnte den MIDI-Eingabe-Prozess nicht starten."
-
-#: RtMidi.cpp:3257 RtMidi.cpp:3974
-msgid "Error initializing MIDI event parser."
-msgstr "Fehler bei der Initialisierung des MIDI-Ereeignisparsers."
-
-#: RtMidi.cpp:3270
-msgid "Error initializing buffer memory."
-msgstr "Fehler beim Anlegen des Pufferspeichers."
-
-#: RtMidi.cpp:3304
-msgid "MIDI input buffer overrun."
+#: src/ALSA.cpp:582
+#, fuzzy
+msgid "ALSA MIDI input buffer overrun."
 msgstr "MIDI-Eingabepuffer übergelaufen."
 
-#: RtMidi.cpp:3314
-msgid "ALSA returned without providing a MIDI event."
-msgstr "ALSA kam zurück ohne ein MIDI-Ereignis mitzubringen."
-
-#: RtMidi.cpp:3324
-#, c-format
+#: src/ALSA.cpp:602
+#, fuzzy, c-format
 msgid ""
-"Unknown MIDI input error.\n"
+"Unknown ALSA MIDI input error.\n"
 "The system reports:\n"
 "%s"
 msgstr ""
@@ -340,261 +958,83 @@ msgstr ""
 "Das System meldet:\n"
 "%s"
 
-#: RtMidi.cpp:3382
-msgid "Error resizing buffer memory."
-msgstr "Fehler beim Ändern der Grüße des Pufferspeichers."
+#: src/ALSA.cpp:614 src/ALSA.cpp:625
+#, c-format
+msgid "Received an ALSA event with an invalid port number (%d)."
+msgstr ""
 
-#: RtMidi.cpp:3455
-msgid "Event parsing error or not a MIDI event."
+#: src/ALSA.cpp:1037
+#, fuzzy
+msgid "Error creating ALSA port."
+msgstr "Fehler beim Erzeugen der ALSA-Eingabe-Schnittstelle."
+
+#: src/ALSA.h:190
+#, fuzzy
+msgid "Error creating ALSA MIDI pipe objects."
+msgstr "Fehler beim anlegen einer Pipe."
+
+#: src/ALSA.h:203 src/ALSA.h:928
+#, fuzzy
+msgid "Error initializing ALSA MIDI event parser."
+msgstr "Fehler bei der Initialisierung des MIDI-Ereeignisparsers."
+
+#: src/ALSA.h:564
+#, fuzzy, c-format
+msgid "Error sending ALSA MIDI message with negative length %d."
+msgstr "Fehler beim Senden der MIDI-Nachricht zum Ausgang."
+
+#: src/ALSA.h:600
+#, fuzzy, c-format
+msgid ""
+"Error sending ALSA MIDI message to port.\n"
+"Error %d: %s"
+msgstr "Fehler beim Senden der MIDI-Nachricht zum Ausgang."
+
+#: src/ALSA.h:634
+#, fuzzy
+msgid "Error starting ALSA MIDI input thread!"
+msgstr "Konnte den MIDI-Eingabe-Prozess nicht starten."
+
+#: src/ALSA.h:903
+msgid "ALSA input port has algready been connected."
+msgstr ""
+
+#: src/ALSA.h:910
+#, fuzzy
+msgid "ALSA output port has algready been connected."
+msgstr "Es gibt schon einen virtuellen MIDI-Ausgang."
+
+#: src/ALSA.h:920
+#, fuzzy
+msgid "Tying to initialize null pointer as ALSA MIDI event parser."
+msgstr "Fehler bei der Initialisierung des MIDI-Ereeignisparsers."
+
+#: src/ALSA.h:1267
+#, fuzzy
+msgid "Event parsing error or not an ALSA MIDI event."
 msgstr ""
 "Analyse eines Ereignisses fehlgeschlagen oder es war kein MIDI-Ereignis."
 
-#: RtMidi.cpp:3532
-msgid "Error creating pipe objects."
-msgstr "Fehler beim anlegen einer Pipe."
+#~ msgid "Could not find any valid MIDI system."
+#~ msgstr "Es konnte kein benutzbares MIDI-System gefunden werden."
 
-#: RtMidi.cpp:3615 RtMidi.cpp:4024
-msgid "Error looking for port name."
-msgstr "Fehler beim Suchen nach einem Schnittstellennamen."
+#~ msgid "No valid MIDI system has been found."
+#~ msgstr "Es konnte kein benutzbares MIDI-System gefunden werden."
 
-#: RtMidi.cpp:3671
-msgid "Error creating ALSA input port."
-msgstr "Fehler beim Erzeugen der ALSA-Eingabe-Schnittstelle."
+#~ msgid "Error initializing buffer memory."
+#~ msgstr "Fehler beim Anlegen des Pufferspeichers."
 
-#: RtMidi.cpp:3750 RtMidi.cpp:4204
-msgid ""
-"ALSA has been instructed to open a non-ALSA MIDI port. This doesn't work."
-msgstr ""
-"ALSA wurde angewiesen, eine nicht-ALSA-MIDI-Schnittstelle zu öffnen. Das "
-"geht nicht."
+#~ msgid "Error while allocating buffer memory."
+#~ msgstr "Fehler beim Anlegen des Pufferspeichers."
 
-#: RtMidi.cpp:3834 RtMidi.cpp:4130
-msgid "Error creating ALSA virtual port."
-msgstr "Fehler beim Erzeugen einer virtuellen ALSA-Schnittstelle."
+#~ msgid "Event parsing error."
+#~ msgstr "Fehler bei der Analyse eines Ereignisses."
 
-#: RtMidi.cpp:3957
-msgid "Error creating ALSA sequencer client object."
-msgstr "Fehler beim erzeugen des ALSA-Klienten."
+#~ msgid "Error creating JACK port."
+#~ msgstr "Es gab einen Fehler beim Erzeugen der JACK-Schnittstelle."
 
-#: RtMidi.cpp:3981 RtMidi.cpp:4153
-msgid "Error while allocating buffer memory."
-msgstr "Fehler beim Anlegen des Pufferspeichers."
-
-#: RtMidi.cpp:4040
-msgid "No MIDI output sinks found."
-msgstr "Es wurden kiene Midi-Ausgabegeräte gefunden."
-
-#: RtMidi.cpp:4067
-msgid "Error creating ALSA output port."
-msgstr "Fehler beim Erzeugen der ALSA-Ausgangs."
-
-#: RtMidi.cpp:4146
-msgid "ALSA error resizing MIDI event buffer."
-msgstr "ALSA-Fehler beim Verändern der Größe des MIDI-Nachrichten-Puffers."
-
-#: RtMidi.cpp:4167
-msgid "Event parsing error."
-msgstr "Fehler bei der Analyse eines Ereignisses."
-
-#: RtMidi.cpp:4199
-msgid "Error allocating ALSA port subscription."
-msgstr ""
-"Konnte keinen Speicher für das Abonnoment der ALSA-MIDI-Schnittstelle "
-"bekommen."
-
-#: RtMidi.cpp:4377
-#, c-format
-msgid "The port argument %d is invalid."
-msgstr "Das Schnittstellenargument %d ist ungültig."
-
-#: RtMidi.cpp:4698
-msgid "Error sending sysex to Midi device."
-msgstr "Fehler beim Senden der SysEx-Nachricht zum MIDI-Gerät."
-
-#: RtMidi.cpp:4759
-msgid "No MIDI input devices currently available."
-msgstr "Es gibt momentan keine MIDI-Eingabegeräte."
-
-#: RtMidi.cpp:4769
-msgid "Failed to initialize a critical section."
-msgstr "Konnte kritischen Bereich nicht initialisieren."
-
-#: RtMidi.cpp:4793
-#, c-format
-msgid "the 'portNumber' argument (%d) is invalid."
-msgstr "Die Portnummer %d ist ungültig."
-
-#: RtMidi.cpp:4805
-msgid "Error creating Windows MM MIDI input port."
-msgstr "Konnte den Windows-Multimedia-MIDI-Eingang nicht erzeugen."
-
-#: RtMidi.cpp:4822
-msgid "Error initializing data for Windows MM MIDI input port."
-msgstr ""
-"Fehler beim Erzeugen der daten für einen Windows Multimedia MIDI-Eingang."
-
-#: RtMidi.cpp:4832
-msgid "Could not register the input buffer for Windows MM MIDI input port."
-msgstr ""
-"Konnte den Eingabe-Puffer eines Windows-Multimedia-MIDI-Eingangs nicht "
-"erzeugen."
-
-#: RtMidi.cpp:4842
-msgid "Error starting Windows MM MIDI input port."
-msgstr "Konnte einen Windows-Multimedia-MIDI-Eingang nicht aktivieren."
-
-#: RtMidi.cpp:4853 RtMidi.cpp:5148
-msgid "Virtual ports are not available Windows Multimedia MIDI API."
-msgstr ""
-"Windows Multimedia unterstützt keine virtuellen MIDI-Ein- und -Ausgänge."
-
-#: RtMidi.cpp:4860 RtMidi.cpp:5156
-msgid ""
-"Windows Multimedia (WinMM) has been instructed to open a non-WinMM MIDI "
-"port. This doesn't work."
-msgstr ""
-"Windows Multimedia (WinMM) wurde angewiesen, eine nicht-WinMM-MIDI-"
-"Schnittstelle zu öffnen. Das geht nicht."
-
-#: RtMidi.cpp:4865
-msgid ""
-"We are overwriting an existing connection. This is probably a programming "
-"error."
-msgstr ""
-"Wir überschreiben eine vorhandene MIDI-Verbindung. Das ist vermutlich ein "
-"Programmierfehler."
-
-#: RtMidi.cpp:4870
-msgid "Trying to open a non-input port as input MIDI port. This doesn't work."
-msgstr ""
-"Versuche eine Nicht-Eingang als MIDI-Eingang zu öffnen. Das geht nicht."
-
-#: RtMidi.cpp:4884 RtMidi.cpp:5180
-msgid ""
-"Some change in the arrangement of MIDI input ports invalidated the port "
-"descriptor."
-msgstr ""
-"Eine Veränderung bei den MIDI-Schnittstellen hat die interne "
-"Schnittstellenbeschreibung ungültig gemacht."
-
-#: RtMidi.cpp:4899
-msgid "The handle is invalid. Did you disconnect the device?"
-msgstr ""
-"Ein Schnittstellenverweis ist ungültig. Haben Sie das zugehörige Gerät "
-"entfernt?"
-
-#: RtMidi.cpp:4903 RtMidi.cpp:5199
-msgid ""
-"The system has no driver for our handle :-(. Did you disconnect the device?"
-msgstr ""
-"Das System hat keinen Treiber für unseren Schnittstellenverweis (mehr) :-(. "
-"Haben Sie das zugehörige Gerät entfernt?"
-
-#: RtMidi.cpp:4907 RtMidi.cpp:5203
-msgid "Out of memory."
-msgstr "Hauptspeicher erschöpft."
-
-#: RtMidi.cpp:4954
-msgid "Error closing Windows MM MIDI input port."
-msgstr ""
-"Konnte den Windows Multimedia MIDI-Eingang nicht ordnungsgemäß schließen."
-
-#: RtMidi.cpp:4969 RtMidi.cpp:5135
-msgid "Setting the client name is not supported by Windows MM."
-msgstr ""
-"Das Ändern des Namens des MIDI-Klienten wird vom Windows MIDI Mapper nicht "
-"unterstützt."
-
-#: RtMidi.cpp:4975 RtMidi.cpp:5141
-msgid "Setting the port name is not supported by Windows MM."
-msgstr ""
-"Das Ändern des Namens der MIDI-Schnittstelle wird vom Windows MIDI Mapper "
-"nicht unterstützt."
-
-#: RtMidi.cpp:5041
-msgid "No MIDI output devices currently available."
-msgstr "Es gibt momentan keine MIDI-Ausgabegeräte."
-
-#: RtMidi.cpp:5096
-msgid "No MIDI output destinations found!"
-msgstr "Es wurden keine MIDI-Ausgabegeräte gefunden."
-
-#: RtMidi.cpp:5114
-msgid "Error creating Windows MM MIDI output port."
-msgstr "Konnte den Windows Multimedia MIDI-Ausgang nicht erzeugen."
-
-#: RtMidi.cpp:5166
-msgid "The port descriptor cannot be used to open an output port."
-msgstr ""
-"Eine Schnittstellenbeschreibung kann nicht benutzt werden, um einen MIDI-"
-"Ausgang zu erzeugen."
-
-#: RtMidi.cpp:5195
-msgid "The internal handle is invalid. Did you disconnect the device?"
-msgstr ""
-"Ein interner Schnittstellenverweis ist ungültig. Haben sie das zugehörige "
-"Gerät entfernt?"
-
-#: RtMidi.cpp:5230
-msgid "Message argument is empty."
-msgstr "Das Nachrichtenargument ist leer."
-
-#: RtMidi.cpp:5242
-msgid "Error while allocating sysex message memory."
-msgstr "Fehler beim Anlegen des Speichers für SysEx-Nachrichten."
-
-#: RtMidi.cpp:5258
-msgid "Error preparing sysex header."
-msgstr "Fehler beim Erstellen des SysEx-Kopfes."
-
-#: RtMidi.cpp:5267
-msgid "Error sending sysex message."
-msgstr "Fehler beim Senden der SysEx-Nachricht."
-
-#: RtMidi.cpp:5280
-msgid "Message size is greater than 3 bytes (and not sysex)."
-msgstr ""
-"Eine MIDI-Nachricht ist größer als 3 Bytes (und keine SysEx-Nachricht)."
-
-#: RtMidi.cpp:5296
-msgid "Error sending MIDI message."
-msgstr "Fehler beim Senden der MIDI-Nachricht."
-
-#: RtMidi.cpp:5535
-msgid "Could not connect to JACK server. Is it runnig?"
-msgstr "Ich konnte mich nicht mit dem JACK-Server verbinden. Läuft er?"
-
-#: RtMidi.cpp:5767
-msgid "Error opening JACK port subscription."
-msgstr "Fehler beim abonnieren einer JACK-Schnittstelle."
-
-#: RtMidi.cpp:6002 RtMidi.cpp:6248
-msgid "JACK server not running?"
-msgstr "Läuft der JACK-Server?"
-
-#: RtMidi.cpp:6046 RtMidi.cpp:6279
-msgid "Error creating JACK port."
-msgstr "Es gab einen Fehler beim Erzeugen der JACK-Schnittstelle."
-
-#: RtMidi.cpp:6066 RtMidi.cpp:6299
-msgid "Error creating JACK virtual port."
-msgstr "Fehler beim Erzeugen einer virtuellen JACK-Schnittstelle."
-
-#: RtMidi.cpp:6090 RtMidi.cpp:6323
-msgid ""
-"JACK has been instructed to open a non-JACK MIDI port. This doesn't work."
-msgstr ""
-"JACK wurde angewiesen, eine nicht-JACK-Schnittstelle zu öffnen. Das geht "
-"nicht."
-
-#: RtMidi.cpp:6173 RtMidi.cpp:6401
-msgid "No ports available."
-msgstr "Keine Schnittstellen verfügbar."
-
-#: RtMidi.cpp:6201 RtMidi.cpp:6429
-msgid "Setting the client name is not supported by JACK."
-msgstr ""
-"Das Ändern des Namens des MIDI-Klienten wird von JACK nicht unterstützt."
+#~ msgid "Error creating JACK virtual port."
+#~ msgstr "Fehler beim Erzeugen einer virtuellen JACK-Schnittstelle."
 
 #~ msgid "MidiInDummy: This class provides no functionality."
 #~ msgstr "MidiInDummy: Diese Klasse stellt keine Funktionen zur verfügung."
@@ -620,9 +1060,6 @@ msgstr ""
 #~ msgid ""
 #~ "An invalid (i.e. non-CORE) port descriptor has been passed to openPort."
 #~ msgstr "Es wurde eine ungültige Schnittstellenbeschreibung ("
-
-#~ msgid "Internal error: data has not been allocated."
-#~ msgstr " "
 
 #~ msgid "No data in message argument!"
 #~ msgstr "Keine Daten in der MIDI-Nachricht."
