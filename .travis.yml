@@ -136,8 +136,8 @@ script:
       fi
       ./autogen.sh --disable-apisearch "${COVERAGE}" --with-$API $HOST 
     - make -j4
-    - sudo su "$USER" -c "$TEST_RUNNER make check" || (cat test-suite.log ; false)
-    - sudo su "$USER" -c "make distcheck" || (find rtmidi* -name test-suite.log | xargs cat ; false)
+    - sudo su "$USER" -c "PATH='$PATH' $TEST_RUNNER make check" || (cat test-suite.log ; false)
+    - sudo su "$USER" -c "PATH='$PATH' make distcheck" || (find rtmidi* -name test-suite.log | xargs cat ; false)
     - |
       
       jackd -r -d dummy &
@@ -151,9 +151,9 @@ script:
       ls -l /dev/snd
       if test "x${COVERAGE}" = "x"
       then
-        sudo su "$USER" -c "make check" || true
+        sudo su "$USER" -c "PATH='$PATH' make check" || true
       else
-        sudo su "$USER" -c " make check-code-coverage" || true
+        sudo su "$USER" -c "PATH='$PATH' make check-code-coverage" || true
       fi
       if true
       then
