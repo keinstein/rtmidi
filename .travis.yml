@@ -107,12 +107,6 @@ before_install:
       if test "$TRAVIS_OS_NAME" = linux
       then
         echo "Running on Linux..."
-        sudo cat /etc/sudoers /etc/sudoers.d/*
-        sudo /bin/ls /etc/sudoers.d | sed 's,^,/etc/sudoers.d/,' | while read d
-        do
-          echo "# $d"
-          sudo cat "$d"
-        done
         sudo usermod -a -G audio $USER
         sudo usermod -a -G google-sudoers $USER
         sudo modprobe snd_seq_dummy
@@ -136,40 +130,44 @@ script:
       fi
       ./autogen.sh --disable-apisearch "${COVERAGE}" --with-$API $HOST 
     - make -j4
-    - sudo su "$USER" -c "PATH='$PATH' $TEST_RUNNER make check" || (cat test-suite.log ; false)
-    - sudo su "$USER" -c "PATH='$PATH' make distcheck" || (find rtmidi* -name test-suite.log | xargs cat ; false)
     - |
-      
-      jackd -r -d dummy &
-      JACKPID=$!
-      echo $PWD
+      if [ "$API" = "jack" ]
+      then
+        jackd -r -d dummy &
+        JACKPID=$!
+        echo $PWD
+      fi
       env | sed -e "s,',\\',g;s,^,',g;s,\$,',g" > current_environment.sh
-      echo "my groups $USER"
-      groups "$USER"
-      echo "my sudo groups"
-      sudo sudo -u "$USER"  groups || true
-      ls -l /dev/snd
-      if test "x${COVERAGE}" = "x"
+      if [ "$API" = "alsa" ]
       then
-        sudo su "$USER" -c "PATH='$PATH' make check" || true
+        echo "my groups $USER"
+        groups "$USER"
+        echo "my sudo groups"
+        sudo su "$USER" -c groups || true
+        ls -l /dev/snd
+        sudo su "$USER" -c "PATH='$PATH' $TEST_RUNNER make check" || (cat test-suite.log ; exit 1)
+        if test "x${COVERAGE}" = "x"
+        then
+          sudo su "$USER" -c "PATH='$PATH' make check" || true
+        else
+          sudo su "$USER" -c "PATH='$PATH' make check-code-coverage" || true
+        fi
+        sudo su "$USER" -c "PATH='$PATH' make distcheck" || (find rtmidi* -name test-suite.log | xargs cat ; exit 1)
       else
-        sudo su "$USER" -c "PATH='$PATH' make check-code-coverage" || true
-      fi
-      if true
-      then
-        ./libtool --mode=execute gdb tests/lostportdescriptor << EOF
-        r
-        bt full
-        q
-      EOF
-        ./libtool --mode=execute gdb tests/testequalityoperator << EOF
-        r
-        bt full
-        q
-      EOF
-      fi
+        $TEST_RUNNER make check || (cat test-suite.log ; exit 1)
+        if test "x${COVERAGE}" = "x"
+        then
+          make check || true
+        else
+          make check-code-coverage || true
+        fi
+        make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; exit 1)
+      fi      
       cat tests/*.log
-      kill $JACKPID
+      if [ "API" = "jack" ]
+      then
+        kill $JACKPID
+      fi
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
