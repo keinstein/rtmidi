@@ -230,8 +230,20 @@ static inline std::string& trim( std::string& s ) {
   return ltrim( rtrim( s ) );
 }
 
-#if 0
-typedef std::mutex testmutex;
+#if 1
+class testmutex: public std::mutex {
+public:
+  testmutex(const std::string & l = "*",
+            const std::string & u = "/",
+            const std::string & t = "!",
+            const std::string & n = "-")
+    : mutex() {
+    rtmidiUnused(l);
+    rtmidiUnused(u);
+    rtmidiUnused(t);
+    rtmidiUnused(n);
+  }
+};
 #else
 class testmutex: public std::mutex {
 public:

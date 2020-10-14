@@ -679,8 +679,9 @@ bool MidiQueue :: pop( std::vector<unsigned char>& msg, double& timeStamp )
   // Get back/front indexes exactly once and calculate current size
   _size = size( &_back, &_front );
 
-  if ( _size == 0 )
+  if ( _size == 0 ) {
     return false;
+  }
 
   // Copy queued message to the vector pointer argument and then "pop" it.
   msg.assign( ring[_front].bytes.begin( ), ring[_front].bytes.end( ) );
@@ -720,16 +721,20 @@ InternalMidiApi :: InternalMidiApi( )
 
 void InternalMidiApi :: setCallback( SplitSysexMidiInterface * callback )
 {
-  if ( userCallback ) {
-    error( RTMIDI_ERROR( gettext_noopt( "A callback function is already set." ),
-                         Error::WARNING ) );
-    return;
-  }
-
   if ( !callback ) {
     error( RTMIDI_ERROR( gettext_noopt( "The callback function value is invalid." ),
                          Error::WARNING ) );
     return;
+  }
+
+  // TODO: For compatibility with older RtMidi versions we should issue a warning, here.
+  // This is not possible as we don't have access to the standard callback.
+  if ( userCallback ) {
+  #if 0
+    error( RTMIDI_ERROR( gettext_noopt( "A callback function is already set." ),
+                         Error::WARNING ) );
+  #endif
+    cancelCallback();
   }
 
   userCallback = callback;

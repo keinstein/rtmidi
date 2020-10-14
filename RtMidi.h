@@ -170,11 +170,31 @@ struct RTMIDI_DLL_PUBLIC MidiQueue {
   }
 
   bool push ( const MidiMessage& );
+  /**
+   * Pop a message from the queue. The function returns true if a
+   * message could be retrieved, false otherwise.
+   *
+   * \param message A vector that is used to store the message
+   * \param timestamp Timestamp when the message arrived.
+   *
+   * \retval true  a message could be retrieved.
+   * \retval false the queue is empty
+   */
   bool pop ( std::vector<unsigned char>& message, double& timestamp );
 
+  /**
+   * Check whether the queue is empty.
+   *
+   *
+   * \retval true if the queue is empty
+   * \retval false if the queue contains elements.
+   */
+  bool empty () {
+    return front == back;
+  }
+protected:
   unsigned int size ( unsigned int * back=0,
                       unsigned int * front=0 );
-protected:
   unsigned int front;
   unsigned int back;
   unsigned int ringSize;
@@ -520,7 +540,7 @@ struct RTMIDI_DLL_PUBLIC SplitSysexMidiInterface {
 
   virtual void midiIn ( double timestamp, unsigned char * begin, ptrdiff_t size) throw() {
     std::vector<unsigned char> message(begin,begin+size);
-    midiIn(timestamp,message);
+    midiIn(timestamp, message);
   }
 
   //! Receive a chunk of a system exclusive message.
@@ -626,8 +646,20 @@ struct RTMIDI_DLL_PUBLIC MidiQueueInterface: public MidiInterface {
   */
   double getMessage ( std::vector<unsigned char>& message ) {
     double retval;
-    queue.pop(message,retval);
+    if (!queue.pop(message,retval))
+      message.clear();
     return retval;
+  }
+
+  /**
+   * Check whether the queue is empty.
+   *
+   *
+   * \retval true if the queue is empty
+   * \retval false if the queue contains elements.
+   */
+  bool empty () {
+    return queue.empty();
   }
 
   //! Delete the object if necessary.
