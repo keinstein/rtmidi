@@ -46,26 +46,39 @@ EXTRA_DIST += \
 	%D%/sysextest.dsp \
 	%D%/RtMidi.dsw
 
+if HAVE_EXTERNAL_LOOPBACK
+TESTS += \
+	%D%/run-sysextest \
+	%D%/run-qmidiio \
+	%D%/run-cmidiio \
+	%D%/run-qmidiio2 \
+	%D%/run-cmidiio2 \
+	%D%/run-midiclockio
+endif
 
 if RTMIDI_HAVE_VIRTUAL_DEVICES
 TESTS += %D%/loopback
 endif
 
+RTMIDICOMMONTESTSOURCES = \
+	%D%/test-common.cpp \
+	%D%/test-common.h
+
 
 %C%_midiprobe_SOURCES      = %D%/midiprobe.cpp
-%C%_midiout_SOURCES        = %D%/midiout.cpp
-%C%_qmidiin_SOURCES        = %D%/qmidiin.cpp
-%C%_cmidiin_SOURCES        = %D%/cmidiin.cpp
-%C%_sysextest_SOURCES      = %D%/sysextest.cpp
+%C%_midiout_SOURCES        = %D%/midiout.cpp $(RTMIDICOMMONTESTSOURCES)
+%C%_qmidiin_SOURCES        = %D%/qmidiin.cpp $(RTMIDICOMMONTESTSOURCES)
+%C%_cmidiin_SOURCES        = %D%/cmidiin.cpp $(RTMIDICOMMONTESTSOURCES)
+%C%_sysextest_SOURCES      = %D%/sysextest.cpp $(RTMIDICOMMONTESTSOURCES)
 %C%_midiprobe2_SOURCES     = %D%/midiprobe2.cpp
 %C%_midiprobe_all_SOURCES  = %D%/midiprobe-all.cpp
-%C%_cmidiin2_SOURCES       = %D%/cmidiin2.cpp
-%C%_qmidiin2_SOURCES       = %D%/qmidiin2.cpp
+%C%_cmidiin2_SOURCES       = %D%/cmidiin2.cpp $(RTMIDICOMMONTESTSOURCES)
+%C%_qmidiin2_SOURCES       = %D%/qmidiin2.cpp $(RTMIDICOMMONTESTSOURCES)
 %C%_midiout2_SOURCES       = %D%/midiout2.cpp
 %C%_loopback_SOURCES       = %D%/loopback.cpp
 %C%_errors_SOURCES         = %D%/errors.cpp
-%C%_midiclock_in_SOURCES   = %D%/midiclock.cpp
-%C%_midiclock_out_SOURCES  = %D%/midiclock.cpp
+%C%_midiclock_in_SOURCES   = %D%/midiclock.cpp $(RTMIDICOMMONTESTSOURCES)
+%C%_midiclock_out_SOURCES  = %D%/midiclock.cpp $(RTMIDICOMMONTESTSOURCES)
 %C%_lostportdescriptor_SOURCES       = %D%/lostportdescriptor.cpp
 %C%_testequalityoperator_SOURCES       = %D%/testequalityoperator.cpp
 %C%_apinames_SOURCES       = %D%/apinames.cpp

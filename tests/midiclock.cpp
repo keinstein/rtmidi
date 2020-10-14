@@ -9,34 +9,20 @@
 //
 //*****************************************//
 
+#include "test-common.h"
 #include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
 
-// Platform-dependent sleep routines.
-#if defined(WIN32)
-  #include <windows.h>
-  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds ) 
-#else // Unix variants
-#include <time.h>
-inline void SLEEP(unsigned long long int  milliseconds ) {
-  struct timespec time,time2;
-  time.tv_sec = milliseconds / 1000;
-  time.tv_nsec = (milliseconds % 1000) * 1000000;
-  int status;
-  if ((status = nanosleep(&time,&time2))) {
-    int error = errno;
-    std::perror("Sleep has been interrupted");
-    exit(error);
-  }
+std::atomic<bool> done;
+static void finish( int /*ignore*/ ){
+  done = true;
 }
-#endif
+struct sigaction finishaction;
 
-// These functions should be embedded in a try/catch block in case of
-// an exception.  It offers the user a choice of MIDI ports to open.
-// It returns false if there are no ports available.
-bool chooseInputPort( RtMidiIn *rtmidi );
-bool chooseOutputPort( RtMidiOut *rtmidi );
+
+bool verbose;
 
 void mycallback( double deltatime, std::vector< unsigned char > *message, void *user )
 {
@@ -56,7 +42,10 @@ void mycallback( double deltatime, std::vector< unsigned char > *message, void *
   if (msg == 0xF8) {
     if (++*clock_count == 24) {
       double bpm = 60.0 / 24.0 / deltatime;
-      std::cout << "One beat, estimated BPM = " << bpm <<std::endl;
+      if (!verbose)
+        bpm = std::round(bpm/20)*20;
+      printf(verbose?"One beat, estimated BPM = %.2f":"One beat, estimated BPM = %.0f\n",
+             bpm);
       *clock_count = 0;
     }
   }
@@ -74,8 +63,7 @@ int clock_in()
     // RtMidiIn constructor
     midiin = new RtMidiIn();
 
-    // Call function to select port.
-    if ( chooseInputPort( midiin ) == false ) goto cleanup;
+    chooseMidiPort(midiin);
 
     // Set our callback function.  This should be done immediately after
     // opening the port to avoid having incoming messages written to the
@@ -85,10 +73,19 @@ int clock_in()
     // Don't ignore sysex, timing, or active sensing messages.
     midiin->ignoreTypes( false, false, false );
 
-    std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
-    char input;
-    std::cin.get(input);
+    // Install an interrupt handler function.
+    std::cout << "Set finish action" << std::endl;
+    done = false;
+    finishaction.sa_handler=finish;
+    sigemptyset (&finishaction.sa_mask);
+    finishaction.sa_flags=0;
+    sigaction(SIGINT, &finishaction, nullptr);
 
+    // Periodically check input queue.
+    std::cout << "Reading MIDI from port " << midiin->getPortName() << " ... quit with Ctrl-C." << std::endl;
+    while ( !done.load() ) {
+      SLEEP( 10 );
+    }
   } catch ( RtMidiError &error ) {
     error.printMessage();
   }
@@ -117,7 +114,7 @@ int clock_out()
 
   // Call function to select port.
   try {
-    if ( chooseOutputPort( midiout ) == false ) goto cleanup;
+    chooseMidiPort(midiout);
   }
   catch ( RtMidiError &error ) {
     error.printMessage();
@@ -204,9 +201,10 @@ int clock_out()
   return 0;
 }
 
-int main( int, const char *argv[] )
+int main( int argc, const char *argv[] )
 {
   std::string prog(argv[0]);
+  verbose = argc > 1;
   if (prog.find("midiclock_in") != prog.npos) {
     clock_in();
   }
@@ -219,43 +217,3 @@ int main( int, const char *argv[] )
   return 0;
 }
 
-template<typename RT>
-bool choosePort( RT *rtmidi, const char *dir )
-{
-  std::string portName;
-  unsigned int i = 0, nPorts = rtmidi->getPortCount();
-  if ( nPorts == 0 ) {
-    std::cout << "No " << dir << " ports available!" << std::endl;
-    return false;
-  }
-
-  if ( nPorts == 1 ) {
-    std::cout << "\nOpening " << rtmidi->getPortName() << std::endl;
-  }
-  else {
-    for ( i=0; i<nPorts; i++ ) {
-      portName = rtmidi->getPortName(i);
-      std::cout << "  " << dir << " port #" << i << ": " << portName << '\n';
-    }
-
-    do {
-      std::cout << "\nChoose a port number: ";
-      std::cin >> i;
-    } while ( i >= nPorts );
-  }
-
-  std::cout << "\n";
-  rtmidi->openPort( i );
-
-  return true;
-}
-
-bool chooseInputPort( RtMidiIn *rtmidi )
-{
-  return choosePort<RtMidiIn>( rtmidi, "input" );
-}
-
-bool chooseOutputPort( RtMidiOut *rtmidi )
-{
-  return choosePort<RtMidiOut>( rtmidi, "output" );
-}

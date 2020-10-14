@@ -1,0 +1,93 @@
+#!/bin/bash
+
+set -e -x
+
+PROGNAME=$(basename "$0")
+
+# we need a simple coproc here, otherwise we get the wrong
+# PID for killing
+rm -f "${rundir}/${cmdname}.out"
+touch "${rundir}/${cmdname}.out"
+
+TMPDIR=$(mktemp -d -t ${PROGNAME}.XXXXXXXX)
+
+mkfifo "$TMPDIR/instdin.pipe"
+mkfifo "$TMPDIR/instdout.pipe"
+mkfifo "$TMPDIR/outstdin.pipe"
+mkfifo "$TMPDIR/outstdout.pipe"
+
+
+exec {instdin}<> "$TMPDIR/instdin.pipe"
+exec {instdout}<> "$TMPDIR/instdout.pipe"
+exec {outstdin}<> "$TMPDIR/outstdin.pipe"
+exec {outstdout}<> "$TMPDIR/outstdout.pipe"
+
+ls -l /proc/self/fd
+
+echo "starting ${INPUT_COMMAND}"
+$INPUT_COMMAND <&${instdin} 2>&1 >&${instdout} &
+INPUT_PID=$!
+ps xa |grep "${INPUT_PID}"
+
+read  -d ']' -r line <&$instdout
+echo "$line"
+echo -e 'N\n'  >&$instdin
+
+while read line  <&$instdout
+do
+    echo "in: $line"
+    number=$(echo "$line" | sed -e '/^Input/ {s/^[^#]*#\([0-9]*\):.*'"$INPUT_PATTERN"'.*$/\1/; p}; d')
+    if test "x$number" != "x"
+    then
+	echo "chosing Port #$number"
+	echo "$number" >&$instdin
+	break
+    fi
+done
+
+echo sed -e "/quit with Ctrl-C/ { p ; q }" <&$instdout
+sed -e "/quit with Ctrl-C/ { p ; q }" <&$instdout
+echo starte tee
+( tee -a "${rundir}/${cmdname}.out" <&$instdout | sed -e 's/^/in: /' ) &
+
+echo starte output process
+$OUTPUT_COMMAND <&$outstdin 2>&1 >&$outstdout &
+OUTPUT_PID=$!
+echo starte output dialog
+(
+    read -u $outstdout -d ']' -r line
+    echo "out: $line"
+    echo -e 'N\n'>&$outstdin
+
+    while read -u $outstdout line 
+    do
+	echo "out1: $line"
+	number=$(echo "$line" | sed -e '/^Output/ {s/^[^#]*#\([0-9]*\):.*'"$OUTPUT_PATTERN"'.*$/\1/; p}; d')
+	if test "x$number" != "x"
+	then
+	    echo "chosing Port #$number"
+	    echo "$number" >&$outstdin
+	    break
+	fi
+    done
+
+    sed -e 's/^/out: /' <&$outstdout
+
+)&
+OUTPUT_SHELL_PID=$!
+echo "Waiting for output client to finish (PID=${OUTPUT_PID})"
+wait ${OUTPUT_PID}
+echo "Waiting for output shell to finish (PID=${OUTPUT_PID})"
+sleep 1
+kill $OUTPUT_SHELL_PID
+wait $OUTPUT_SHELL_PID || true
+echo "Output done"
+
+ps xa |grep "${INPUT_PID}"
+echo -e "\x03" >&$instdin
+kill -SIGINT ${INPUT_PID} || true
+echo "Waiting for input client to finish (PID=${INPUT_PID})"
+wait ${INPUT_PID}
+
+diff -b "${srcdir}/${cmdname}.cmp" "${rundir}/${cmdname}.out"
+

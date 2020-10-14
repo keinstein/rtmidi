@@ -1,4 +1,4 @@
-># Process this file with autoconf to produce a configure script.
+# Process this file with autoconf to produce a configure script.
 #AC_INIT(RtMidi, 2.1.0, gary@music.mcgill.ca, rtmidi)
 
 m4_include(configure.version)
@@ -9,7 +9,9 @@ m4_define([ac_rtmidi_package_name],[rtmidi]ac_rtmidi_suffix)
 AC_INIT(ac_rtmidi_name, ac_rtmidi_version, [keinstein@users.sf.net], ac_rtmidi_package_name)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(RtMidi.h)
-AC_CONFIG_FILES([Makefile doc/Makefile po/Makefile.in rtmidi-config rtmidi.pc  doc/doxygen/Doxyfile],[chmod oug+x rtmidi-config])
+AC_CONFIG_FILES([
+	Makefile
+	])
 AM_INIT_AUTOMAKE([1.14 -Wall -Werror foreign subdir-objects])
 
 
@@ -31,7 +33,7 @@ AC_CONFIG_MACRO_DIR([m4])
 rtmidi_standalone="yes"
 SUBDIRS="$SUBDIRS %D%/po"
 rtmidi_subdir="$srcdir"
-m4_define(rtmididir,[.])
+m4_define(rtmididir,[])
 m4_include(configure.library)
 
 AC_LANG_PUSH(C++)

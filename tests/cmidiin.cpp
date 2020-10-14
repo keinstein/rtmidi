@@ -7,9 +7,16 @@
 //
 //*****************************************//
 
+#include "test-common.h"
 #include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
+
+std::atomic<bool> done;
+static void finish( int /*ignore*/ ){
+  done = true;
+}
+struct sigaction finishaction;
 
 void usage( void ) {
   // Error function in case of incorrect command-line
@@ -25,28 +32,44 @@ void mycallback( double deltatime, std::vector< unsigned char > *message, void *
   for ( unsigned int i=0; i<nBytes; i++ )
     std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
   if ( nBytes > 0 )
-    std::cout << "stamp = " << deltatime << std::endl;
+    printf("stamp = %.2f\n", deltatime);
 }
 
-// This function should be embedded in a try/catch block in case of
-// an exception.  It offers the user a choice of MIDI ports to open.
-// It returns false if there are no ports available.
-bool chooseMidiPort( RtMidiIn *rtmidi );
-
-int main( int argc, char ** /*argv[]*/ )
+int main( int argc, char *argv[] )
 {
   RtMidiIn *midiin = 0;
 
   // Minimal command-line check.
   if ( argc > 2 ) usage();
 
+  // RtMidiIn constructor
+  try {
+    midiin = new RtMidiIn();
+  }
+  catch ( RtMidiError &error ) {
+    error.printMessage();
+    exit( EXIT_FAILURE );
+  }
+
   try {
 
-    // RtMidiIn constructor
-    midiin = new RtMidiIn();
+    if ( argc == 2 ) {
+      printf("noochooseidiport\n");
+      // Check available ports vs. specified.
+      unsigned int port = 0;
+      unsigned int nPorts = midiin->getPortCount();
+      port = (unsigned int) atoi( argv[1] );
+      if ( port >= nPorts ) {
+        delete midiin;
+        std::cout << "Invalid port specifier!\n";
+        usage();
+      }
 
-    // Call function to select port.
-    if ( chooseMidiPort( midiin ) == false ) goto cleanup;
+      midiin->openPort( port );
+    } else {
+      printf("choose midi port\n");
+      chooseMidiPort(midiin);
+    }
 
     // Set our callback function.  This should be done immediately after
     // opening the port to avoid having incoming messages written to the
@@ -56,56 +79,25 @@ int main( int argc, char ** /*argv[]*/ )
     // Don't ignore sysex, timing, or active sensing messages.
     midiin->ignoreTypes( false, false, false );
 
-    std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
-    char input;
-    std::cin.get(input);
+    // Install an interrupt handler function.
+    std::cout << "Set finish action" << std::endl;
+    done = false;
+    finishaction.sa_handler=finish;
+    sigemptyset (&finishaction.sa_mask);
+    finishaction.sa_flags=0;
+    sigaction(SIGINT, &finishaction, nullptr);
 
+    // Periodically check input queue.
+    std::cout << "Reading MIDI from port " << midiin->getPortName() << " ... quit with Ctrl-C." << std::endl;
+    while ( !done.load() ) {
+      SLEEP( 10 );
+    }
   } catch ( RtMidiError &error ) {
     error.printMessage();
+    goto cleanup;
   }
 
  cleanup:
-
   delete midiin;
-
   return 0;
-}
-
-bool chooseMidiPort( RtMidiIn *rtmidi )
-{
-  std::cout << "\nWould you like to open a virtual input port? [y/N] ";
-
-  std::string keyHit;
-  std::getline( std::cin, keyHit );
-  if ( keyHit == "y" ) {
-    rtmidi->openVirtualPort();
-    return true;
-  }
-
-  std::string portName;
-  unsigned int i = 0, nPorts = rtmidi->getPortCount();
-  if ( nPorts == 0 ) {
-    std::cout << "No input ports available!" << std::endl;
-    return false;
-  }
-
-  if ( nPorts == 1 ) {
-    std::cout << "\nOpening " << rtmidi->getPortName() << std::endl;
-  }
-  else {
-    for ( i=0; i<nPorts; i++ ) {
-      portName = rtmidi->getPortName(i);
-      std::cout << "  Input port #" << i << ": " << portName << '\n';
-    }
-
-    do {
-      std::cout << "\nChoose a port number: ";
-      std::cin >> i;
-    } while ( i >= nPorts );
-    std::getline( std::cin, keyHit );  // used to clear out stdin
-  }
-
-  rtmidi->openPort( i );
-
-  return true;
 }

@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# return if we are configured without external loopback devices
+@HAVE_EXTERNAL_LOOPBACK_FALSE@exit 0
+
+COMMAND="tests/sysextest 50"
+INPUT_PATTERN='@rtmidi_input_pattern@'
+OUTPUT_PATTERN='@rtmidi_output_pattern@'
+
+set -e
+
+coproc $COMMAND
+set |grep -i cop
+
+read -u ${COPROC[0]} -d ']' -r line
+echo "$line"
+echo -e 'N\n'  >&${COPROC[1]}
+
+while read line
+do
+    echo "$line"
+    number=$(echo "$line" | sed -e '/^Input/ {s/^[^#]*#\([0-9]*\):.*'"$INPUT_PATTERN"'.*$/\1/; p}; d')
+    if test "x$number" != "x"
+    then
+	echo "chosing Port #$number"
+	echo "$number" >&${COPROC[1]}
+	break
+    fi
+done <&${COPROC[0]}
+
+read -u ${COPROC[0]} -d ']' -r line
+echo "$line"
+echo -e 'N\n'  >&${COPROC[1]}
+
+
+while read line
+do
+    echo "$line"
+    number=$(echo "$line" | sed -e '/^Output/ {s/^[^#]*#\([0-9]*\):.*'"$OUTPUT_PATTERN"'.*$/\1/; p}; d')
+    if test "$numberx" != "x"
+    then
+	echo "chosing Port #$number"
+	echo "$number" >&${COPROC[1]}
+	break
+    fi
+done <&${COPROC[0]}
+
+
+while read line
+do
+	echo "$line"
+done <&${COPROC[0]}
+
+wait ${COPROC_PID}

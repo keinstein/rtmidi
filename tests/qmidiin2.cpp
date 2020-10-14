@@ -9,56 +9,19 @@
 */
 //*****************************************//
 
+#include "test-common.h"
 #include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
 #include <signal.h>
 
-// Platform-dependent sleep routines.
-#if defined(WIN32)
-#include <windows.h>
-#define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds )
-#undef UNIQUE_PORT_NAME
-#else // Unix variants
-#include <time.h>
-inline void SLEEP(unsigned long long int  milliseconds ) {
-  struct timespec time,time2;
-  time.tv_sec = milliseconds / 1000;
-  time.tv_nsec = (milliseconds % 1000) * 1000000;
-  int status;
-  if ((status = nanosleep(&time,&time2))) {
-    int error = errno;
-    std::perror("Sleep has been interrupted");
-    exit(error);
-  }
+
+std::atomic_bool done;
+static void finish( int /*ignore*/ )
+{
+  done = true;
 }
-#endif
-
-bool done;
-static void finish( int /*ignore*/ ){ done = true; }
-
-void usage( rtmidi::PortList list ) {
-  // Error function in case of incorrect command-line
-  // argument specifications.
-  std::cout << "\nusage: qmidiin <port>\n";
-  std::cout << "    where port = the device to use (default = first available port).\n\n";
-
-  std::cout << "Available ports:" << std::endl;
-  int flags = rtmidi::PortDescriptor::SESSION_PATH |
-    rtmidi::PortDescriptor::UNIQUE_PORT_NAME |
-    rtmidi::PortDescriptor::INCLUDE_API;
-  for (rtmidi::PortList::iterator i = list.begin();
-       i != list.end(); i++) {
-    std::cout << "\""
-	      << (*i)->getName(rtmidi::PortDescriptor::SESSION_PATH |
-			       rtmidi::PortDescriptor::UNIQUE_PORT_NAME |
-			       rtmidi::PortDescriptor::INCLUDE_API)
-	      << "\"";
-    std::cout << "\t";
-    std::cout << (*i)->getName() << std::endl;
-  }
-  exit( 0 );
-}
+struct sigaction finishaction;
 
 int main( int argc, char *argv[] )
 {
@@ -74,34 +37,22 @@ int main( int argc, char *argv[] )
     midiin.setCallback(&queue);
 
 
-    rtmidi::PortList list = midiin.getPortList();
+    rtmidi::PortList list = midiin.getPortList(rtmidi::PortDescriptor::INPUT);
 
 
     // Minimal command-line check.
-    if ( argc > 2 ) usage(list);
-
-    rtmidi::Pointer<rtmidi::PortDescriptor> port = 0;
-    // Check available ports vs. specified.
-    if ( argc == 2 ) {
-      for (rtmidi::PortList::iterator i = list.begin();
-	   i != list.end(); i++) {
-	if (argv[1] == (*i)->getName(rtmidi::PortDescriptor::SESSION_PATH |
-				     rtmidi::PortDescriptor::UNIQUE_PORT_NAME |
-				     rtmidi::PortDescriptor::INCLUDE_API)) {
-	  port = *i;
-	  break;
-	}
-      }
-    } else if (!list.empty()) {
-      port = list.front();
-    }
-    if ( !port ) {
-      std::cout << "Invalid port specifier!\n";
-      usage(list);
-    }
+    if ( argc > 2 ) usage("qmidin2", list, rtmidi::PortDescriptor::INPUT);
 
     try {
-      midiin.openPort( port );
+      rtmidi::Pointer<rtmidi::PortDescriptor> port = 0;
+      // Check available ports vs. specified.
+      if ( ! ( argc == 2 ?
+               openMidiPort( argv[1], midiin, list, rtmidi::PortDescriptor::INPUT ) :
+               chooseMidiPort( midiin, list, rtmidi::PortDescriptor::INPUT )
+               )
+           ) {
+      }
+
     }
     catch ( rtmidi::Error &error ) {
       error.printMessage();
@@ -112,18 +63,26 @@ int main( int argc, char *argv[] )
     midiin.ignoreTypes( false, false, false );
 
     // Install an interrupt handler function.
+    std::cout << "Set finish action" << std::endl;
     done = false;
-    (void) signal(SIGINT, finish);
+    finishaction.sa_handler=finish;
+    sigemptyset (&finishaction.sa_mask);
+    finishaction.sa_flags=0;
+    sigaction(SIGINT, &finishaction, nullptr);
+
 
     // Periodically check input queue.
-    std::cout << "Reading MIDI from port ... quit with Ctrl-C.\n";
+    std::cout << "Reading MIDI from port ... " << midiin.getPortName()
+              << " quit with Ctrl-C." << std::endl;
     while ( !done ) {
-      stamp = queue.getMessage( message );
-      nBytes = message.size();
-      for ( i=0; i<nBytes; i++ )
-	std::cout << "Byte " << i << " = " << (int)message[i] << ", ";
-      if ( nBytes > 0 )
-	std::cout << "stamp = " << stamp << std::endl;
+      while ( !queue.empty() ) {
+        stamp = queue.getMessage( message );
+        nBytes = message.size();
+        for ( i=0; i<nBytes; i++ )
+          std::cout << "Byte " << i << " = " << (int)message[i] << ", ";
+        if ( nBytes > 0 )
+          printf("stamp = %.2f\n", stamp);
+      }
 
       // Sleep for 10 milliseconds.
       SLEEP( 10 );

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# return if we are configured without external loopback devices
+@HAVE_EXTERNAL_LOOPBACK_FALSE@exit 0
+
+INPUT_COMMAND="tests/midiclock_in"
+INPUT_PATTERN='@rtmidi_input_pattern@'
+INPUT_RUN_PATTERN='quit with Ctrl-C'
+OUTPUT_COMMAND="tests/midiclock_out"
+OUTPUT_PATTERN='@rtmidi_output_pattern@'
+
+rundir="$(dirname $0)"
+cmdname="$(basename $0)"
+srcdir="$rundir"/@srcdir@
+
+. "${srcdir}/run-external-loop"
+

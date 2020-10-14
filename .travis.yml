@@ -7,22 +7,22 @@ sudo: true  # docker VM
 matrix:
   include:
   - os: linux
-    env: HOST="" API="alsa" COVERAGE="--enable-code-coverage"
+    env: HOST="" API="alsa" COVERAGE="--enable-code-coverage" CONFIGARGS="--enable-external-loopback-tests"
     compiler: gcc
   - os: linux
-    env: HOST="" API="alsa" COVERAGE=""
+    env: HOST="" API="alsa" COVERAGE="" CONFIGARGS="--enable-external-loopback-tests"
     compiler: clang
   - os: linux
-    env: HOST="" API="jack" COVERAGE="--enable-code-coverage"
+    env: HOST="" API="jack" COVERAGE="--enable-code-coverage" CONFIGARGS="--enable-external-loopback-tests"
     compiler: gcc
   - os: linux
-    env: HOST="" API="jack" COVERAGE=""
+    env: HOST="" API="jack" COVERAGE="" CONFIGARGS="--enable-external-loopback-tests"
     compiler: clang
   - os: linux
-    env: HOST="" API="jack2" COVERAGE="--enable-code-coverage"
+    env: HOST="" API="jack2" COVERAGE="--enable-code-coverage" CONFIGARGS="--enable-external-loopback-tests"
     compiler: gcc
   - os: linux
-    env: HOST="" API="jack2" COVERAGE=""
+    env: HOST="" API="jack2" COVERAGE="" CONFIGARGS="--enable-external-loopback-tests"
     compiler: clang
   - os: linux
     env: HOST="--with-jack" API="alsa" COVERAGE="--enable-code-coverage"
@@ -44,7 +44,7 @@ matrix:
   #   env: HOST="--host=arm-linux-gnueabihf" API="jack"
   #   compiler: gcc
   - os: osx
-    env: HOST="" API="coremidi" COVERAGE="--enable-code-coverage"
+    env: HOST="" API="coremidi" COVERAGE="--enable-code-coverage --enable-external-loopback-tests"
     compiler: gcc
   - os: osx
     env: HOST="" API="coremidi" COVERAGE=""
@@ -128,7 +128,7 @@ script:
       then
         API=jack
       fi
-      ./autogen.sh --disable-apisearch "${COVERAGE}" --with-$API $HOST 
+      ./autogen.sh --disable-apisearch "${COVERAGE}" ${CONFIGARGS} --with-$API $HOST 
     - make -j4
     - |
       if [ "$API" = "jack" ]
@@ -152,6 +152,8 @@ script:
         else
           sudo su "$USER" -c "PATH='$PATH' make check-code-coverage" || true
         fi
+        echo "List midi devices"
+        tests/midiprobe
         sudo su "$USER" -c "PATH='$PATH' make distcheck" || (find rtmidi* -name test-suite.log | xargs cat ; exit 1)
       else
         $TEST_RUNNER make check || (cat test-suite.log ; exit 1)
@@ -161,6 +163,8 @@ script:
         else
           make check-code-coverage || true
         fi
+        echo "List midi devices"
+        tests/midiprobe
         make distcheck || (find rtmidi* -name test-suite.log | xargs cat ; exit 1)
       fi      
       cat tests/*.log

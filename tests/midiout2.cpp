@@ -43,14 +43,16 @@ bool chooseMidiPort( rtmidi::MidiOut &midi );
 int main( int /* argc*/, char */*argv*/[] )
 {
   std::vector<unsigned char> message;
+  rtmidi::ApiType type = rtmidi::ALL_API;
+#if 0
   std::cout << "\nWould you like to check all output ports? [Y/n] ";
 
   std::string keyHit;
   std::getline( std::cin, keyHit );
-  rtmidi::ApiType type = rtmidi::ALL_API;
   if ( keyHit == "n" ) {
     type = rtmidi::UNSPECIFIED;
   }
+#endif
 
   // rtmidi::MidiOut constructor
   try {

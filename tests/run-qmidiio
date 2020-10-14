@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# return if we are configured without external loopback devices
+@HAVE_EXTERNAL_LOOPBACK_FALSE@exit 0
+
+INPUT_COMMAND="tests/qmidiin"
+INPUT_PATTERN='@rtmidi_input_pattern@'
+OUTPUT_COMMAND="tests/cmidiin"
+OUTPUT_PATTERN='@rtmidi_output_pattern@'
+
+set -e
+
+coproc $INPUT_COMMAND
+INPUT_COPROC=$COPROC
+set |grep -i cop
+
+read -u ${INPUT_COPROC[0]} -d ']' -r line
+echo "$line"
+echo -e 'N\n'  >&${INPUT_COPROC[1]}
+
+while read line
+do
+    echo "$line"
+    number=$(echo "$line" | sed -e '/^Input/ {s/^[^#]*#\([0-9]*\):.*'"$INPUT_PATTERN"'.*$/\1/; p}; d')
+    if test "x$number" != "x"
+    then
+	echo "chosing Port #$number"
+	echo "$number" >&${INPUT_COPROC[1]}
+	break
+    fi
+done <&${INPUT_COPROC[0]}
+
+read -u ${OUTPUT_COPROC[0]} -d ']' -r line
+echo "$line"
+echo -e 'N\n'  >&${OUTPUT_COPROC[1]}
+
+
+while read line
+do
+    echo "$line"
+    number=$(echo "$line" | sed -e '/^Output/ {s/^[^#]*#\([0-9]*\):.*'"$OUTPUT_PATTERN"'.*$/\1/; p}; d')
+    if test "$numberx" != "x"
+    then
+	echo "chosing Port #$number"
+	echo "$number" >&${OUTPUT_COPROC[1]}
+	break
+    fi
+done <&${OUTPUT_COPROC[0]}
+
+
+while read line
+do
+	echo "$line"
+done <&${INPUT_COPROC[0]}
+
+while read line
+do
+	echo "$line"
+done <&${OUTPUT_COPROC[0]}

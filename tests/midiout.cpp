@@ -6,33 +6,10 @@
 //
 //*****************************************//
 
+#include "test-common.h"
 #include "RtMidi.h"
 #include <iostream>
 #include <cstdlib>
-
-// Platform-dependent sleep routines.
-#if defined(WIN32)
-  #include <windows.h>
-  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds ) 
-#else // Unix variants
-#include <time.h>
-inline void SLEEP(unsigned long long int  milliseconds ) {
-  struct timespec time,time2;
-  time.tv_sec = milliseconds / 1000;
-  time.tv_nsec = (milliseconds % 1000) * 1000000;
-  int status;
-  if ((status = nanosleep(&time,&time2))) {
-    int error = errno;
-    std::perror("Sleep has been interrupted");
-    exit(error);
-  }
-}
-#endif
-
-// This function should be embedded in a try/catch block in case of
-// an exception.  It offers the user a choice of MIDI ports to open.
-// It returns false if there are no ports available.
-bool chooseMidiPort( RtMidiOut *rtmidi );
 
 int main( int /* argc*/, char */*argv*/[] )
 {
@@ -116,46 +93,8 @@ int main( int /* argc*/, char */*argv*/[] )
 
   // Clean up
  cleanup:
+  std::cout << "midiout finished" << std::endl;
   delete midiout;
 
   return 0;
-}
-
-bool chooseMidiPort( RtMidiOut *rtmidi )
-{
-  std::cout << "\nWould you like to open a virtual output port? [y/N] ";
-
-  std::string keyHit;
-  std::getline( std::cin, keyHit );
-  if ( keyHit == "y" ) {
-    rtmidi->openVirtualPort();
-    return true;
-  }
-
-  std::string portName;
-  unsigned int i = 0, nPorts = rtmidi->getPortCount();
-  if ( nPorts == 0 ) {
-    std::cout << "No output ports available!" << std::endl;
-    return false;
-  }
-
-  if ( nPorts == 1 ) {
-    std::cout << "\nOpening " << rtmidi->getPortName() << std::endl;
-  }
-  else {
-    for ( i=0; i<nPorts; i++ ) {
-      portName = rtmidi->getPortName(i);
-      std::cout << "  Output port #" << i << ": " << portName << '\n';
-    }
-
-    do {
-      std::cout << "\nChoose a port number: ";
-      std::cin >> i;
-    } while ( i >= nPorts );
-  }
-
-  std::cout << "\n";
-  rtmidi->openPort( i );
-
-  return true;
 }
