@@ -111,6 +111,7 @@ void printalsaevent(const snd_seq_event_t * ev);
 template <int locking=1>
 class AlsaSequencer {
 public:
+  typedef AlsaSequencer<1> LockingAlsaSequencer;
   class InputQueue {
   public:
     InputQueue():queue_id(-1) {
@@ -125,10 +126,14 @@ public:
 #endif
     }
 
+    void start(std::shared_ptr<LockingAlsaSequencer> & seq) {
+      start(seq->seq);
+    }
+
     void start(snd_seq_t * seq) {
-      if (queue_id < 0) return;
+      if (queue_id >= 0) return;
 #ifndef AVOID_TIMESTAMPING
-      queue_id = snd_seq_alloc_named_queue( seq, "Midi Queue" );
+      queue_id = snd_seq_alloc_queue( seq/*, "Midi Queue" */);
       // Set arbitrary tempo ( mm=100 ) and resolution ( 240 )
       snd_seq_queue_tempo_t * qtempo;
       snd_seq_queue_tempo_alloca( &qtempo );
@@ -140,6 +145,9 @@ public:
 #endif
     }
 
+    void stop( std::shared_ptr<LockingAlsaSequencer> & seq ) {
+      stop(seq->seq);
+    }
     void stop( snd_seq_t * seq ) {
 #ifndef AVOID_TIMESTAMPING
       snd_seq_free_queue( seq, queue_id );
@@ -215,7 +223,9 @@ public:
         std::lock_guard<std::mutex> lock ( mutex );
 #endif
         snd_seq_set_client_name( seq, name.c_str( ) );
+#if 0
         queue.start( seq );
+#endif
       }
       startThread();
     } catch (...) {
@@ -234,7 +244,9 @@ public:
 #else
       std::lock_guard<std::mutex> lock ( mutex );
 #endif
+#if 0
       queue.stop( seq );
+#endif
       // Shutdown the input thread.
       {
         threadCommand = THREAD_STOP;
@@ -425,7 +437,9 @@ public:
 
   int createPort ( snd_seq_port_info_t * pinfo, MidiAlsa * port ) {
     init( );
+#if 0
     queue.preparePort( pinfo );
+#endif
 
 #if 0
       scoped_lock<locking> lock ( mutex );
@@ -667,7 +681,6 @@ protected:
   std::mutex mutex;
 #endif
   snd_seq_t * seq;
-  InputQueue queue;
   std::thread loop;
   //  pthread_t dummy_thread_id;
   int trigger_fds[2];
@@ -845,6 +858,7 @@ public:
       subscription_out( nullptr ),
       in_coder( nullptr ),
       out_coder( nullptr ),
+      queue(),
       buffer(calculateAlsaBufferSize()),
       rcv_sysex_size(0),
       rcv_sysex_count(0)
@@ -978,6 +992,7 @@ protected:
   //  unsigned int portNum;
   snd_seq_port_subscribe_t * subscription_in, * subscription_out;
   snd_midi_event_t *in_coder, *out_coder;
+  LockingAlsaSequencer::InputQueue queue;
   std::vector<unsigned char> buffer;
   size_t rcv_sysex_size ;
   int rcv_sysex_count;
@@ -1093,6 +1108,7 @@ double MidiAlsa :: makeTimeStamp ( const snd_seq_event_t * event ) throw()
     x.tv_sec --;
     x.tv_nsec += 1000000000;
   }
+
   lastTime = x;
 
 
@@ -1121,13 +1137,9 @@ double MidiAlsa :: makeTimeStamp ( const snd_seq_event_t * event ) throw()
     }
     x.tv_sec -= y.tv_sec;
 
-    // Compute the time difference.
-    double time = x.tv_sec + x.tv_nsec * 1e-9;
-
-
-    timeStamp = time;
+    timeStamp = x.tv_sec + x.tv_nsec * 1e-9;
   }
-  lastTime = event->time.time;
+  //lastTime = event->time.time;
   return timeStamp;
 }
 
@@ -1178,7 +1190,7 @@ void MidiAlsa :: doCallback( const snd_seq_event_t * event,
     x.tv_sec -= y.tv_sec;
 
     // Compute the time difference.
-    double time = x.tv_sec + x.tv_nsec * 1e-9;
+    double time = x.tv_sec + x.tv_nsec * 1.0e-9;
 
 
     timeStamp = time;
@@ -1292,6 +1304,10 @@ inline int AlsaMidi :: createPort( int alsaCapabilities,
                               SND_SEQ_PORT_TYPE_APPLICATION );
   snd_seq_port_info_set_midi_channels( pinfo, 16 );
   snd_seq_port_info_set_name( pinfo, portName.c_str( ) );
+
+  queue.start(seq);
+  queue.preparePort(pinfo);
+
   int createok = seq->createPort( pinfo, static_cast<MidiAlsa *>(this) );
 
   if ( createok < 0 ) {
@@ -1300,6 +1316,7 @@ inline int AlsaMidi :: createPort( int alsaCapabilities,
 
   local.client = snd_seq_port_info_get_client( pinfo );
   local.port = snd_seq_port_info_get_port( pinfo );
+
   return 0;
 }
   /**
@@ -1314,6 +1331,7 @@ inline int AlsaMidi :: createPort( int alsaCapabilities,
    */
 
 inline void AlsaMidi :: deletePort () {
+  queue.stop(seq);
   seq->deletePort( local.port, static_cast<MidiAlsa *>(this) );
   local.client = 0;
   local.port = 0;
