@@ -516,7 +516,6 @@ protected:
     }
     if (s) {
       jack_nframes_t size = s->getBufferSize();
-      std::cerr << "JACK buffer size: " << size << std::endl;
       buffSize    = jack_ringbuffer_create( size );
       buffMessage = jack_ringbuffer_create( size );
     }
@@ -546,7 +545,6 @@ protected:
   {
     if (s) {
       jack_nframes_t size = s->getBufferSize();
-      std::cerr << "JACK buffer size: " << size << std::endl;
       buffSize    = jack_ringbuffer_create( size );
       buffMessage = jack_ringbuffer_create( size );
     }

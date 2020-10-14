@@ -497,7 +497,6 @@ public:
 
 
   int maxSysExSize() {
-    printPoolSizes(std::cerr);
     // Find a better way to do this:
     snd_seq_client_pool_t * pool;
     snd_seq_client_pool_alloca( &pool );
@@ -572,8 +571,6 @@ public:
       //       in case an event cannot be delivered to a software device
       //       ALSA clears the complete queue instead of
       //       just throwing away the new message
-      std::cerr << "before sending" << std::endl;
-      printPoolSizes(std::cerr);
       {
 #if 0
         scoped_lock<locking> lock ( mutex );
@@ -582,10 +579,8 @@ public:
 #endif
         result = snd_seq_event_output_direct( seq, const_cast<snd_seq_event_t*>(&ev) );
       }
-      printPoolSizes(std::cerr);
       if (result != -EAGAIN && result != -EWOULDBLOCK)
         break;
-      std::cerr << "oBlocked ... " << std::endl;
       {
 #if 0
         scoped_lock<locking> lock ( mutex );
@@ -999,8 +994,10 @@ protected:
                   unsigned char * buffer,
                   long size ) {
     if (!in_coder) return 0;
+#if 0
     std::cerr << +event->source.client << ":" << +event->source.port << "->"
               << +event->dest.client << ":" << +event->dest.port << std::endl;
+#endif
     return snd_midi_event_decode( in_coder,
                                   buffer,
                                   size,
@@ -1084,8 +1081,6 @@ public:
 inline __attribute__( ( always_inline ) )
 double MidiAlsa :: makeTimeStamp ( const snd_seq_event_t * event ) throw()
 {
-  std::cerr << "T+" << std::endl;
-
   double timeStamp;
   // Perform the carry for the later subtraction by updating y.
   snd_seq_real_time_t x( event->time.time );
@@ -1142,8 +1137,6 @@ inline __attribute__( ( always_inline ) )
 void MidiAlsa :: doCallback( const snd_seq_event_t * event,
                              unsigned char * data,
                              ptrdiff_t size) throw() {
-  std::cerr << "T+" << std::endl;
-
   double timeStamp;
   // Perform the carry for the later subtraction by updating y.
   snd_seq_real_time_t x( event->time.time );
@@ -1191,7 +1184,6 @@ void MidiAlsa :: doCallback( const snd_seq_event_t * event,
     timeStamp = time;
   }
   lastTime = event->time.time;
-  std::cerr << "T-" << std::endl;
   doMidiCallback( timeStamp, data, size );
 #if 0
   if ( userCallback )
@@ -1227,8 +1219,6 @@ size_t MidiAlsa :: doSysEx( snd_seq_event_t * event,
                             MidiMessage& message ) throw()
 {
 #if 0
-  std::cerr
-    << ": Old size " << old_size << " length " << event->data.ext.len << std::endl;
   message.bytes.resize( old_size + event->data.ext.len );
   // whlat if resize fails?
   long nBytes = alsa2Midi( event,
@@ -1236,10 +1226,8 @@ size_t MidiAlsa :: doSysEx( snd_seq_event_t * event,
                            message.bytes.size( ) - old_size );
   if ( nBytes > 0 ) {
     ++rcv_sysex_count;
-    std::cerr << "SysEx " << rcv_sysex_count << ": " << nBytes << " bytes" << std::endl;
     old_size += nBytes;
     if ( message.bytes[old_size - 1] == 0xF7 ) {
-      std::cerr << "Received SysEx with size " << message.bytes.size() << std::endl;
       old_size = 0;
       doMidiCallback( makeTimeStamp( event ),
                       message.bytes.data(),

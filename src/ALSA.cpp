@@ -522,8 +522,6 @@ void AlsaSequencer<locking>::inputThread() throw() {
   int result;
 
 
-  std::cerr << "thread started" << std::endl;
-
   threadStatus = THREAD_START;
 
   poll_fd_count = snd_seq_poll_descriptors_count( seq, POLLIN ) + 1;
@@ -547,7 +545,6 @@ void AlsaSequencer<locking>::inputThread() throw() {
       }
       if ( errcode == 0 ) {
         // No data pending
-        std::cerr << "Polling" << std::endl;
         if ( poll( poll_fds, poll_fd_count, -1 ) >= 0 ) {
           if ( poll_fds[0].revents & POLLIN ) {
             bool dummy;
@@ -555,11 +552,9 @@ void AlsaSequencer<locking>::inputThread() throw() {
             ( void ) res;
           }
         }
-        std::cerr << "Polled" << std::endl;
         continue;
       }
     }
-    std::cerr << "O+" << std::endl;
 
     // If here, there should be data.
     for (;;) {
@@ -573,10 +568,11 @@ void AlsaSequencer<locking>::inputThread() throw() {
       }
       if (result != -EAGAIN && result != -EWOULDBLOCK)
         break;
-      std::cerr << "iBlocked ... " << std::endl;
       std::this_thread::sleep_for(sleeptime);
     }
+#if 0
     printalsaevent(ev);
+#endif
     if ( result == -ENOSPC ) {
       try {
         error( RTMIDI_ERROR( rtmidi_gettext( "ALSA MIDI input buffer overrun." ),
@@ -618,7 +614,6 @@ void AlsaSequencer<locking>::inputThread() throw() {
         continue;
       }
       MidiAlsa * port = dynamic_cast<MidiAlsa *>(ports[ev->dest.port]);
-      std::cerr << "R+" << std::endl;
       if (port) {
         port -> receiveEvent(ev);
       } else {
@@ -627,10 +622,8 @@ void AlsaSequencer<locking>::inputThread() throw() {
                               ev->dest.port ),
                lock);
       }
-      std::cerr << "R-" << std::endl;
     }
     snd_seq_free_event( ev );
-    std::cerr << "O-" << std::endl;
   }
 
   {
@@ -1188,7 +1181,6 @@ void MidiAlsa :: sendMessage( const unsigned char * message, size_t size )
                                                     message,
                                                     size, &ev ) ) > 0 ) {
     ++count;
-    std::cerr << "send " << count << ". Size: " << size << " (" << (startsize-size) << "/" << startsize << ")" << std::endl;
     seq->sendMessage(ev);
     if ( size < (size_t) result ) {
       error( RTMIDI_ERROR( gettext_noopt( "ALSA consumed more bytes than availlable." ),
@@ -1198,7 +1190,6 @@ void MidiAlsa :: sendMessage( const unsigned char * message, size_t size )
     message += result;
     size -= result;
   }
-  std::cerr << "Client name: is " << seq->getName() << std::endl;
 }
 
 void MidiAlsa :: initialize( const std::string& clientName )
