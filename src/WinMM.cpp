@@ -86,7 +86,7 @@ struct  InternalMidiApi: public MidiApi {
     //if ( queue.ringSize > 0 ) delete [] queue.ring;
   }
 
-  void setCallback( MidiInterface * callback );
+  void setCallback( SplitSysexMidiInterface * callback );
   void cancelCallback( );
   bool doMidiCallback( double timestamp, unsigned char * buffer, ptrdiff_t size) {
     if (userCallback) {
@@ -111,7 +111,7 @@ struct  InternalMidiApi: public MidiApi {
   bool continueSysex;
 protected:
   char ignoreFlags;
-  MidiInterface * userCallback;
+  SplitSysexMidiInterface * userCallback;
 };
 
 void InternalMidiApi :: openPort( unsigned int portNumber,
@@ -6504,7 +6504,7 @@ InternalMidiApi :: InternalMidiApi( )
 }
 #endif
 
-void InternalMidiApi :: setCallback( MidiInterface * callback )
+void InternalMidiApi :: setCallback( SplitSysexMidiInterface * callback )
 {
   if ( userCallback ) {
     error( RTMIDI_ERROR( gettext_noopt( "A callback function is already set." ),

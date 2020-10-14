@@ -86,7 +86,7 @@ struct  InternalMidiApi: public MidiApi {
     //if ( queue.ringSize > 0 ) delete [] queue.ring;
   }
 
-  void setCallback( MidiInterface * callback );
+  void setCallback( SplitSysexMidiInterface * callback );
   void cancelCallback( );
   bool doMidiCallback( double timestamp, unsigned char * buffer, ptrdiff_t size) {
     if (userCallback) {
