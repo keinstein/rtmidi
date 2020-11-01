@@ -20,3 +20,6 @@ include %D%/Makefile.library
 
 gcov:
 	$(GCOV) -p -s "$(srcdir)" -o "$$dir" $$(find . -name '*.gc*')
+
+clean-gcov:
+	find . \( -name "*.gcda" -o -name "*.gcno" -o -name "*.gcov" \) -delete
