@@ -99,6 +99,12 @@ AC_CONFIG_FILES( rtmididir[tests/run-cmidiio],chmod oug+x rtmididir[tests/run-cm
 AC_CONFIG_FILES( rtmididir[tests/run-midiclockio],chmod oug+x rtmididir[tests/run-midiclockio])
 AC_CONFIG_FILES( rtmididir[tests/run-qmidiio2],chmod oug+x rtmididir[tests/run-qmidiio2])
 AC_CONFIG_FILES( rtmididir[tests/run-cmidiio2],chmod oug+x rtmididir[tests/run-cmidiio2])
+AC_CONFIG_FILES( rtmididir[tests/run-virt-sysextest],chmod oug+x rtmididir[tests/run-virt-sysextest])
+AC_CONFIG_FILES( rtmididir[tests/run-virt-qmidiio],chmod oug+x rtmididir[tests/run-virt-qmidiio])
+AC_CONFIG_FILES( rtmididir[tests/run-virt-cmidiio],chmod oug+x rtmididir[tests/run-virt-cmidiio])
+AC_CONFIG_FILES( rtmididir[tests/run-virt-midiclockio],chmod oug+x rtmididir[tests/run-virt-midiclockio])
+AC_CONFIG_FILES( rtmididir[tests/run-virt-qmidiio2],chmod oug+x rtmididir[tests/run-virt-qmidiio2])
+AC_CONFIG_FILES( rtmididir[tests/run-virt-cmidiio2],chmod oug+x rtmididir[tests/run-virt-cmidiio2])
 
 # Copy doc files to build dir if necessary
 AC_CONFIG_LINKS( rtmididir[doc/doxygen/footer.html:]rtmididir[doc/doxygen/footer.html] )
@@ -417,6 +423,13 @@ AS_IF(test "x${rtmidi_do_loopback_tests}" = xyes ,[
 	;;
     esac
     ])
+
+AC_ARG_WITH(rtmidi-virtal-device,
+AS_HELP_STRING([--with-rtmidi-virtual-device],[name of the virtual loopback device for automatic loopback tests]),
+[AS_IF(test "x$with_rtmidi_virtual_device" = "xno",
+		[ rtmidi_virtual_device="RtMidi virtual loopback device" ],
+		[ rtmidi_virtual_device="$with_rtmidi_input_pattern"])])
+AC_SUBST(rtmidi_virtual_device)
 
 AC_ARG_WITH(rtmidi-input_pattern,
 AS_HELP_STRING([--with-rtmidi-input_pattern],[pattern to select the input device for automatic loopback tests]),

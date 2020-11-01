@@ -4,11 +4,23 @@
 @HAVE_EXTERNAL_LOOPBACK_FALSE@exit 0
 
 COMMAND="tests/sysextest 50"
-INPUT_PATTERN='@rtmidi_input_pattern@'
-OUTPUT_PATTERN='@rtmidi_output_pattern@'
-VIRTUAL_DEVICE=''
+INPUT_PATTERN='@rtmidi_virtual_device@'
+OUTPUT_PATTERN='@rtmidi_virtual_device@'
+VIRTUAL_DEVICE='@rtmidi_virtual_device@'
 
 set -e
+
+TMPDIR=$(mktemp -d -t ${PROGNAME}.XXXXXXXX)
+
+if [ "x${VIRTUAL_DEVICE}" != "x" ]
+then
+    mkfifo "$TMPDIR/loopstdin.pipe"
+    exec {loopstdin}<> "$TMPDIR/loopstdin.pipe"
+
+    ${rundir}/loopback-device <&${loopstdin} &
+    LOOPBACK_PID=$!
+fi
+
 
 coproc $COMMAND
 set |grep -i cop
@@ -52,4 +64,21 @@ do
 	echo "$line"
 done <&${COPROC[0]}
 
+
+if [ "x${VIRTUAL_DEVICE}" != "x" ]
+then
+    echo -e "\x03" >&$loopstdin
+    kill -SIGINT ${LOOPBACK_PID} || true
+    echo "Waiting for loopback client to finish (PID=${LOOPBACK_PID})"
+    wait ${LOOPBACK_PID}
+fi
+
+rm -f \
+   "$TMPDIR/loopstdin.pipe"
+#   "$TMPDIR/instdin.pipe" "$TMPDIR/instdout.pipe" "$TMPDIR/outstdin.pipe" "$TMPDIR/outstdout.pipe" \
+
+rmdir $TMPDIR
+
 wait ${COPROC_PID}
+
+

@@ -9,7 +9,18 @@ PROGNAME=$(basename "$0")
 rm -f "${rundir}/${cmdname}.out"
 touch "${rundir}/${cmdname}.out"
 
+
+
 TMPDIR=$(mktemp -d -t ${PROGNAME}.XXXXXXXX)
+
+if [ "x${VIRTUAL_DEVICE}" != "x" ]
+then
+    mkfifo "$TMPDIR/loopstdin.pipe"
+    exec {loopstdin}<> "$TMPDIR/loopstdin.pipe"
+
+    ${rundir}/loopback-device <&${loopstdin} &
+    LOOPBACK_PID=$!
+fi
 
 mkfifo "$TMPDIR/instdin.pipe"
 mkfifo "$TMPDIR/instdout.pipe"
@@ -55,11 +66,11 @@ $OUTPUT_COMMAND <&$outstdin 2>&1 >&$outstdout &
 OUTPUT_PID=$!
 echo starte output dialog
 (
-    read -u $outstdout -d ']' -r line
+    read -d ']' -r line <&$outstdout
     echo "out: $line"
     echo -e 'N\n'>&$outstdin
 
-    while read -u $outstdout line 
+    while read  line <&$outstdout
     do
 	echo "out1: $line"
 	number=$(echo "$line" | sed -e '/^Output/ {s/^[^#]*#\([0-9]*\):.*'"$OUTPUT_PATTERN"'.*$/\1/; p}; d')
@@ -88,6 +99,20 @@ echo -e "\x03" >&$instdin
 kill -SIGINT ${INPUT_PID} || true
 echo "Waiting for input client to finish (PID=${INPUT_PID})"
 wait ${INPUT_PID}
+
+
+if [ "x${VIRTUAL_DEVICE}" != "x" ]
+then
+    echo -e "\x03" >&$loopstdin
+    kill -SIGINT ${LOOPBACK_PID} || true
+    echo "Waiting for loopback client to finish (PID=${LOOPBACK_PID})"
+    wait ${LOOPBACK_PID}
+fi
+
+rm -f  "$TMPDIR/instdin.pipe" "$TMPDIR/instdout.pipe" "$TMPDIR/outstdin.pipe" "$TMPDIR/outstdout.pipe" \
+   "$TMPDIR/loopstdin.pipe"
+
+rmdir $TMPDIR
 
 diff -b "${srcdir}/${cmdname}.cmp" "${rundir}/${cmdname}.out"
 

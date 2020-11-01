@@ -8,6 +8,7 @@ INPUT_PATTERN='@rtmidi_input_pattern@'
 INPUT_RUN_PATTERN='quit with Ctrl-C'
 OUTPUT_COMMAND="tests/midiclock_out"
 OUTPUT_PATTERN='@rtmidi_output_pattern@'
+VIRTUAL_DEVICE=''
 
 rundir="$(dirname $0)"
 cmdname="$(basename $0)"

@@ -4,6 +4,7 @@
 #RTMIDITESTLDFLAGS  += -L$(top_builddir)/%D% -lrtmidi@rtmidi_suffix@ @LIBS@
 
 check_PROGRAMS += \
+	%D%/loopback-device \
 	%D%/midiprobe \
 	%D%/midiout \
 	%D%/qmidiin \
@@ -57,7 +58,14 @@ TESTS += \
 endif
 
 if RTMIDI_HAVE_VIRTUAL_DEVICES
-TESTS += %D%/loopback
+TESTS += \
+	%D%/loopback \
+	%D%/run-virt-sysextest \
+	%D%/run-virt-qmidiio \
+	%D%/run-virt-cmidiio \
+	%D%/run-virt-qmidiio2 \
+	%D%/run-virt-cmidiio2 \
+	%D%/run-virt-midiclockio
 endif
 
 RTMIDICOMMONTESTSOURCES = \
@@ -65,6 +73,7 @@ RTMIDICOMMONTESTSOURCES = \
 	%D%/test-common.h
 
 
+%C%_loopback_device_SOURCES = %D%/loopback-device.cpp $(RTMIDICOMMONTESTSOURCES)
 %C%_midiprobe_SOURCES      = %D%/midiprobe.cpp
 %C%_midiout_SOURCES        = %D%/midiout.cpp $(RTMIDICOMMONTESTSOURCES)
 %C%_qmidiin_SOURCES        = %D%/qmidiin.cpp $(RTMIDICOMMONTESTSOURCES)
@@ -87,6 +96,7 @@ RTMIDICOMMONTESTSOURCES = \
 
 # When a nonstandard gettext library or wrapper is used,
 # we need extra flags.
+%C%_loopback_device_CXXFLAGS = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 %C%_midiprobe_CXXFLAGS     = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 %C%_midiout_CXXFLAGS       = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 %C%_qmidiin_CXXFLAGS       = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
@@ -108,6 +118,7 @@ RTMIDICOMMONTESTSOURCES = \
 %C%_copyonwrite_CXXFLAGS      = $(AM_CXXFLAGS) $(RTMIDITESTCXXFLAGS) -DRTMIDI_NO_WARN_DEPRECATED
 
 
+%C%_loopback_device_LDFLAGS      = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 %C%_midiprobe_LDFLAGS      = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 %C%_midiout_LDFLAGS        = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
 %C%_qmidiin_LDFLAGS        = $(AM_LDFLAGS) $(RTMIDITESTLDFLAGS)
@@ -129,6 +140,7 @@ RTMIDICOMMONTESTSOURCES = \
 %C%_copyonwrite_LDFLAGS       = $(AM_LDFLAGS) $(ALSA_LIBS) $(JACK_LIBS) #$(RTMIDITESTLDFLAGS)
 
 
+%C%_loopback_device_LDADD      = $(RTMIDILIBRARYNAME)
 %C%_midiprobe_LDADD      = $(RTMIDILIBRARYNAME)
 %C%_midiout_LDADD        = $(RTMIDILIBRARYNAME)
 %C%_qmidiin_LDADD        = $(RTMIDILIBRARYNAME)

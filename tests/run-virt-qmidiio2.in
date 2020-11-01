@@ -4,11 +4,11 @@
 @HAVE_EXTERNAL_LOOPBACK_FALSE@exit 0
 
 INPUT_COMMAND="tests/qmidiin2"
-INPUT_PATTERN='@rtmidi_input_pattern@'
+INPUT_PATTERN='@rtmidi_virtual_device@'
 INPUT_RUN_PATTERN='quit with Ctrl-C'
 OUTPUT_COMMAND="tests/midiout2"
-OUTPUT_PATTERN='@rtmidi_output_pattern@'
-VIRTUAL_COMMAND=''
+OUTPUT_PATTERN='@rtmidi_virtual_device@'
+VIRTUAL_DEVICE='@rtmidi_virtual_device@'
 
 rundir="$(dirname $0)"
 cmdname="$(basename $0)"
