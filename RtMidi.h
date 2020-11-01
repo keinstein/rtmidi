@@ -693,6 +693,8 @@ struct RTMIDI_DLL_PUBLIC Midi {
         const std::string& clientName = std::string ( "RtMidi Input Client" ),
         bool pfsystem = true );
 
+ virtual ~Midi ( );
+
  //! A static function to determine the current RtMidi version.
  static std::string getVersion ( void ) throw ( );
 
@@ -859,7 +861,6 @@ struct RTMIDI_DLL_PUBLIC Midi {
   */
  void setPortName ( const std::string& portName );
 
-
   //! Immediately send a single message out an open MIDI output port.
   /*!
     An exception is thrown if an error occurs during output or an
@@ -957,7 +958,6 @@ struct RTMIDI_DLL_PUBLIC Midi {
  Midi ( bool pfsystem,
         const std::string& name );
 
- virtual ~Midi ( );
 
  MidiApi * openMidiApi ( ApiType api );
 };
