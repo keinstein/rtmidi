@@ -2,6 +2,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ac98q210qscfjayk/branch/master-ts?svg=true)](https://ci.appveyor.com/project/keinstein/rtmidi/branch/travis-tests)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/39ea41a871be4403b687e2707714d4aa)](https://www.codacy.com/app/keinstein/rtmidi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=keinstein/rtmidi&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/keinstein/rtmidi/branch/master-ts/graph/badge.svg)](https://codecov.io/gh/keinstein/rtmidi)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/18307/badge.svg)](https://scan.coverity.com/projects/keinstein-rtmidi)
+
 
 Extended RtMidi fork for Mutabor, GUI based Software, and saving MIDI connections
 =================================================================================
