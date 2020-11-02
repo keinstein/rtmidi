@@ -640,7 +640,7 @@ public:
       }
 #endif
     } catch(...) {
-      throw RTMIDI_ERROR( gettext_noopt( "Error starting ALSA MIDI input thread!" ),
+      throw RTMIDI_ERROR( gettext_noopt( "Error starting ALSA MIDI input thread." ),
                           Error::THREAD_ERROR );
       return false;
     }

@@ -217,7 +217,7 @@ Error::Error( const char * message,
       message_.resize( length );
     } else {
       const char * msg
-        = gettext_noopt( "Error: could not format the error message" );
+        = gettext_noopt( "Error: Could not format the error message." );
 #ifdef RTMIDI_GETTEXT
       msg = rtmidi_gettext( msg );
 #endif

@@ -979,7 +979,7 @@ void MidiInAlsa :: openPort( unsigned int portNumber, const std::string& portNam
       snd_seq_port_subscribe_free( subscription );
       subscription = 0;
       doInput = false;
-      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread!" ),
+      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread." ),
                            Error::THREAD_ERROR ) );
       return;
     }
@@ -1076,7 +1076,7 @@ void MidiAlsa :: openVirtualPort( const std::string& portName,
         subscription = 0;
       }
       doInput = false;
-      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread!" ),
+      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread." ),
                            Error::THREAD_ERROR ) );
       return;
     }

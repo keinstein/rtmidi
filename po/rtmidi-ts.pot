@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rtmidi-ts 4.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/keinstein/rtmidi\n"
-"POT-Creation-Date: 2020-07-26 17:45+0200\n"
+"POT-Creation-Date: 2020-11-02 16:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,29 +17,29 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: RtMidi.h:1254 RtMidi.h:1827 RtMidi.h:2041 src/Dummy.cpp:2109
+#: RtMidi.h:1286 RtMidi.h:1859 RtMidi.h:2073 src/Dummy.cpp:2109
 #: src/Dummy.h:2109 src/OSXCoreMidi.cpp:2109 src/OSXCoreMidi.h:2109
 #: src/WinMM.cpp:2109 src/WinMM.h:2109 src/WinKS.cpp:2109 src/WinKS.h:2109
 msgid "No data in message argument."
 msgstr ""
 
-#: RtMidi.h:1762 RtMidi.h:2446
+#: RtMidi.h:1794 RtMidi.h:2478
 msgid "Passed NULL pointer."
 msgstr ""
 
-#: RtMidi.h:2256
+#: RtMidi.h:2288
 msgid "A NULL pointer has been passed as port descriptor"
 msgstr ""
 
-#: RtMidi.h:2272 RtMidi.h:2298
+#: RtMidi.h:2304 RtMidi.h:2330
 msgid "No valid MIDI system has been selected."
 msgstr ""
 
-#: RtMidi.h:2291
+#: RtMidi.h:2323
 msgid "No data in MIDI message."
 msgstr ""
 
-#: RtMidi.h:2387 src/Dummy.cpp:6516 src/Dummy.h:6516 src/RtMidi.cpp:730
+#: RtMidi.h:2419 src/Dummy.cpp:6516 src/Dummy.h:6516 src/RtMidi.cpp:725
 #: src/OSXCoreMidi.cpp:6516 src/OSXCoreMidi.h:6516 src/WinMM.cpp:6516
 #: src/WinMM.h:6516 src/WinKS.cpp:6516 src/WinKS.h:6516
 msgid "The callback function value is invalid."
@@ -162,7 +162,7 @@ msgstr ""
 
 #: src/Dummy.cpp:1531 src/Dummy.cpp:1597 src/Dummy.cpp:3132 src/Dummy.cpp:4317
 #: src/Dummy.h:1531 src/Dummy.h:1597 src/Dummy.h:3132 src/Dummy.h:4317
-#: src/ALSA.h:1203 src/OSXCoreMidi.cpp:1531 src/OSXCoreMidi.cpp:1597
+#: src/ALSA.h:1207 src/OSXCoreMidi.cpp:1531 src/OSXCoreMidi.cpp:1597
 #: src/OSXCoreMidi.cpp:3132 src/OSXCoreMidi.cpp:4317 src/OSXCoreMidi.h:1531
 #: src/OSXCoreMidi.h:1597 src/OSXCoreMidi.h:3132 src/OSXCoreMidi.h:4317
 #: src/WinMM.cpp:1531 src/WinMM.cpp:1597 src/WinMM.cpp:3132 src/WinMM.cpp:4317
@@ -177,7 +177,7 @@ msgstr ""
 #: src/Dummy.cpp:4374 src/Dummy.cpp:4687 src/Dummy.cpp:4759 src/Dummy.h:1656
 #: src/Dummy.h:1750 src/Dummy.h:1927 src/Dummy.h:2041 src/Dummy.h:3266
 #: src/Dummy.h:3376 src/Dummy.h:3640 src/Dummy.h:3798 src/Dummy.h:4374
-#: src/Dummy.h:4687 src/Dummy.h:4759 src/ALSA.cpp:894 src/ALSA.cpp:1101
+#: src/Dummy.h:4687 src/Dummy.h:4759 src/ALSA.cpp:887 src/ALSA.cpp:1094
 #: src/OSXCoreMidi.cpp:1656 src/OSXCoreMidi.cpp:1750 src/OSXCoreMidi.cpp:1927
 #: src/OSXCoreMidi.cpp:2041 src/OSXCoreMidi.cpp:3266 src/OSXCoreMidi.cpp:3376
 #: src/OSXCoreMidi.cpp:3640 src/OSXCoreMidi.cpp:3798 src/OSXCoreMidi.cpp:4374
@@ -201,7 +201,7 @@ msgid "A valid connection already exists."
 msgstr ""
 
 #: src/Dummy.cpp:1664 src/Dummy.cpp:3273 src/Dummy.cpp:4381 src/Dummy.h:1664
-#: src/Dummy.h:3273 src/Dummy.h:4381 src/ALSA.cpp:901 src/OSXCoreMidi.cpp:1664
+#: src/Dummy.h:3273 src/Dummy.h:4381 src/ALSA.cpp:894 src/OSXCoreMidi.cpp:1664
 #: src/OSXCoreMidi.cpp:3273 src/OSXCoreMidi.cpp:4381 src/OSXCoreMidi.h:1664
 #: src/OSXCoreMidi.h:3273 src/OSXCoreMidi.h:4381 src/WinMM.cpp:1664
 #: src/WinMM.cpp:3273 src/WinMM.cpp:4381 src/WinMM.h:1664 src/WinMM.h:3273
@@ -215,7 +215,7 @@ msgstr ""
 #: src/Dummy.cpp:4700 src/Dummy.cpp:5475 src/Dummy.h:1673 src/Dummy.h:1851
 #: src/Dummy.h:1910 src/Dummy.h:1941 src/Dummy.h:3282 src/Dummy.h:3660
 #: src/Dummy.h:4586 src/Dummy.h:4661 src/Dummy.h:4700 src/Dummy.h:5475
-#: src/RtMidi-internal.h:146 src/RtMidi-internal.h:154 src/ALSA.cpp:910
+#: src/RtMidi-internal.h:146 src/RtMidi-internal.h:154 src/ALSA.cpp:903
 #: src/OSXCoreMidi.cpp:1673 src/OSXCoreMidi.cpp:1851 src/OSXCoreMidi.cpp:1910
 #: src/OSXCoreMidi.cpp:1941 src/OSXCoreMidi.cpp:3282 src/OSXCoreMidi.cpp:3660
 #: src/OSXCoreMidi.cpp:4586 src/OSXCoreMidi.cpp:4661 src/OSXCoreMidi.cpp:4700
@@ -227,7 +227,7 @@ msgstr ""
 #: src/WinMM.cpp:3660 src/WinMM.cpp:4586 src/WinMM.cpp:4661 src/WinMM.cpp:4700
 #: src/WinMM.cpp:5475 src/WinMM.h:1673 src/WinMM.h:1851 src/WinMM.h:1910
 #: src/WinMM.h:1941 src/WinMM.h:3282 src/WinMM.h:3660 src/WinMM.h:4586
-#: src/WinMM.h:4661 src/WinMM.h:4700 src/WinMM.h:5475 src/JACK.h:661
+#: src/WinMM.h:4661 src/WinMM.h:4700 src/WinMM.h:5475 src/JACK.h:659
 #: src/WinKS.cpp:1673 src/WinKS.cpp:1851 src/WinKS.cpp:1910 src/WinKS.cpp:1941
 #: src/WinKS.cpp:3282 src/WinKS.cpp:3660 src/WinKS.cpp:4586 src/WinKS.cpp:4661
 #: src/WinKS.cpp:4700 src/WinKS.cpp:5475 src/WinKS.h:1673 src/WinKS.h:1851
@@ -297,9 +297,11 @@ msgstr ""
 msgid "Setting port names is not implemented for Mac OS X CoreMIDI."
 msgstr ""
 
-#: src/Dummy.cpp:1935 src/Dummy.h:1935 src/OSXCoreMidi.cpp:1935
-#: src/OSXCoreMidi.h:1935 src/WinMM.cpp:1935 src/WinMM.h:1935
-#: src/WinKS.cpp:1935 src/WinKS.h:1935
+#: src/Dummy.cpp:1935 src/Dummy.cpp:4694 src/Dummy.h:1935 src/Dummy.h:4694
+#: src/OSXCoreMidi.cpp:1935 src/OSXCoreMidi.cpp:4694 src/OSXCoreMidi.h:1935
+#: src/OSXCoreMidi.h:4694 src/WinMM.cpp:1935 src/WinMM.cpp:4694
+#: src/WinMM.h:1935 src/WinMM.h:4694 src/WinKS.cpp:1935 src/WinKS.cpp:4694
+#: src/WinKS.h:1935 src/WinKS.h:4694
 msgid "No MIDI output destinations found."
 msgstr ""
 
@@ -353,20 +355,20 @@ msgstr ""
 msgid "Error sending MIDI message to port."
 msgstr ""
 
-#: src/Dummy.cpp:2326 src/Dummy.h:2326 src/ALSA.h:363 src/OSXCoreMidi.cpp:2326
+#: src/Dummy.cpp:2326 src/Dummy.h:2326 src/ALSA.h:375 src/OSXCoreMidi.cpp:2326
 #: src/OSXCoreMidi.h:2326 src/WinMM.cpp:2326 src/WinMM.h:2326
 #: src/WinKS.cpp:2326 src/WinKS.h:2326
 msgid "Could not allocate ALSA port info structure."
 msgstr ""
 
-#: src/Dummy.cpp:2330 src/Dummy.h:2330 src/ALSA.h:373 src/OSXCoreMidi.cpp:2330
+#: src/Dummy.cpp:2330 src/Dummy.h:2330 src/ALSA.h:385 src/OSXCoreMidi.cpp:2330
 #: src/OSXCoreMidi.h:2330 src/WinMM.cpp:2330 src/WinMM.h:2330
 #: src/WinKS.cpp:2330 src/WinKS.h:2330
 #, c-format
 msgid "Could not get ALSA port information: %s"
 msgstr ""
 
-#: src/Dummy.cpp:2336 src/Dummy.h:2336 src/ALSA.h:379 src/OSXCoreMidi.cpp:2336
+#: src/Dummy.cpp:2336 src/Dummy.h:2336 src/ALSA.h:391 src/OSXCoreMidi.cpp:2336
 #: src/OSXCoreMidi.h:2336 src/WinMM.cpp:2336 src/WinMM.h:2336
 #: src/WinKS.cpp:2336 src/WinKS.h:2336
 #, c-format
@@ -375,7 +377,7 @@ msgstr ""
 
 #: src/Dummy.cpp:2389 src/Dummy.cpp:2669 src/Dummy.cpp:3326 src/Dummy.cpp:3381
 #: src/Dummy.cpp:3687 src/Dummy.h:2389 src/Dummy.h:2669 src/Dummy.h:3326
-#: src/Dummy.h:3381 src/Dummy.h:3687 src/ALSA.cpp:954 src/ALSA.h:461
+#: src/Dummy.h:3381 src/Dummy.h:3687 src/ALSA.cpp:947 src/ALSA.h:475
 #: src/OSXCoreMidi.cpp:2389 src/OSXCoreMidi.cpp:2669 src/OSXCoreMidi.cpp:3326
 #: src/OSXCoreMidi.cpp:3381 src/OSXCoreMidi.cpp:3687 src/OSXCoreMidi.h:2389
 #: src/OSXCoreMidi.h:2669 src/OSXCoreMidi.h:3326 src/OSXCoreMidi.h:3381
@@ -389,7 +391,7 @@ msgid "Could not allocate ALSA port subscription."
 msgstr ""
 
 #: src/Dummy.cpp:2404 src/Dummy.cpp:3335 src/Dummy.cpp:3698 src/Dummy.h:2404
-#: src/Dummy.h:3335 src/Dummy.h:3698 src/ALSA.cpp:963 src/ALSA.h:480
+#: src/Dummy.h:3335 src/Dummy.h:3698 src/ALSA.cpp:956 src/ALSA.h:494
 #: src/OSXCoreMidi.cpp:2404 src/OSXCoreMidi.cpp:3335 src/OSXCoreMidi.cpp:3698
 #: src/OSXCoreMidi.h:2404 src/OSXCoreMidi.h:3335 src/OSXCoreMidi.h:3698
 #: src/WinMM.cpp:2404 src/WinMM.cpp:3335 src/WinMM.cpp:3698 src/WinMM.h:2404
@@ -399,13 +401,13 @@ msgid "Error making ALSA port connection."
 msgstr ""
 
 #: src/Dummy.cpp:2823 src/Dummy.cpp:3361 src/Dummy.cpp:3499 src/Dummy.h:2823
-#: src/Dummy.h:3361 src/Dummy.h:3499 src/ALSA.cpp:989 src/ALSA.cpp:1086
+#: src/Dummy.h:3361 src/Dummy.h:3499 src/ALSA.cpp:982 src/ALSA.cpp:1079
 #: src/OSXCoreMidi.cpp:2823 src/OSXCoreMidi.cpp:3361 src/OSXCoreMidi.cpp:3499
 #: src/OSXCoreMidi.h:2823 src/OSXCoreMidi.h:3361 src/OSXCoreMidi.h:3499
 #: src/WinMM.cpp:2823 src/WinMM.cpp:3361 src/WinMM.cpp:3499 src/WinMM.h:2823
 #: src/WinMM.h:3361 src/WinMM.h:3499 src/WinKS.cpp:2823 src/WinKS.cpp:3361
 #: src/WinKS.cpp:3499 src/WinKS.h:2823 src/WinKS.h:3361 src/WinKS.h:3499
-msgid "Error starting MIDI input thread!"
+msgid "Error starting MIDI input thread."
 msgstr ""
 
 #: src/Dummy.cpp:2847 src/Dummy.cpp:3590 src/Dummy.h:2847 src/Dummy.h:3590
@@ -422,7 +424,7 @@ msgstr ""
 msgid "MIDI input buffer overrun."
 msgstr ""
 
-#: src/Dummy.cpp:2896 src/Dummy.h:2896 src/ALSA.cpp:592
+#: src/Dummy.cpp:2896 src/Dummy.h:2896 src/ALSA.cpp:588
 #: src/OSXCoreMidi.cpp:2896 src/OSXCoreMidi.h:2896 src/WinMM.cpp:2896
 #: src/WinMM.h:2896 src/WinKS.cpp:2896 src/WinKS.h:2896
 msgid "ALSA returned without providing a MIDI event."
@@ -438,7 +440,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: src/Dummy.cpp:2971 src/Dummy.h:2971 src/ALSA.cpp:782
+#: src/Dummy.cpp:2971 src/Dummy.h:2971 src/ALSA.cpp:775
 #: src/OSXCoreMidi.cpp:2971 src/OSXCoreMidi.h:2971 src/WinMM.cpp:2971
 #: src/WinMM.h:2971 src/WinKS.cpp:2971 src/WinKS.h:2971
 msgid "Error resizing buffer memory."
@@ -457,21 +459,21 @@ msgid "Event parsing error or not a MIDI event."
 msgstr ""
 
 #: src/Dummy.cpp:3258 src/Dummy.cpp:3632 src/Dummy.h:3258 src/Dummy.h:3632
-#: src/ALSA.cpp:886 src/ALSA.cpp:1255 src/OSXCoreMidi.cpp:3258
+#: src/ALSA.cpp:879 src/ALSA.cpp:1246 src/OSXCoreMidi.cpp:3258
 #: src/OSXCoreMidi.cpp:3632 src/OSXCoreMidi.h:3258 src/OSXCoreMidi.h:3632
 #: src/WinMM.cpp:3258 src/WinMM.cpp:3632 src/WinMM.h:3258 src/WinMM.h:3632
 #: src/WinKS.cpp:3258 src/WinKS.cpp:3632 src/WinKS.h:3258 src/WinKS.h:3632
 msgid "Error looking for port name."
 msgstr ""
 
-#: src/Dummy.cpp:3313 src/Dummy.h:3313 src/ALSA.cpp:941
+#: src/Dummy.cpp:3313 src/Dummy.h:3313 src/ALSA.cpp:934
 #: src/OSXCoreMidi.cpp:3313 src/OSXCoreMidi.h:3313 src/WinMM.cpp:3313
 #: src/WinMM.h:3313 src/WinKS.cpp:3313 src/WinKS.h:3313
 msgid "Error creating ALSA input port."
 msgstr ""
 
 #: src/Dummy.cpp:3386 src/Dummy.cpp:3808 src/Dummy.h:3386 src/Dummy.h:3808
-#: src/ALSA.cpp:1106 src/OSXCoreMidi.cpp:3386 src/OSXCoreMidi.cpp:3808
+#: src/ALSA.cpp:1099 src/OSXCoreMidi.cpp:3386 src/OSXCoreMidi.cpp:3808
 #: src/OSXCoreMidi.h:3386 src/OSXCoreMidi.h:3808 src/WinMM.cpp:3386
 #: src/WinMM.cpp:3808 src/WinMM.h:3386 src/WinMM.h:3808 src/WinKS.cpp:3386
 #: src/WinKS.cpp:3808 src/WinKS.h:3386 src/WinKS.h:3808
@@ -505,13 +507,13 @@ msgstr ""
 msgid "Error creating ALSA output port."
 msgstr ""
 
-#: src/Dummy.cpp:3753 src/Dummy.h:3753 src/ALSA.cpp:1170
+#: src/Dummy.cpp:3753 src/Dummy.h:3753 src/ALSA.cpp:1163
 #: src/OSXCoreMidi.cpp:3753 src/OSXCoreMidi.h:3753 src/WinMM.cpp:3753
 #: src/WinMM.h:3753 src/WinKS.cpp:3753 src/WinKS.h:3753
 msgid "ALSA error resizing MIDI event buffer."
 msgstr ""
 
-#: src/Dummy.cpp:3777 src/Dummy.h:3777 src/ALSA.cpp:1194
+#: src/Dummy.cpp:3777 src/Dummy.h:3777 src/ALSA.cpp:1186
 #: src/OSXCoreMidi.cpp:3777 src/OSXCoreMidi.h:3777 src/WinMM.cpp:3777
 #: src/WinMM.h:3777 src/WinKS.cpp:3777 src/WinKS.h:3777
 msgid "ALSA consumed more bytes than availlable."
@@ -672,12 +674,6 @@ msgstr ""
 msgid "No MIDI output devices currently available."
 msgstr ""
 
-#: src/Dummy.cpp:4694 src/Dummy.h:4694 src/OSXCoreMidi.cpp:4694
-#: src/OSXCoreMidi.h:4694 src/WinMM.cpp:4694 src/WinMM.h:4694
-#: src/WinKS.cpp:4694 src/WinKS.h:4694
-msgid "No MIDI output destinations found!"
-msgstr ""
-
 #: src/Dummy.cpp:4712 src/Dummy.h:4712 src/OSXCoreMidi.cpp:4712
 #: src/OSXCoreMidi.h:4712 src/WinMM.cpp:4712 src/WinMM.h:4712
 #: src/WinKS.cpp:4712 src/WinKS.h:4712
@@ -753,13 +749,13 @@ msgid "Invalid port submitted to JackPortDescriptor( )."
 msgstr ""
 
 #: src/Dummy.cpp:5466 src/Dummy.h:5466 src/OSXCoreMidi.cpp:5466
-#: src/OSXCoreMidi.h:5466 src/WinMM.cpp:5466 src/WinMM.h:5466 src/JACK.h:652
+#: src/OSXCoreMidi.h:5466 src/WinMM.cpp:5466 src/WinMM.h:5466 src/JACK.h:650
 #: src/WinKS.cpp:5466 src/WinKS.h:5466
 msgid "No ports available."
 msgstr ""
 
 #: src/Dummy.cpp:5488 src/Dummy.h:5488 src/OSXCoreMidi.cpp:5488
-#: src/OSXCoreMidi.h:5488 src/WinMM.cpp:5488 src/WinMM.h:5488 src/JACK.h:680
+#: src/OSXCoreMidi.h:5488 src/WinMM.cpp:5488 src/WinMM.h:5488 src/JACK.h:678
 #: src/WinKS.cpp:5488 src/WinKS.h:5488
 msgid "Error opening JACK port subscription."
 msgstr ""
@@ -824,7 +820,7 @@ msgstr ""
 #: src/Dummy.cpp:6025 src/Dummy.h:6025 src/RtMidi.cpp:220
 #: src/OSXCoreMidi.cpp:6025 src/OSXCoreMidi.h:6025 src/WinMM.cpp:6025
 #: src/WinMM.h:6025 src/WinKS.cpp:6025 src/WinKS.h:6025
-msgid "Error: could not format the error message"
+msgid "Error: Could not format the error message."
 msgstr ""
 
 #: src/Dummy.cpp:6195 src/Dummy.cpp:6367 src/Dummy.h:6195 src/Dummy.h:6367
@@ -846,19 +842,19 @@ msgid ""
 "RtMidi library."
 msgstr ""
 
-#: src/Dummy.cpp:6510 src/Dummy.h:6510 src/RtMidi.cpp:724
+#: src/Dummy.cpp:6510 src/Dummy.h:6510 src/RtMidi.cpp:734
 #: src/OSXCoreMidi.cpp:6510 src/OSXCoreMidi.h:6510 src/WinMM.cpp:6510
 #: src/WinMM.h:6510 src/WinKS.cpp:6510 src/WinKS.h:6510
 msgid "A callback function is already set."
 msgstr ""
 
-#: src/Dummy.cpp:6527 src/Dummy.h:6527 src/RtMidi.cpp:741
+#: src/Dummy.cpp:6527 src/Dummy.h:6527 src/RtMidi.cpp:746
 #: src/OSXCoreMidi.cpp:6527 src/OSXCoreMidi.h:6527 src/WinMM.cpp:6527
 #: src/WinMM.h:6527 src/WinKS.cpp:6527 src/WinKS.h:6527
 msgid "No callback function was set."
 msgstr ""
 
-#: src/Dummy.cpp:6544 src/Dummy.h:6544 src/RtMidi.cpp:758
+#: src/Dummy.cpp:6544 src/Dummy.h:6544 src/RtMidi.cpp:763
 #: src/OSXCoreMidi.cpp:6544 src/OSXCoreMidi.h:6544 src/WinMM.cpp:6544
 #: src/WinMM.h:6544 src/WinKS.cpp:6544 src/WinKS.h:6544
 msgid ""
@@ -866,11 +862,11 @@ msgid ""
 "function."
 msgstr ""
 
-#: src/ALSA.cpp:582
+#: src/ALSA.cpp:578
 msgid "ALSA MIDI input buffer overrun."
 msgstr ""
 
-#: src/ALSA.cpp:602
+#: src/ALSA.cpp:598
 #, c-format
 msgid ""
 "Unknown ALSA MIDI input error.\n"
@@ -878,48 +874,48 @@ msgid ""
 "%s"
 msgstr ""
 
-#: src/ALSA.cpp:614 src/ALSA.cpp:625
+#: src/ALSA.cpp:610 src/ALSA.cpp:620
 #, c-format
 msgid "Received an ALSA event with an invalid port number (%d)."
 msgstr ""
 
-#: src/ALSA.cpp:1037
+#: src/ALSA.cpp:1030
 msgid "Error creating ALSA port."
 msgstr ""
 
-#: src/ALSA.h:190
+#: src/ALSA.h:198
 msgid "Error creating ALSA MIDI pipe objects."
 msgstr ""
 
-#: src/ALSA.h:203 src/ALSA.h:928
+#: src/ALSA.h:211 src/ALSA.h:937
 msgid "Error initializing ALSA MIDI event parser."
 msgstr ""
 
-#: src/ALSA.h:564
+#: src/ALSA.h:577
 #, c-format
 msgid "Error sending ALSA MIDI message with negative length %d."
 msgstr ""
 
-#: src/ALSA.h:600
+#: src/ALSA.h:609
 #, c-format
 msgid ""
 "Error sending ALSA MIDI message to port.\n"
 "Error %d: %s"
 msgstr ""
 
-#: src/ALSA.h:634
-msgid "Error starting ALSA MIDI input thread!"
+#: src/ALSA.h:643
+msgid "Error starting ALSA MIDI input thread."
 msgstr ""
 
-#: src/ALSA.h:903
+#: src/ALSA.h:912
 msgid "ALSA input port has algready been connected."
 msgstr ""
 
-#: src/ALSA.h:910
+#: src/ALSA.h:919
 msgid "ALSA output port has algready been connected."
 msgstr ""
 
-#: src/ALSA.h:920
+#: src/ALSA.h:929
 msgid "Tying to initialize null pointer as ALSA MIDI event parser."
 msgstr ""
 

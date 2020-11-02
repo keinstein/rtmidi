@@ -2820,7 +2820,7 @@ inline bool AlsaMidiData :: startQueue( void * userdata ) {
   pthread_attr_destroy( &attr );
   if ( err ) {
     closePort( );
-    api->error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread!" ),
+    api->error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread." ),
                               Error::THREAD_ERROR ) );
     return false;
   }
@@ -3358,7 +3358,7 @@ void MidiInAlsa :: openPort( unsigned int portNumber, const std::string& portNam
       snd_seq_port_subscribe_free( subscription );
       subscription = 0;
       doInput = false;
-      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread!" ),
+      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread." ),
                            Error::THREAD_ERROR ) );
       return;
     }
@@ -3496,7 +3496,7 @@ void MidiInAlsa :: openVirtualPort( const std::string& portName )
         subscription = 0;
       }
       doInput = false;
-      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread!" ),
+      error( RTMIDI_ERROR( gettext_noopt( "Error starting MIDI input thread." ),
                            Error::THREAD_ERROR ) );
       return;
     }
@@ -4691,7 +4691,7 @@ void MidiOutWinMM :: openPort( unsigned int portNumber, const std::string& /*por
 
   unsigned int nDevices = midiOutGetNumDevs( );
   if ( nDevices < 1 ) {
-    error( RTMIDI_ERROR( gettext_noopt( "No MIDI output destinations found!" ),
+    error( RTMIDI_ERROR( gettext_noopt( "No MIDI output destinations found." ),
                          Error::NO_DEVICES_FOUND ) );
     return;
   }
@@ -6022,7 +6022,7 @@ Error::Error( const char * message,
       message_.resize( length );
     } else {
       const char * msg
-        = gettext_noopt( "Error: could not format the error message" );
+        = gettext_noopt( "Error: Could not format the error message." );
 #ifdef RTMIDI_GETTEXT
       msg = rtmidi_gettext( msg );
 #endif
