@@ -4,7 +4,7 @@ branches:
   except:
     - /(?i:appveyor)/
 sudo: true  # docker VM
-matrix:
+jobs:
   include:
   - os: linux
     env: HOST="" API="alsa" COVERAGE="--enable-code-coverage" CONFIGARGS="--enable-external-loopback-tests"
@@ -13,10 +13,10 @@ matrix:
     env: HOST="" API="alsa" COVERAGE="" CONFIGARGS="--enable-external-loopback-tests"
     compiler: clang
   - os: linux
-    env: HOST="" API="jack" COVERAGE="--enable-code-coverage" CONFIGARGS="--enable-external-loopback-tests"
+    env: HOST="" API="jack" COVERAGE="--enable-code-coverage" CONFIGARGS=""
     compiler: gcc
   - os: linux
-    env: HOST="" API="jack" COVERAGE="" CONFIGARGS="--enable-external-loopback-tests"
+    env: HOST="" API="jack" COVERAGE="" CONFIGARGS=""
     compiler: clang
   - os: linux
     env: HOST="" API="jack2" COVERAGE="--enable-code-coverage" CONFIGARGS="--enable-external-loopback-tests"
@@ -61,7 +61,7 @@ matrix:
   - os: osx
     env: HOST="--with-jack" API="coremidi" COVERAGE=""
     compiler: clang
-language: c++
+language: cpp
 group: travis_latest
 env:
   global:
@@ -89,7 +89,9 @@ addons:
 
 before_install:
     - |
+      set -x
       eval "${MATRIX_EVAL}"
+      env
       if test "$TRAVIS_OS_NAME" = osx
       then
         echo "Running on Mac OS X..."
