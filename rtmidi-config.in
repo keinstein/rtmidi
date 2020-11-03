@@ -1,4 +1,5 @@
 #! /bin/sh
+# @configure_input@
 if (test "x$#" != "x1") ; then
   echo "Usage: $0 [--libs | --cxxflags | --cppflags]"
   exit;

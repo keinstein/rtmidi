@@ -1,4 +1,7 @@
 #!/bin/bash
+# @configure_input@
+# @configure_input@
+
 
 # return if we are configured without external loopback devices
 @HAVE_EXTERNAL_LOOPBACK_FALSE@exit 0
