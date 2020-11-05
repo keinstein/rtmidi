@@ -1,31 +1,31 @@
-environment:
-  matrix:
-    ###
-    - TOOLCHAIN: "default"
-      CONFIG: Release
-      _CC: MINGW
-
-    - TOOLCHAIN: "default"
-      CONFIG: Debug
-      _CC: MINGW
-
-# example see: https://github.com/wang-bin/avbuild/blob/master/appveyor.yml
-init:
-  - echo NUMBER_OF_PROCESSORS=%NUMBER_OF_PROCESSORS%
-  - echo PROCESSOR_IDENTIFIER=%PROCESSOR_IDENTIFIER%
-  - set MSYS2_PATH_TYPE=inherit
-  - set MSYS2_DIR=C:\msys64
-
 install:
+  - set PATH=C:\msys64\usr\bin;%PATH%
+  - bash -lc "curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz"
+  - bash -lc "curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig"
+  - bash -lc "pacman-key --init"
+  - bash -lc "pacman-key --populate msys2"
+  - bash -lc "pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig"
+  - bash -lc "pacman --ask 20 -U msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz"
+  - ps: Get-Process | Where-Object {$_.path -like 'C:\msys64*'} | Stop-Process
+  - C:\msys64\usr\bin\pacman -Rc --noconfirm mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-objc mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-objc
+  - bash -lc "pacman --needed --ask 20 -Syu"
+  - bash -lc "pacman --needed --ask 20 -Sy"
+  - bash -lc "pacman --noconfirm -S base-devel"
+  - bash -lc "pacman --noconfirm -S msys2-devel"
+  - bash -lc "pacman --noconfirm -S mingw-w64-x86_64-toolchain"
+  - bash -lc "pacman --noconfirm -S mingw-w64-x86_64-pcre"
+  - bash -lc "pacman --noconfirm -S msys2-runtime"
+  - bash -lc "pacman --noconfirm -S isl"
 # can not starts with %
 #  - git submodule update --init
-  - if /i %_CC%==MinGW (
-      C:\msys64\usr\bin\pacman -Rc --noconfirm mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-objc mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-objc &&  
-      C:\msys64\usr\bin\pacman -Syyuu --noconfirm &&
-      C:\msys64\usr\bin\pacman -Suu --noconfirm   &&
-      C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-gcc mingw-w64-x86_64-gcc &&
-      C:\msys64\usr\bin\pacman -Sc --noconfirm
-    )
+  - curl -L -o setup-sbvmidi.exe https://bitbucket.org/springbeats/sbvmidi/downloads/sbvmidi-setup-1.0.2.exe
+  - dir
+  - setup-sbvmidi.exe /SILENT
+#  - C:\msys64\usr\bin\pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig
+  - C:\msys64\usr\bin\pacman -Syyuu --noconfirm
+  - C:\msys64\usr\bin\pacman -Suu --noconfirm
+  - C:\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-gcc mingw-w64-x86_64-gcc
+  - C:\msys64\usr\bin\pacman -Sc --noconfirm
   - C:\msys64\usr\bin\pacman -Ss --noconfirm boost
   - C:\msys64\usr\bin\pacman -Ss --noconfirm autoconf
   - C:\msys64\usr\bin\pacman -Ss --noconfirm automake
